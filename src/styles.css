@@ -3,17 +3,29 @@ header {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.nav-button {
+a {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     background-color: lightgray;
-    border: none;
+    font-size: 25px;
+    text-align: center;
     width: 155px;
     height: 45px;
-    font-size: 25px;
+    border: none;
     border-radius: 10px;
+    text-decoration: none;
 }
 
-.nav-button:hover {
+a:hover {
     background-color: rgb(180, 180, 180);
+}
+
+a:visited {
+    color: black;
+    text-decoration: none;
+}
+
+#calendar-button {
+    float: left;
 }
 
 #practice-button {
