@@ -120,6 +120,27 @@ button {
     border: none;
 }
 
+/*Styling for quiz*/
+.quiz-position {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.quiz {
+    display: grid;
+    grid-template-columns: repeat(2, 510px);
+    grid-template-rows: repeat(5, auto);
+    gap: 30px;
+    
+}
+
+.quiz-question {
+    background-color: lightgray;
+    width: 500px;
+    height: 250px;
+    border-radius: 25px;
+}
 
 
 
