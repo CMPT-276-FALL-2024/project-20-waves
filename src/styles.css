@@ -37,6 +37,42 @@ a:visited {
     float: right;
 }
 
+
+
+.options {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 50px;
+    margin-bottom: 25px;
+}
+
+.flashcards-option {
+    background-color: lightgray;
+    font-size: 25px;
+    width: 175px;
+    height: 40px;
+    text-align: center;
+    border-radius: 10px;
+    margin-right: 150px;
+}
+
+#quiz-topic-textbox {
+    width: 400px;
+    height: 40px;
+    border-radius: 20px;
+    border-width: 1px;
+}
+
+::placeholder {
+    text-align: center;
+}
+
+
+
+
+
+
 .flashcard {
     background-color: lightgray;
     height: 350px;
