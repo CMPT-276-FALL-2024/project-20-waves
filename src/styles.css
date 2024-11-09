@@ -129,9 +129,10 @@ button {
 
 .quiz {
     display: grid;
-    grid-template-columns: repeat(2, 510px);
+    grid-template-columns: repeat(2, 600px);
     grid-template-rows: repeat(5, auto);
-    gap: 30px;
+    gap: 50px;
+    display: none;
     
 }
 

@@ -18,7 +18,8 @@ let flashCardNumber = 1;
 //For options on practice page
 const flashcardsButton = document.querySelector(".flashcards-option");
 const generateQuizButton = document.querySelector(".generate-quiz-button");
-const flashCards = document.querySelector(".flashcard")
+const flashCards = document.querySelector(".flashcard");
+const quiz = document.querySelector(".quiz");
 
 flashcardsButton.addEventListener("mouseover", () => {
    flashcardsButton.style.backgroundColor = 'darkgray';
@@ -39,11 +40,14 @@ flashcardsButton.addEventListener("mouseout", () => {
 
  flashcardsButton.addEventListener("click", () => {
     flashCards.style.display = 'inline';
+    quiz.style.display = 'none';
  });
 
  generateQuizButton.addEventListener("click", () => {
     flashCards.style.display = 'none';
+    quiz.style.display = 'grid';
  });
+
 
 
 
