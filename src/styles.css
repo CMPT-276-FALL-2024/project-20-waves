@@ -42,15 +42,45 @@ a:visited {
     height: 350px;
     width: 650px;
     border-radius: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 15px;
     font-size: 35px;
+}
+
+#flashcard-front-text {
+    text-align: center;
+}
+
+#flashcard-number {
+    text-align: center;
+    font-size: 25px;
 }
 
 .flash-card-position {
     display: flex;
     justify-content: center;
 }
+
+#left-flashcard-button {
+    background-color: darkgray;
+    border-radius: 50px;
+    width: 50px;
+    text-align: center;
+}
+
+#right-flashcard-button {
+    background-color: darkgray;
+    border-radius: 50px;
+    width: 50px;
+    text-align: center;
+}
+
+#flashcard-middle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 100px;
+}
+
+
 
 
