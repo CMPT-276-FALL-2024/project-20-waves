@@ -47,3 +47,10 @@ a:visited {
     align-items: center;
     font-size: 35px;
 }
+
+.flash-card-position {
+    display: flex;
+    justify-content: center;
+}
+
+
