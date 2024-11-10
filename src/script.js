@@ -50,7 +50,7 @@ const flashcardsButton = document.querySelector(".flashcards-option");
 const generateQuizButton = document.querySelector(".generate-quiz-button");
 
 //For flashcards
-const flashCards = document.querySelector(".flashcard-section");
+const flashCards = document.querySelector(".flash-card-section");
 const cardNumber = document.querySelector("#flashcard-number");
 const flashCardClick = document.querySelector(".flashcard-flip-clickbox");
 const leftFlashCardButton = document.querySelector("#left-flashcard-button");
