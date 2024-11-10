@@ -151,7 +151,7 @@ button {
 .edit-flashcards-menu {
     background-color: lightgray;
     width: 800px;
-    height: 1000px;
+    height: 1050px;
     border-radius: 15px;
     display: flex;
     justify-content: space-evenly;
@@ -172,6 +172,18 @@ button {
     width: 300px;
     height: 35px;
     border-radius: 5px;
+}
+
+#done-edit-button {
+    background-color: lightgreen;
+    font-size: 25px;
+    width: 100px;
+    height: 35px;
+    border-radius: 10px;
+    position: absolute;
+    left: 900px;
+    top: 1700px;
+    display: none;
 }
 
 /*Styling for quiz*/

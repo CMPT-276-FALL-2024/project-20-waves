@@ -1,16 +1,16 @@
 //For Flashcards
 
 let flashcardInfo = [
-    { front : 'front text1', back : 'backtext' },
-    { front : 'front text2', back : 'backtext' },
-    { front : 'front text3', back : 'backtext' },
-    { front : 'front text4', back : 'backtext' },
-    { front : 'front text5', back : 'backtext' },
-    { front : 'front text6', back : 'backtext' },
-    { front : 'front text7', back : 'backtext' },
-    { front : 'front text8', back : 'backtext' },
-    { front : 'front text9', back : 'backtext' },
-    { front : 'front text10', back : 'backtext' }
+    { front : 'front text1', back : 'back text1' },
+    { front : 'front text2', back : 'back text2' },
+    { front : 'front text3', back : 'back text3' },
+    { front : 'front text4', back : 'back text4' },
+    { front : 'front text5', back : 'back text5' },
+    { front : 'front text6', back : 'back text6' },
+    { front : 'front text7', back : 'back text7' },
+    { front : 'front text8', back : 'back text8' },
+    { front : 'front text9', back : 'back text9' },
+    { front : 'front text10', back : 'backt text10' }
 ];
 
 let flashCardNumber = -1;
@@ -31,7 +31,7 @@ const flashcard = document.querySelector(".flashcard-flip-clickbox");
 flashcard.addEventListener("click", updateFlashCard);
 
 
-
+const doneEditButton = document.querySelector("#done-edit-button");
 
 //For flashcard left and right buttons
 const leftFlashCardButton = document.querySelector("#left-flashcard-button");
@@ -132,9 +132,11 @@ let menuToggled = false;
 function toggleMenu() {
    if (!menuToggled) {
       editFlashCardsMenu.style.display = 'flex';
+      doneEditButton.style.display = 'inline';
       menuToggled = true;
    } else {
       editFlashCardsMenu.style.display = 'none';
+      doneEditButton.style.display = 'none';
       menuToggled = false;
    }
 }
