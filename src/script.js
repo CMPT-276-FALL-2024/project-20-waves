@@ -26,6 +26,10 @@ const quiz = document.querySelector(".quiz");
 //Number that appears out of 10 at the top of the flash card
 const cardNumber = document.querySelector("#flashcard-number");
 
+const flashcard = document.querySelector(".flashcard-flip-clickbox");
+
+flashcard.addEventListener("click", updateFlashCard);
+
 
 
 
@@ -41,7 +45,7 @@ rightFlashCardButton.addEventListener("click", () => {
    } else {
       flashCardNumber++;
    }
-   updateFlashCard();
+   updateFlashCardFront();
 });
 
 leftFlashCardButton.addEventListener("click", () => {
@@ -50,13 +54,32 @@ leftFlashCardButton.addEventListener("click", () => {
    } else {
       flashCardNumber--;
    }
-   updateFlashCard();
+   updateFlashCardFront();
 });
 
+let flashCardCurrentSide = "front";
 function updateFlashCard() {
+   if (flashCardCurrentSide == "front") {
+      flashCardText.innerHTML = flashcardInfo[flashCardNumber].back;
+      flashCardCurrentSide = "back";
+   } else {
+      flashCardText.innerHTML = flashcardInfo[flashCardNumber].front;
+      flashCardCurrentSide = "front";
+   }
+}
+
+function updateFlashCardFront() {
    flashCardText.innerHTML = flashcardInfo[flashCardNumber].front;
    cardNumber.innerHTML = (flashCardNumber + 1) + '/10';
 }
+
+function updateFlashCardBack() {
+   flashCardText.innerHTML = flashcardInfo[flashCardNumber].back;
+}
+
+
+
+
 
 
 
