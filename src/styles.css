@@ -71,12 +71,11 @@ a:visited {
 }
 
 /*Styling for flashcards*/
-
-.flash-card-section {
+.flashcard-section {
     display: none;
 }
 
-.flash-card-position {
+.flashcard-position {
     display: flex;
     justify-content: center;
 }
