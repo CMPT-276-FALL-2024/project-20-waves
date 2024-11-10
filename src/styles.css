@@ -100,25 +100,19 @@ a:visited {
     justify-content: center;
 }
 
-#left-flashcard-button {
-    background-color: darkgray;
-    border-radius: 50px;
-    width: 50px;
-    text-align: center;
-}
-
-#right-flashcard-button {
-    background-color: darkgray;
-    border-radius: 50px;
-    width: 50px;
-    text-align: center;
-}
-
 #flashcard-middle {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 100px;
+}
+
+#flashcard-middle > button {
+    height: 50px;
+    width: 50px;
+    border-radius: 50px;
+    font-size: 40px;
+    background-color: darkgray;
 }
 
 button {
