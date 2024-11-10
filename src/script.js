@@ -36,8 +36,8 @@ const back9 = document.querySelector("#back9");
 const back10 = document.querySelector("#back10");
 
 //Putting the flashcard data objects into arrays
-let frontValues = [front1, front2, front3, front4, front5, front6, front7, front8, front9, front10];
-let backValues = [back1, back2, back3, back4, back5, back6, back7, back8, back9, back10];
+let frontFlashCardValues = [front1, front2, front3, front4, front5, front6, front7, front8, front9, front10];
+let backFrontFlashValues = [back1, back2, back3, back4, back5, back6, back7, back8, back9, back10];
 
 //Variables
 let flashCardNumber = 0;
@@ -135,8 +135,8 @@ flashCardClick.addEventListener("click", updateFlashCard);
 //Done editting flash cards button
 doneEditButton.addEventListener("click", () => {
    for (let i = 0; i < 10; i++) {
-      flashcardInfo[i].front = frontValues[i].value;
-      flashcardInfo[i].back = backValues[i].value;
+      flashcardInfo[i].front = frontFlashCardValues[i].value;
+      flashcardInfo[i].back = backFlashCardValues[i].value;
    }
    updateFlashCardFront();
 });
