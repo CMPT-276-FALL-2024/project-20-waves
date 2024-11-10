@@ -20,6 +20,7 @@ const flashcardsButton = document.querySelector(".flashcards-option");
 const generateQuizButton = document.querySelector(".generate-quiz-button");
 const flashCards = document.querySelector(".flashcard-section");
 const flashCardsEditButton = document.querySelector("#edit-flashcards-button");
+const editFlashCardsMenu = document.querySelector(".edit-flashcards-menu");
 const quiz = document.querySelector(".quiz");
 
 //Button change colours
@@ -59,7 +60,23 @@ flashCardsEditButton.addEventListener("mouseout", () => {
  generateQuizButton.addEventListener("click", () => {
     flashCards.style.display = 'none';
     quiz.style.display = 'grid';
+    editFlashCardsMenu.style.display = 'none';
  });
+
+
+let menuToggled = false;
+
+function toggleMenu() {
+   if (!menuToggled) {
+      editFlashCardsMenu.style.display = 'flex';
+      menuToggled = true;
+   } else {
+      editFlashCardsMenu.style.display = 'none';
+      menuToggled = false;
+   }
+}
+
+ flashCardsEditButton.addEventListener("click", toggleMenu);
 
 
 

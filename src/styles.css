@@ -141,6 +141,37 @@ button {
 
 
 
+.edit-flashcards-menu-position {
+    display: flex;
+    justify-content: center;
+}
+
+.edit-flashcards-menu {
+    background-color: lightgray;
+    width: 800px;
+    height: 1000px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-evenly;
+    font-size: 30px;
+    margin-top: 50px;
+    display: none;
+}
+
+.edit-front, .edit-back {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-front > input, .edit-back > input {
+    border: none;
+    margin-top: 55px;
+    width: 300px;
+    height: 35px;
+    border-radius: 5px;
+}
+
 /*Styling for quiz*/
 .quiz-position {
     display: flex;
