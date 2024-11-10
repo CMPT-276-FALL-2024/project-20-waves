@@ -1,19 +1,19 @@
 //For Flashcards
 
 let flashcardInfo = [
-    { front : 'front text1', back : 'back text1' },
-    { front : 'front text2', back : 'back text2' },
-    { front : 'front text3', back : 'back text3' },
-    { front : 'front text4', back : 'back text4' },
-    { front : 'front text5', back : 'back text5' },
-    { front : 'front text6', back : 'back text6' },
-    { front : 'front text7', back : 'back text7' },
-    { front : 'front text8', back : 'back text8' },
-    { front : 'front text9', back : 'back text9' },
-    { front : 'front text10', back : 'backt text10' }
+    { front : '1', back : '' },
+    { front : '1', back : '' },
+    { front : '1', back : '' },
+    { front : '1', back : '' },
+    { front : '1', back : '' },
+    { front : '1', back : '' },
+    { front : '1', back : '' },
+    { front : '1', back : '' },
+    { front : '1', back : '' },
+    { front : '2', back : '' }
 ];
 
-let flashCardNumber = -1;
+let flashCardNumber = 0;
 
 //For options on practice page
 const flashcardsButton = document.querySelector(".flashcards-option");
@@ -45,6 +45,7 @@ rightFlashCardButton.addEventListener("click", () => {
    } else {
       flashCardNumber++;
    }
+   updateFlashCardInfo();
    updateFlashCardFront();
 });
 
@@ -54,6 +55,7 @@ leftFlashCardButton.addEventListener("click", () => {
    } else {
       flashCardNumber--;
    }
+   updateFlashCardInfo();
    updateFlashCardFront();
 });
 
@@ -111,9 +113,6 @@ flashCardsEditButton.addEventListener("mouseout", () => {
    flashCardsEditButton.style.backgroundColor = 'lightgray';
 });
 
-
- 
-
  flashcardsButton.addEventListener("click", () => {
     flashCards.style.display = 'inline';
     quiz.style.display = 'none';
@@ -132,17 +131,47 @@ let menuToggled = false;
 function toggleMenu() {
    if (!menuToggled) {
       editFlashCardsMenu.style.display = 'flex';
-      doneEditButton.style.display = 'inline';
       menuToggled = true;
    } else {
       editFlashCardsMenu.style.display = 'none';
-      doneEditButton.style.display = 'none';
       menuToggled = false;
    }
 }
 
- flashCardsEditButton.addEventListener("click", toggleMenu);
+flashCardsEditButton.addEventListener("click", toggleMenu);
 
 
+//For getting the values of the flash card front and back text
+
+const front1 = document.querySelector("#front1");
+const front2 = document.querySelector("#front2");
+const front3 = document.querySelector("#front3");
+const front4 = document.querySelector("#front4");
+const front5 = document.querySelector("#front5");
+const front6 = document.querySelector("#front6");
+const front7 = document.querySelector("#front7");
+const front8 = document.querySelector("#front8");
+const front9 = document.querySelector("#front9");
+const front10 = document.querySelector("#front10");
+
+const back1 = document.querySelector("#back1");
+const back2 = document.querySelector("#back2");
+const back3 = document.querySelector("#back3");
+const back4 = document.querySelector("#back4");
+const back5 = document.querySelector("#back5");
+const back6 = document.querySelector("#back6");
+const back7 = document.querySelector("#back7");
+const back8 = document.querySelector("#back8");
+const back9 = document.querySelector("#back9");
+const back10 = document.querySelector("#back10");
+
+let frontValues = [front1, front2, front3, front4, front5, front6, front7, front8, front9, front10];
+let backValues = [back1, back2, back3, back4, back5, back6, back7, back8, back9, back10];
 
 
+function updateFlashCardInfo() {
+   for (let i = 0; i < 10; i++) {
+      flashcardInfo[i].front = frontValues[i].value;
+      flashcardInfo[i].back = backValues[i].value;
+   }
+}
