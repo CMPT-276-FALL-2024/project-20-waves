@@ -23,6 +23,11 @@ const flashCardsEditButton = document.querySelector("#edit-flashcards-button");
 const editFlashCardsMenu = document.querySelector(".edit-flashcards-menu");
 const quiz = document.querySelector(".quiz");
 
+//Number that appears out of 10 at the top of the flash card
+const cardNumber = document.querySelector("#flashcard-number");
+
+
+
 
 //For flashcard left and right buttons
 const leftFlashCardButton = document.querySelector("#left-flashcard-button");
@@ -50,6 +55,7 @@ leftFlashCardButton.addEventListener("click", () => {
 
 function updateFlashCard() {
    flashCardText.innerHTML = flashcardInfo[flashCardNumber].front;
+   cardNumber.innerHTML = (flashCardNumber + 1) + '/10';
 }
 
 
