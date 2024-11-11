@@ -1,0 +1,18 @@
+{
+  "name": "project-20-waves",
+  "version": "1.0.0",
+  "description": "Milestone 1 Presentation Video Link: https://youtu.be/1liXEcpK08s",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
