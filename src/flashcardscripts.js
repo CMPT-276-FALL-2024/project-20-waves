@@ -53,8 +53,8 @@ const generateQuizButton = document.querySelector(".generate-quiz-button");
 const flashCards = document.querySelector(".flashcard-section");
 const cardNumber = document.querySelector("#flashcard-number");
 const flashCardClick = document.querySelector(".flashcard-flip-clickbox");
-const leftFlashCardButton = document.querySelector("#left-flashcard-button");
-const rightFlashCardButton = document.querySelector("#right-flashcard-button");
+const leftFlashCardButton = document.querySelector(".left-flashcard-button");
+const rightFlashCardButton = document.querySelector(".right-flashcard-button");
 const flashCardText = document.querySelector("#flashcard-front-text");
 const shuffleFlashCardsButton = document.querySelector(".shuffle-flashcards-button");
 

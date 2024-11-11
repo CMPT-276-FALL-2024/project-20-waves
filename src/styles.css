@@ -132,6 +132,10 @@ button {
     background-color: darkgray;
 }
 
+#flashcard-middle > button:hover {
+    background-color: gray;
+}
+
 .shuffle-flashcards-button-position {
     display: flex;
     justify-content: center;
