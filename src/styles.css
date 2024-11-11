@@ -276,7 +276,12 @@ button {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
     padding: 20px; /* Padding for spacing */
 }
-
+#reminder-frequency {
+    margin: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 1em;
+}
 /* FullCalendar Toolbar (prev, next, today buttons) */
 .fc .fc-button {
     background-color: #4CAF50; /* Green for Study Buddy theme */
