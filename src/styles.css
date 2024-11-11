@@ -64,6 +64,10 @@ a:visited {
     border-radius: 10px;
 }
 
+.generate-quiz-button {
+    width: 200px;
+}
+
 #quiz-topic-textbox {
     width: 400px;
     height: 40px;
