@@ -56,9 +56,10 @@ const flashCardClick = document.querySelector(".flashcard-flip-clickbox");
 const leftFlashCardButton = document.querySelector("#left-flashcard-button");
 const rightFlashCardButton = document.querySelector("#right-flashcard-button");
 const flashCardText = document.querySelector("#flashcard-front-text");
+const shuffleFlashCardsButton = document.querySelector(".shuffle-flashcards-button");
 
 //For editting the flash cards
-const flashCardsEditButton = document.querySelector("#edit-flashcards-button");
+const flashCardsEditButton = document.querySelector(".edit-flashcards-button");
 const editFlashCardsMenu = document.querySelector(".edit-flashcards-menu");
 const doneEditButton = document.querySelector("#done-edit-button");
 
@@ -129,6 +130,9 @@ flashCardsEditButton.addEventListener("click", () => {
    }
 });
 
+//For shuffling the flashcard array when the shuffle button is clicked
+shuffleFlashCardsButton.addEventListener("click", shuffleFlashCards);
+
 //For when the flash card is clicked to turn it around
 flashCardClick.addEventListener("click", updateFlashCard);
 
@@ -156,29 +160,3 @@ function shuffleFlashCards() {
       flashcardInfo[randomNumber].back = tempback;
    }
 }
-
-
-//Button change colours
-flashcardsButton.addEventListener("mouseover", () => {
-   flashcardsButton.style.backgroundColor = 'darkgray';
-});
-
-flashcardsButton.addEventListener("mouseout", () => {
-    flashcardsButton.style.backgroundColor = 'lightgray';
- });
-
- generateQuizButton.addEventListener("mouseover", () => {
-    generateQuizButton.style.backgroundColor = 'darkgray';
- });
- 
- generateQuizButton.addEventListener("mouseout", () => {
-    generateQuizButton.style.backgroundColor = 'lightgray';
-  });
-
-flashCardsEditButton.addEventListener("mouseover", () => {
-   flashCardsEditButton.style.backgroundColor = 'darkgray';
-});
-
-flashCardsEditButton.addEventListener("mouseout", () => {
-   flashCardsEditButton.style.backgroundColor = 'lightgray';
-});
