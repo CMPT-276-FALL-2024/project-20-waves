@@ -141,6 +141,22 @@ doneEditButton.addEventListener("click", () => {
    updateFlashCardFront();
 });
 
+//For shuffling the flash cards
+function shuffleFlashCards() {
+   for (let i = 0; i < 10; i++) {
+      let randomNumber = Math.floor(Math.random() * 10);
+
+      let tempfront = flashcardInfo[i].front;
+      let tempback = flashcardInfo[i].back;
+
+      flashcardInfo[i].front = flashcardInfo[randomNumber].front;
+      flashcardInfo[i].back = flashcardInfo[randomNumber].back;
+
+      flashcardInfo[randomNumber].front = tempfront;
+      flashcardInfo[randomNumber].back = tempback;
+   }
+}
+
 
 //Button change colours
 flashcardsButton.addEventListener("mouseover", () => {
