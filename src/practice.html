@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js"></script>
-    <title>Document</title>
+    <title>Practice</title>
 </head>
 <body>
 
@@ -16,6 +15,84 @@
             </h1>
         </a>
     </header>
-    
+
+    <div class="options">
+        <button class="flashcards-option">Flash Cards</button>
+        <div class="quiz-option">
+            <input id="quiz-topic-textbox" type="text" placeholder="Type topic to create quiz about here">
+        </div>
+        <button class="generate-quiz-button">Generate Quiz</button>
+    </div>
+
+    <section class="flashcard-section">
+        <div class="flashcard-position">
+            <div class="flashcard">
+                <div id="flashcard-number">1/10</div>
+
+                <div id="flashcard-middle">
+                    <button class="left-flashcard-button">&lt</button>
+                    <div id="flashcard-front-text"></div>
+                    <button class="right-flashcard-button">&gt</button>
+                </div>
+
+                <div class="flashcard-flip-clickbox"></div>
+
+            </div>
+        </div>
+        
+        <div class="shuffle-flashcards-button-position">
+            <button class="shuffle-flashcards-button">Shuffle</button>
+        </div>
+
+        <div class="edit-button-position">
+            <button class="edit-flashcards-button">Edit</button>
+        </div>
+    </section>
+
+    <div class="edit-flashcards-menu-position">
+        <div class="edit-flashcards-menu">
+            <div class="edit-front">
+                <div>Front</div>
+                <input type="text" id="front1" placeholder="Front of flash card 1">
+                <input type="text" id="front2" placeholder="Front of flash card 2">
+                <input type="text" id="front3" placeholder="Front of flash card 3">
+                <input type="text" id="front4" placeholder="Front of flash card 4">
+                <input type="text" id="front5" placeholder="Front of flash card 5">
+                <input type="text" id="front6" placeholder="Front of flash card 6">
+                <input type="text" id="front7" placeholder="Front of flash card 7">
+                <input type="text" id="front8" placeholder="Front of flash card 8">
+                <input type="text" id="front9" placeholder="Front of flash card 9">
+                <input type="text" id="front10" placeholder="Front of flash card 10">
+            </div>
+            <div class="edit-back">
+                <div>Back</div>
+                <input type="text" id="back1" placeholder="Back of flash card 1">
+                <input type="text" id="back2" placeholder="Back of flash card 2">
+                <input type="text" id="back3" placeholder="Back of flash card 3">
+                <input type="text" id="back4" placeholder="Back of flash card 4">
+                <input type="text" id="back5" placeholder="Back of flash card 5">
+                <input type="text" id="back6" placeholder="Back of flash card 6">
+                <input type="text" id="back7" placeholder="Back of flash card 7">
+                <input type="text" id="back8" placeholder="Back of flash card 8">
+                <input type="text" id="back9" placeholder="Back of flash card 9">
+                <input type="text" id="back10" placeholder="Back of flash card 10">
+            </div>
+        </div>
+    </div>
+
+    <button id="done-edit-button">Done</button>
+
+    <section class="quiz-section">
+        <div class="quiz-position">
+            <div class="quiz">
+                <div class="quiz-question">
+                    Question
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="flashcardscripts.js"></script>
 </body>
+
 </html>
