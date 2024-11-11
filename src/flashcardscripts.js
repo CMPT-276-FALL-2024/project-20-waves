@@ -89,10 +89,31 @@ function updateFlashCardFront() {
 //Update the text on the flash card
 function updateFlashCard() {
    if (flashCardCurrentSide == "front") {
-      flashCardText.innerHTML = flashcardInfo[flashCardNumber].back;
+
+      
+      flashCardText.style.animation = 'fadeOut 0.3s';
+      flashCardText.style.opacity = '0';
+
+      setTimeout(() => {
+         flashCardText.innerHTML = flashcardInfo[flashCardNumber].back;
+
+         flashCardText.style.animation = 'fadeIn 0.3s';
+         flashCardText.style.opacity = '1';
+      }, 300);
+
       flashCardCurrentSide = "back";
+
    } else {
-      flashCardText.innerHTML = flashcardInfo[flashCardNumber].front;
+      flashCardText.style.animation = 'fadeOut 0.3s';
+      flashCardText.style.opacity = '0';
+
+      setTimeout(() => {
+         flashCardText.innerHTML = flashcardInfo[flashCardNumber].front;
+
+         flashCardText.style.animation = 'fadeIn 0.3s';
+         flashCardText.style.opacity = '1';
+      }, 300);
+
       flashCardCurrentSide = "front";
    }
 }
@@ -120,11 +141,17 @@ leftFlashCardButton.addEventListener("click", () => {
 //Flash card edit menu button
 flashCardsEditButton.addEventListener("click", () => {
    if (!editMenuToggled) {
+      editFlashCardsMenu.style.animation = 'fadeIn 0.3s';
       editFlashCardsMenu.style.display = 'flex';
       doneEditButton.style.display = 'inline';
       editMenuToggled = true;
    } else {
-      editFlashCardsMenu.style.display = 'none';
+      editFlashCardsMenu.style.animation = 'fadeOut 0.3s';
+
+      setTimeout(() => {
+         editFlashCardsMenu.style.display = 'none';
+      }, 300);
+
       doneEditButton.style.display = 'none';
       editMenuToggled = false;
    }

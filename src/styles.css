@@ -80,6 +80,7 @@ a:visited {
 /*Styling for flashcards*/
 .flashcard-section {
     display: none;
+    animation: fadeIn 0.3s;
 }
 
 .flashcard-position {
@@ -188,6 +189,7 @@ button {
     font-size: 30px;
     margin-top: 50px;
     display: none;
+    
 }
 
 .edit-front, .edit-back {
@@ -233,6 +235,7 @@ button {
     grid-template-rows: repeat(5, auto);
     gap: 50px;
     display: none;
+    animation: fadeIn 0.3s;
 }
 
 .quiz-question {
@@ -240,4 +243,24 @@ button {
     width: 500px;
     height: 250px;
     border-radius: 25px;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from { 
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
 }
