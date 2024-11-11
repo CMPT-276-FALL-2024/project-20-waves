@@ -189,7 +189,7 @@ button {
     font-size: 30px;
     margin-top: 50px;
     display: none;
-    
+
 }
 
 .edit-front, .edit-back {
@@ -246,7 +246,7 @@ button {
 }
 
 @keyframes fadeIn {
-    from { 
+    from {
         opacity: 0;
     }
 
@@ -256,11 +256,97 @@ button {
 }
 
 @keyframes fadeOut {
-    from { 
+    from {
         opacity: 1;
     }
 
     to {
         opacity: 0;
+    }
+}
+
+
+/* Styling for FullCalendar Container */
+#calendar {
+    width: 90%; /* Makes the calendar responsive */
+    max-width: 1000px; /* Optional max width */
+    margin: 20px auto; /* Center calendar */
+    background-color: #ffffff; /* White background for calendar */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    padding: 20px; /* Padding for spacing */
+}
+
+/* FullCalendar Toolbar (prev, next, today buttons) */
+.fc .fc-button {
+    background-color: #4CAF50; /* Green for Study Buddy theme */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.fc .fc-button:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+/* FullCalendar Title Styling */
+.fc-toolbar-title {
+    font-size: 1.5em;
+    color: #333333;
+    font-weight: bold;
+}
+
+/* Event Styling */
+.fc-event {
+    background-color: #2196F3; /* Blue background for events */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 3px 5px;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+/* Adjustments for Event Hover */
+.fc-event:hover {
+    background-color: #1976D2; /* Slightly darker blue */
+}
+
+/* Calendar Views Styling (days, weeks, months) */
+.fc-view {
+    font-size: 1em; /* Set a base font size */
+}
+
+/* Sorting and Filtering Controls */
+button, input[type="text"] {
+    margin: 10px 5px;
+    padding: 8px 12px;
+    font-size: 1em;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    background-color: #e7e7e7;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #ddd;
+}
+
+input[type="text"] {
+    width: 200px; /* Width for filter input */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    #calendar {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1.2em;
     }
 }
