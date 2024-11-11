@@ -4,18 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js"></script>
-    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+    <title>Study Buddy Calendar</title>
 </head>
 <body>
-
     <header>
         <a href="./index.html">
-            <h1>
-                Study Buddy
-            </h1>
+            <h1>Study Buddy</h1>
         </a>
     </header>
-    
+
+    <div id="calendar"></div>
+
+    <button id="sortByDate">Sort by Date</button>
+    <button id="sortByTitle">Sort by Title</button>
+    <input type="text" id="filterKeyword" placeholder="Filter by keyword">
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script src="calendarscripts.js"></script>
 </body>
 </html>
