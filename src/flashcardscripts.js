@@ -37,7 +37,7 @@ const back10 = document.querySelector("#back10");
 
 //Putting the flashcard data objects into arrays
 let frontFlashCardValues = [front1, front2, front3, front4, front5, front6, front7, front8, front9, front10];
-let backFrontFlashValues = [back1, back2, back3, back4, back5, back6, back7, back8, back9, back10];
+let backFlashCardValues = [back1, back2, back3, back4, back5, back6, back7, back8, back9, back10];
 
 //Variables
 let flashCardNumber = 0;
@@ -95,7 +95,7 @@ function updateFlashCard() {
       flashCardCurrentSide = "front";
    }
 }
-
+ 
 //Flash card left button
 rightFlashCardButton.addEventListener("click", () => {
    if (flashCardNumber == 9) {
