@@ -17,11 +17,11 @@ function checkReminders() {
         if (reminder.time <= now) {
             console.log(`Reminder: ${reminder.title}`); // Log reminder to console
 
-            // Display the reminder in the UI list
-            const listItem = document.createElement('li');
-            listItem.textContent = `Reminder: ${reminder.title}`;
-            reminderList.appendChild(listItem);
-
+            if (reminderList) {
+                const listItem = document.createElement('li');
+                listItem.textContent = `Reminder: ${reminder.title}`;
+                reminderList.appendChild(listItem);
+            }
             // Update the reminder time based on its frequency
             updateReminderTime(reminder);
         }
