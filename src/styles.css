@@ -428,3 +428,76 @@ input[type="text"] {
 .notification-container.active .notification-dropdown {
     display: block;
 }
+
+/* Sidebar Styling */
+.event-sidebar {
+    position: fixed;
+    right: -400px;
+    top: 0;
+    width: 300px;
+    height: 100%;
+    background-color: #e8e7e7;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+/* Open sidebar */
+.event-sidebar.open {
+    left: 0;
+}
+/* Styling for Sidebar Inputs */
+.event-sidebar label {
+    display: block;
+    margin-top: 10px;
+    color: #333;
+}
+
+.event-sidebar input[type="text"] {
+    width: 90%;
+    padding: 8px;
+    margin-top: 5px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Styling for Sidebar Date Input */
+.event-sidebar input[type="date"] {
+    width: 40%;
+    padding: 8px;
+    margin-top: 5px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Styling for Time Inputs Container */
+.time-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* Styling for Each Time Input Container */
+.time-input {
+    width: 40%; /* Each input container takes 40% of the width */
+}
+
+/* Label and Input Styling */
+.time-input label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.time-input input[type="time"] {
+    width: 90%;
+    padding: 8px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
