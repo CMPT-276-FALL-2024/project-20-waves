@@ -1,4 +1,5 @@
-// Import functions to test from calendarscripts.js
+// calendarscripts.test.js
+
 const { fetchEvents, sortEvents, filterEvents, checkReminders, updateReminderTime } = require('./calendarscripts');
 
 // Mock data for events testing
@@ -14,7 +15,26 @@ const mockReminders = [
     { id: '2', title: 'History Review Session Reminder', time: '2024-11-13T14:00:00', frequency: 'weekly' }
 ];
 
-// Tests for fetchEvents, sortEvents, and filterEvents
+// Mock the DOM structure
+beforeEach(() => {
+    document.body.innerHTML = `
+        <div id="notification-container" class="notification-container">
+            <span id="notification-bell" class="notification-bell">!</span>
+            <span id="notification-count" class="notification-count">0</span>
+            <div id="notification-dropdown" class="notification-dropdown">
+                <ul id="notification-list"></ul>
+            </div>
+        </div>
+        <input type="number" id="remind-before-number" value="10">
+        <select id="remind-before-type">
+            <option value="minutes">minutes</option>
+            <option value="hours">hours</option>
+            <option value="days" selected>days</option>
+            <option value="weeks">weeks</option>
+        </select>
+    `;
+});
+
 describe('Event management functions', () => {
     test('fetchEvents should return mock events if API is not connected', () => {
         const events = fetchEvents();
@@ -47,37 +67,25 @@ describe('Event management functions', () => {
     });
 });
 
-// Tests for reminder functionality
 describe('Reminder functionality', () => {
     test('checkReminders should trigger reminders at the correct time', () => {
-        // Mock current time to match one reminder time for testing
         jest.useFakeTimers().setSystemTime(new Date('2024-11-13T10:00:00').getTime());
-
-        console.log = jest.fn(); // Mock console.log to capture outputs
+        console.log = jest.fn();
         checkReminders(mockReminders);
-
-        // Verify that the correct reminder message is logged
         expect(console.log).toHaveBeenCalledWith('Reminder: Math Study Group Reminder');
-
-        jest.useRealTimers(); // Restore real timers after the test
+        jest.useRealTimers();
     });
 
     test('updateReminderTime should correctly adjust reminder time based on daily frequency', () => {
-        const dailyReminder = { ...mockReminders[0] }; // Clone daily reminder
-
+        const dailyReminder = { ...mockReminders[0] };
         updateReminderTime(dailyReminder);
-
-        // Check that the new date is one day after the original
         const updatedDate = new Date(dailyReminder.time).getDate();
         expect(updatedDate).toBe(14); // Expected next day
     });
 
     test('updateReminderTime should correctly adjust reminder time based on weekly frequency', () => {
-        const weeklyReminder = { ...mockReminders[1] }; // Clone weekly reminder
-
+        const weeklyReminder = { ...mockReminders[1] };
         updateReminderTime(weeklyReminder);
-
-        // Check that the new date is one week after the original
         const updatedDate = new Date(weeklyReminder.time).getDate();
         expect(updatedDate).toBe(20); // Expected one week later
     });
