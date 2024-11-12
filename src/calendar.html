@@ -12,25 +12,40 @@
         <a href="./index.html">
             <h1>Study Buddy</h1>
         </a>
+        <!-- Notification Bell -->
+        <div id="notification-container" class="notification-container">
+            <span id="notification-bell" class="notification-bell">!</span>
+            <span id="notification-count" class="notification-count">0</span>
+            <div id="notification-dropdown" class="notification-dropdown">
+                <h3>Reminders</h3>
+                <ul id="notification-list"></ul>
+            </div>
+        </div>
+        <!-- Create Event Button -->
+        <button id="create-event-button">Create Event</button>
     </header>
-
+    <!-- Calendar -->
     <div id="calendar"></div>
     <!-- Reminder Display Section -->
-<div id="reminder-display">
-    <h2>Triggered Reminders</h2>
-    <ul id="reminder-list"></ul>
-</div>
-    <label for="reminder-frequency">Set Reminder Frequency:</label>
-<select id="reminder-frequency">
-    <option value="daily">Daily</option>
-    <option value="weekly">Weekly</option>
-    <option value="monthly">Monthly</option>
+    <div id="reminder-display">
+        <h2>Reminders:</h2>
+        <ul id="reminder-list"></ul>
+    </div>
+    <!-- Reminder Interval Setup -->
+<label for="remind-before-number">Remind me </label>
+<input type="number" id="remind-before-number" min="1" value="10" style="width: 60px;"> <!-- Default to 10 intervals -->
+<select id="remind-before-type">
+    <option value="minutes">minutes</option>
+    <option value="hours">hours</option>
+    <option value="days" selected>days</option>
+    <option value="weeks">weeks</option>
 </select>
+<span> before the event</span>
+    <!-- Toast Container -->
 
     <button id="sortByDate">Sort by Date</button>
     <button id="sortByTitle">Sort by Title</button>
     <input type="text" id="filterKeyword" placeholder="Filter by keyword">
-
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="calendarscripts.js"></script>
 </body>

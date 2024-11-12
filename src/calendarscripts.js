@@ -7,37 +7,32 @@ const mockReminders = [
 // Flag to toggle between mock data and real API data
 let isApiConnected = false;
 
-// Function to check and display reminders
-function checkReminders() {
-    console.log("Checking reminders...");
-    const now = new Date().toISOString();
-    const reminderList = document.getElementById('reminder-list'); // Get the list element
+// Function to create a toast notification
+// Function to add a reminder notification to the dropdown
+function addNotification(message) {
+    const notificationList = document.getElementById('notification-list');
+    const notificationCount = document.getElementById('notification-count');
 
-    mockReminders.forEach(reminder => {
-        if (reminder.time <= now) {
-            console.log(`Reminder: ${reminder.title}`); // Log reminder to console
+    // Check if the notification already exists
+    const existingNotification = Array.from(notificationList.children).find(
+        item => item.textContent === message
+    );
 
-            if (reminderList) {
-                const listItem = document.createElement('li');
-                listItem.textContent = `Reminder: ${reminder.title}`;
-                reminderList.appendChild(listItem);
-            }
-            // Update the reminder time based on its frequency
-            updateReminderTime(reminder);
-        }
-    });
-}
+    if (!existingNotification) {
+        const listItem = document.createElement('li');
+        listItem.textContent = message;
+        notificationList.appendChild(listItem);
 
-// Update reminder time based on frequency
-function updateReminderTime(reminder) {
-    const time = new Date(reminder.time);
-    if (reminder.frequency === 'daily') {
-        time.setDate(time.getDate() + 1);
-    } else if (reminder.frequency === 'weekly') {
-        time.setDate(time.getDate() + 7);
+        // Update notification count
+        const currentCount = parseInt(notificationCount.textContent, 10) || 0;
+        notificationCount.textContent = currentCount + 1;
     }
-    reminder.time = time.toISOString();
 }
+
+// Toggle dropdown visibility on bell icon click
+document.getElementById('notification-container').addEventListener('click', function() {
+    this.classList.toggle('active');
+});
 
 // Function to fetch events (mock or API-based)
 function fetchEvents() {
@@ -53,12 +48,12 @@ function getMockEvents() {
     ];
 }
 
-// Placeholder function for API events (to be implemented with Google Calendar API)
+// Placeholder for API events (to be implemented with Google Calendar API)
 function fetchApiEvents() {
-    return []; // Placeholder, to be replaced with real API data in the future
+    return [];
 }
 
-// Sorting function with criteria ('date' or 'title') and events array
+// Sorting function by criteria ('date' or 'title') for events
 function sortEvents(criteria, events) {
     if (criteria === 'date') {
         return events.slice().sort((a, b) => new Date(a.start) - new Date(b.start));
@@ -73,7 +68,7 @@ function filterEvents(keyword, events) {
     return events.filter(event => event.title.toLowerCase().includes(keyword.toLowerCase()));
 }
 
-// Initialize FullCalendar in the browser environment
+// Initialize FullCalendar in the browser
 function initializeCalendar() {
     const calendarEl = document.getElementById('calendar');
     if (calendarEl) {
@@ -90,21 +85,72 @@ function initializeCalendar() {
     }
 }
 
-// Set up reminder frequency listener in the browser environment
+// Setup listener for reminder frequency changes
 function setupReminderFrequencyListener() {
     const reminderFrequencyElement = document.getElementById('reminder-frequency');
     if (reminderFrequencyElement) {
         reminderFrequencyElement.addEventListener('change', (event) => {
             const selectedFrequency = event.target.value;
             mockReminders.forEach(reminder => {
-                reminder.frequency = selectedFrequency; // Update frequency for all reminders as a simple demo
+                reminder.frequency = selectedFrequency;
             });
             console.log(`Reminder frequency updated to ${selectedFrequency}`);
         });
     }
 }
 
-// Run browser-specific initializations if document is defined
+// Function to retrieve user-defined reminder settings
+function getReminderSettings() {
+    const number = parseInt(document.getElementById('remind-before-number').value, 10);
+    const type = document.getElementById('remind-before-type').value;
+    return { number, type };
+}
+
+// Calculate adjusted reminder time based on event and settings
+function calculateReminderTime(eventTime, settings) {
+    const eventDate = new Date(eventTime);
+    const { number, type } = settings;
+
+    switch (type) {
+        case 'minutes':
+            eventDate.setMinutes(eventDate.getMinutes() - number);
+            break;
+        case 'hours':
+            eventDate.setHours(eventDate.getHours() - number);
+            break;
+        case 'days':
+            eventDate.setDate(eventDate.getDate() - number);
+            break;
+        case 'weeks':
+            eventDate.setDate(eventDate.getDate() - number * 7);
+            break;
+    }
+    return eventDate.toISOString();
+}
+
+// Function to check reminders based on user-defined time
+function checkReminders() {
+    const now = new Date().toISOString();
+    const reminderSettings = getReminderSettings();
+
+    mockReminders.forEach(reminder => {
+        const adjustedTime = calculateReminderTime(reminder.time, reminderSettings);
+        if (adjustedTime <= now) {
+            console.log(`Reminder: ${reminder.title}`);
+            addNotification(`Reminder: ${reminder.title}`);
+            updateReminderTime(reminder);
+        }
+    });
+}
+
+// Update reminder time based on frequency
+function updateReminderTime(reminder) {
+    const time = new Date(reminder.time);
+    const reminderSettings = getReminderSettings();
+    reminder.time = calculateReminderTime(time, reminderSettings);
+}
+
+// Run initializations on DOM load
 if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
         initializeCalendar();
@@ -112,10 +158,10 @@ if (typeof document !== 'undefined') {
     });
 }
 
-// Check reminders periodically
-setInterval(checkReminders, 60000); // Every minute
+// Check reminders at regular intervals
+setInterval(checkReminders, 10000); // Check every 10 seconds
 
-// Export functions and mock data for testing
+// Export for testing
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { fetchEvents, sortEvents, filterEvents, getMockEvents, checkReminders, updateReminderTime, mockReminders };
 }
