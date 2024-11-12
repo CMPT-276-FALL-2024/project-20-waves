@@ -1,34 +1,87 @@
-// calendarscripts.js
-
 // Mock reminder data
 const mockReminders = [
     { id: '1', title: 'Math Study Group Reminder', time: '2024-11-11T16:00:00', frequency: 'daily' },
     { id: '2', title: 'History Review Session Reminder', time: '2024-11-11T16:00:00', frequency: 'weekly' }
 ];
 
-// Flag to toggle between mock data and real API data
+// Flag to toggle between mock data and real API data - update once API in place
 let isApiConnected = false;
+
+// Reference to the FullCalendar instance
+let calendar;
+
+// Function to initialize the FullCalendar instance
+function initializeCalendar() {
+    const calendarEl = document.getElementById('calendar');
+    if (calendarEl) {
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: fetchEvents(),
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            }
+        });
+        calendar.render();
+    }
+}
+
+// Add event to calendar from sidebar input
+function setupEventCreation() {
+    const createEventButton = document.getElementById('create-event');
+    if (createEventButton) {
+        createEventButton.addEventListener('click', () => {
+            const title = document.getElementById('event-title').value;
+            const date = document.getElementById('event-date').value;
+            const startTime = document.getElementById('event-start-time').value;
+            const endTime = document.getElementById('event-end-time').value;
+
+            if (title && date && startTime && endTime) {
+                const start = `${date}T${startTime}`;
+                const end = `${date}T${endTime}`;
+
+                calendar.addEvent({
+                    title: title,
+                    start: start,
+                    end: end
+                });
+
+                // Clear form fields and close the sidebar
+                document.getElementById('event-title').value = '';
+                document.getElementById('event-date').value = '';
+                document.getElementById('event-start-time').value = '';
+                document.getElementById('event-end-time').value = '';
+                document.getElementById('event-sidebar').classList.remove('open');
+            } else {
+                alert("Please fill out all fields.");
+            }
+        });
+    }
+}
 
 // Function to add a reminder notification to the dropdown
 function addNotification(message) {
     const notificationList = document.getElementById('notification-list');
     const notificationCount = document.getElementById('notification-count');
 
-    const existingNotification = Array.from(notificationList.children).find(
-        item => item.textContent === message
-    );
+    if (notificationList && notificationCount) {
+        const existingNotification = Array.from(notificationList.children).find(
+            item => item.textContent === message
+        );
 
-    if (!existingNotification) {
-        const listItem = document.createElement('li');
-        listItem.textContent = message;
-        notificationList.appendChild(listItem);
+        if (!existingNotification) {
+            const listItem = document.createElement('li');
+            listItem.textContent = message;
+            notificationList.appendChild(listItem);
 
-        const currentCount = parseInt(notificationCount.textContent, 10) || 0;
-        notificationCount.textContent = currentCount + 1;
+            const currentCount = parseInt(notificationCount.textContent, 10) || 0;
+            notificationCount.textContent = currentCount + 1;
+        }
     }
 }
 
-// Function to set up DOM listeners (only run in browser environment)
+// Setup DOM event listeners (only run if elements exist)
 function setupDOMListeners() {
     const notificationContainer = document.getElementById('notification-container');
     if (notificationContainer) {
@@ -36,10 +89,24 @@ function setupDOMListeners() {
             this.classList.toggle('active');
         });
     }
-}
 
-if (typeof document !== 'undefined') {
-    setupDOMListeners();
+    const createEventButton = document.getElementById('create-event-button');
+    const eventSidebar = document.getElementById('event-sidebar');
+    if (createEventButton && eventSidebar) {
+        createEventButton.addEventListener('click', () => {
+            eventSidebar.classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside of it
+        document.addEventListener('click', (event) => {
+            const isClickInsideSidebar = eventSidebar.contains(event.target);
+            const isClickOnButton = createEventButton.contains(event.target);
+
+            if (!isClickInsideSidebar && !isClickOnButton) {
+                eventSidebar.classList.remove('open');
+            }
+        });
+    }
 }
 
 // Function to fetch events (mock or API-based)
@@ -73,9 +140,15 @@ function filterEvents(keyword, events) {
 
 // Function to retrieve user-defined reminder settings
 function getReminderSettings() {
-    const number = parseInt(document.getElementById('remind-before-number').value, 10);
-    const type = document.getElementById('remind-before-type').value;
-    return { number, type };
+    const numberElement = document.getElementById('remind-before-number');
+    const typeElement = document.getElementById('remind-before-type');
+
+    if (numberElement && typeElement) {
+        const number = parseInt(numberElement.value, 10);
+        const type = typeElement.value;
+        return { number, type };
+    }
+    return { number: 10, type: 'days' };
 }
 
 // Calculate adjusted reminder time based on event time and settings
@@ -123,6 +196,15 @@ function checkReminders() {
             addNotification(`Reminder: ${reminder.title}`);
             updateReminderTime(reminder);
         }
+    });
+}
+
+// Initialize the calendar and setup listeners on DOM load
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeCalendar();
+        setupEventCreation();
+        setupDOMListeners();
     });
 }
 

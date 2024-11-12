@@ -1,5 +1,3 @@
-// calendarscripts.test.js
-
 const { fetchEvents, sortEvents, filterEvents, checkReminders, updateReminderTime } = require('./calendarscripts');
 
 // Mock data for events testing
@@ -15,7 +13,7 @@ const mockReminders = [
     { id: '2', title: 'History Review Session Reminder', time: '2024-11-13T14:00:00', frequency: 'weekly' }
 ];
 
-// Mock the DOM structure
+// Mock the DOM structure to prevent failing Jest tests
 beforeEach(() => {
     document.body.innerHTML = `
         <div id="notification-container" class="notification-container">
@@ -32,9 +30,19 @@ beforeEach(() => {
             <option value="days" selected>days</option>
             <option value="weeks">weeks</option>
         </select>
+
+        <!-- Mock the event sidebar inputs -->
+        <button id="create-event"></button>
+        <input type="text" id="event-title">
+        <input type="date" id="event-date">
+        <input type="time" id="event-start-time">
+        <input type="time" id="event-end-time">
+        <div id="event-sidebar" class="event-sidebar"></div>
     `;
 });
 
+
+// Testing Events
 describe('Event management functions', () => {
     test('fetchEvents should return mock events if API is not connected', () => {
         const events = fetchEvents();
@@ -67,6 +75,7 @@ describe('Event management functions', () => {
     });
 });
 
+// Testing Reminders
 describe('Reminder functionality', () => {
     test('checkReminders should trigger reminders at the correct time', () => {
         jest.useFakeTimers().setSystemTime(new Date('2024-11-13T10:00:00').getTime());
