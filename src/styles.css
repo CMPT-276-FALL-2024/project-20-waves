@@ -238,11 +238,23 @@ button {
     animation: fadeIn 0.3s;
 }
 
-.quiz-question {
+.quiz-question-card {
     background-color: lightgray;
     width: 500px;
     height: 250px;
     border-radius: 25px;
+}
+
+.q1, .q2, .q3, .q4, .q5, .q5, .q6, .q7, .q8, .q9, .q10  {
+    text-align: center;
+    font-weight: bold;
+    font-size: 15px;
+    margin-top: 10px;
+}
+
+.multiple-choice-options {
+    margin-left: 50px;
+    margin-top: 25px;
 }
 
 @keyframes fadeIn {
