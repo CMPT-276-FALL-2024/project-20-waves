@@ -1,3 +1,35 @@
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI('');
+
+async function geminiAPI() {
+    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+
+    const prompt = "give a 10 question quiz about " + "java";
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+
+    //Parse the API results then place into array with objects
+    const text = response.text();
+
+    const regexExpression = /(\d+\.[^0-9]+)/g;
+
+    const responseQuestions = [...text.matchAll(regex)];
+
+    const questionsArray = responseQuestions.map(question => question[0]);
+
+    for (let i = 0; i < 10; i++) {
+        questions[i].data.question = questionsArray[i];
+    }
+
+    for (let i = 0; i < 10; i++) {
+        console.log(questionsArray[i]);
+    }
+}
+
+geminiAPI();
+
 //Get text input value from quiz-topic-textbox and then call API
 //Parse the API results then place into array with objects
 //Set each question to the question from array
@@ -10,7 +42,7 @@
 
 let questions = [
     {
-        question1 : {
+        data : {
             question : "",
             option1 : "",
             option2 : "",
@@ -21,7 +53,7 @@ let questions = [
     },
 
     {
-        question2 : {
+        data : {
             question : "",
             option1 : "",
             option2 : "",
@@ -32,7 +64,7 @@ let questions = [
     },
 
     {
-        question3 : {
+        data : {
             question : "",
             option1 : "",
             option2 : "",
@@ -43,7 +75,7 @@ let questions = [
     }, 
     
     {
-        question4 : {
+        data : {
             question : "",
             option1 : "",
             option2 : "",
@@ -54,7 +86,7 @@ let questions = [
     },
 
     {
-        question5 : {
+        data : {
             question : "",
             option1 : "",
             option2 : "",
@@ -65,7 +97,7 @@ let questions = [
     },
 
     {
-        question6 : {
+        data : {
             question : "",
             option1 : "",
             option2 : "",
@@ -76,7 +108,7 @@ let questions = [
     }, 
     
     {
-        question7 : {
+        data : {
             question : "",
             option1 : "",
             option2 : "",
@@ -87,7 +119,7 @@ let questions = [
     },
 
     {
-        question8 : {
+        data : {
             question : "",
             option1 : "",
             option2 : "",
@@ -98,7 +130,7 @@ let questions = [
     },
 
     {
-        question9 : {
+        data : {
             question : "",
             option1 : "",
             option2 : "",
@@ -109,7 +141,7 @@ let questions = [
     }, 
     
     {
-        question10 : {
+        data : {
             question : "",
             option1 : "",
             option2 : "",
@@ -134,12 +166,24 @@ let userAnswers = {
 };
 
 
-
+/*
 const generateQuizButton = document.querySelector(".generate-quiz-button");
+const quizTopicTextBox = document.querySelector("#quiz-topic-textbox");
 
- //Generate quiz option button
+//Generate quiz option button
 generateQuizButton.addEventListener("click", () => {
     flashCards.style.display = 'none';
     quiz.style.display = 'grid';
     editFlashCardsMenu.style.display = 'none';
  });
+
+ generateQuizButton.addEventListener("click", () => {
+    //Get textbox value
+    let topic = quizTopicTextBox.value;
+    let prompt = "give a 1 question quiz about java";
+ });
+
+*/
+
+
+
