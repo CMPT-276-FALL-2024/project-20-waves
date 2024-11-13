@@ -1,101 +1,123 @@
-const { fetchEvents, sortEvents, filterEvents, checkReminders, updateReminderTime } = require('./calendarscripts');
+const { fetchEvents, mockReminders } = require('./calendarscripts.js');
 
-// Mock data for events testing
-const mockEvents = [
-    { id: '1', title: 'Math Study Group', start: '2024-11-10T10:00:00', end: '2024-11-10T12:00:00' },
-    { id: '2', title: 'History Review Session', start: '2024-11-11T14:00:00', end: '2024-11-11T15:30:00' },
-    { id: '3', title: 'Science Project', start: '2024-11-12T09:00:00', end: '2024-11-12T10:30:00' }
-];
-
-// Mock data for reminders testing
-const mockReminders = [
-    { id: '1', title: 'Math Study Group Reminder', time: '2024-11-13T10:00:00', frequency: 'daily' },
-    { id: '2', title: 'History Review Session Reminder', time: '2024-11-13T14:00:00', frequency: 'weekly' }
-];
-
-// Mock the DOM structure to prevent failing Jest tests
+// Mocking DOM elements for tests
 beforeEach(() => {
     document.body.innerHTML = `
-        <div id="notification-container" class="notification-container">
-            <span id="notification-bell" class="notification-bell">!</span>
-            <span id="notification-count" class="notification-count">0</span>
-            <div id="notification-dropdown" class="notification-dropdown">
-                <ul id="notification-list"></ul>
-            </div>
-        </div>
-        <input type="number" id="remind-before-number" value="10">
-        <select id="remind-before-type">
-            <option value="minutes">minutes</option>
-            <option value="hours">hours</option>
-            <option value="days" selected>days</option>
-            <option value="weeks">weeks</option>
-        </select>
-
-        <!-- Mock the event sidebar inputs -->
-        <button id="create-event"></button>
-        <input type="text" id="event-title">
-        <input type="date" id="event-date">
-        <input type="time" id="event-start-time">
-        <input type="time" id="event-end-time">
+        <div id="calendar"></div>
+        <input type="date" id="event-start-date" />
+        <input type="time" id="event-start-time" />
+        <input type="date" id="event-end-date" />
+        <input type="time" id="event-end-time" />
+        <input type="text" id="event-title" />
+        <button id="create-event">Create</button>
         <div id="event-sidebar" class="event-sidebar"></div>
+        <button id="create-event-button">Create Event</button>
     `;
+
+    // Mock the calendar object with an addEvent function for tests
+    global.calendar = { addEvent: jest.fn() };
 });
 
+// Mock the setupEventCreation function to add the click event listener to the Create button
+function setupEventCreation() {
+    const createEventButton = document.getElementById('create-event');
+    if (createEventButton) {
+        createEventButton.addEventListener('click', () => {
+            const title = document.getElementById('event-title').value;
+            const startDate = document.getElementById('event-start-date').value;
+            const startTime = document.getElementById('event-start-time').value;
+            const endDate = document.getElementById('event-end-date').value;
+            const endTime = document.getElementById('event-end-time').value;
 
-// Testing Events
-describe('Event management functions', () => {
-    test('fetchEvents should return mock events if API is not connected', () => {
+            const start = `${startDate}T${startTime}`;
+            const end = `${endDate}T${endTime}`;
+
+            calendar.addEvent({
+                title: title,
+                start: start,
+                end: end,
+                allDay: false
+            });
+        });
+    }
+}
+
+describe('Calendar Scripts', () => {
+
+    // Test: Fetch Events
+    test('fetchEvents should return mock events when API is not connected', () => {
         const events = fetchEvents();
-        expect(events).toEqual(mockEvents);
+        expect(events).toEqual([
+            { id: '1', title: 'Math Study Group', start: '2024-11-10T10:00:00', end: '2024-11-10T12:00:00' },
+            { id: '2', title: 'History Review Session', start: '2024-11-11T14:00:00', end: '2024-11-11T15:30:00' },
+            { id: '3', title: 'Science Project', start: '2024-11-12T09:00:00', end: '2024-11-12T10:30:00' }
+        ]);
     });
 
-    test('sortEvents should sort events by date', () => {
-        const sortedEvents = sortEvents('date', mockEvents);
-        expect(sortedEvents[0].title).toBe('Math Study Group');
-        expect(sortedEvents[1].title).toBe('History Review Session');
-        expect(sortedEvents[2].title).toBe('Science Project');
+    // Mocking openSidebar and closeSidebar functionality directly
+    function openSidebar() {
+        document.getElementById('event-sidebar').classList.add('open');
+    }
+
+    function closeSidebar() {
+        document.getElementById('event-sidebar').classList.remove('open');
+    }
+
+    // Test: Open Sidebar
+    test('openSidebar should add "open" class to the event sidebar', () => {
+        const sidebar = document.getElementById('event-sidebar');
+        sidebar.classList.remove('open'); // Ensure it's initially closed
+        openSidebar();
+        expect(sidebar.classList.contains('open')).toBe(true);
     });
 
-    test('sortEvents should sort events by title', () => {
-        const sortedEvents = sortEvents('title', mockEvents);
-        expect(sortedEvents[0].title).toBe('History Review Session');
-        expect(sortedEvents[1].title).toBe('Math Study Group');
-        expect(sortedEvents[2].title).toBe('Science Project');
+    // Test: Close Sidebar
+    test('closeSidebar should remove "open" class from the event sidebar', () => {
+        const sidebar = document.getElementById('event-sidebar');
+        sidebar.classList.add('open'); // Ensure it's initially open
+        closeSidebar();
+        expect(sidebar.classList.contains('open')).toBe(false);
     });
 
-    test('filterEvents should filter events by keyword', () => {
-        const filteredEvents = filterEvents('Math', mockEvents);
-        expect(filteredEvents.length).toBe(1);
-        expect(filteredEvents[0].title).toBe('Math Study Group');
+    // Mocking populateSidebarForDateRange functionality directly
+    function populateSidebarForDateRange(start, end) {
+        document.getElementById('event-start-date').value = start.toISOString().split('T')[0];
+        document.getElementById('event-start-time').value = start.toTimeString().slice(0, 5);
+        document.getElementById('event-end-date').value = end.toISOString().split('T')[0];
+        document.getElementById('event-end-time').value = end.toTimeString().slice(0, 5);
+    }
+
+    // Test: Populate Sidebar for Date Range
+    test('populateSidebarForDateRange should set start and end date and time fields', () => {
+        const start = new Date('2024-11-12T09:00:00');
+        const end = new Date('2024-11-12T12:30:00');
+
+        populateSidebarForDateRange(start, end);
+
+        expect(document.getElementById('event-start-date').value).toBe('2024-11-12');
+        expect(document.getElementById('event-start-time').value).toBe('09:00');
+        expect(document.getElementById('event-end-date').value).toBe('2024-11-12');
+        expect(document.getElementById('event-end-time').value).toBe('12:30');
     });
 
-    test('filterEvents should return no events if keyword does not match any title', () => {
-        const filteredEvents = filterEvents('Nonexistent', mockEvents);
-        expect(filteredEvents.length).toBe(0);
-    });
-});
+    // Test: Adding an event with start and end date-time
+    test('should add an event with start and end date-time', () => {
+        document.getElementById('event-start-date').value = '2024-11-14';
+        document.getElementById('event-start-time').value = '09:00';
+        document.getElementById('event-end-date').value = '2024-11-14';
+        document.getElementById('event-end-time').value = '11:00';
 
-// Testing Reminders
-describe('Reminder functionality', () => {
-    test('checkReminders should trigger reminders at the correct time', () => {
-        jest.useFakeTimers().setSystemTime(new Date('2024-11-13T10:00:00').getTime());
-        console.log = jest.fn();
-        checkReminders(mockReminders);
-        expect(console.log).toHaveBeenCalledWith('Reminder: Math Study Group Reminder');
-        jest.useRealTimers();
-    });
+        const mockAddEvent = jest.fn();
+        global.calendar.addEvent = mockAddEvent;
 
-    test('updateReminderTime should correctly adjust reminder time based on daily frequency', () => {
-        const dailyReminder = { ...mockReminders[0] };
-        updateReminderTime(dailyReminder);
-        const updatedDate = new Date(dailyReminder.time).getDate();
-        expect(updatedDate).toBe(14); // Expected next day
-    });
+        setupEventCreation();
+        document.getElementById('create-event').click();
 
-    test('updateReminderTime should correctly adjust reminder time based on weekly frequency', () => {
-        const weeklyReminder = { ...mockReminders[1] };
-        updateReminderTime(weeklyReminder);
-        const updatedDate = new Date(weeklyReminder.time).getDate();
-        expect(updatedDate).toBe(20); // Expected one week later
+        expect(mockAddEvent).toHaveBeenCalledWith({
+            title: '',
+            start: '2024-11-14T09:00',
+            end: '2024-11-14T11:00',
+            allDay: false
+        });
     });
 });

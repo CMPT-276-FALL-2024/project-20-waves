@@ -15,7 +15,7 @@
 
         <!-- Notification Bell -->
         <div id="notification-container" class="notification-container">
-            <span id="notification-bell" class="notification-bell">🤷‍♀️</span>
+            <span id="notification-bell" class="notification-bell">🔔</span>
             <span id="notification-count" class="notification-count">0</span>
             <div id="notification-dropdown" class="notification-dropdown">
                 <h3>Reminders</h3>
@@ -30,12 +30,6 @@
     <!-- Calendar -->
     <div id="calendar"></div>
 
-    <!-- Reminder Display Section -->
-    <div id="reminder-display">
-        <h2>Reminders:</h2>
-        <ul id="reminder-list"></ul>
-    </div>
-
     <!-- Sidebar for Event Creation -->
     <div id="event-sidebar" class="event-sidebar">
         <h2>Create Event</h2>
@@ -44,35 +38,25 @@
         <label for="event-title">Title:</label>
         <input type="text" id="event-title" name="event-title" placeholder="Enter event title" required>
 
-        <!-- Date Picker -->
-        <label for="event-date">Date:</label>
-        <input type="date" id="event-date" name="event-date" required>
+        <!-- Start Date and Time -->
+        <label for="event-start-date">Start Date:</label>
+        <input type="date" id="event-start-date" name="event-start-date" required>
+        <label for="event-start-time">Start Time:</label>
+        <input type="time" id="event-start-time" name="event-start-time" required>
 
-        <!-- Start and End Time Container -->
-        <div class="time-container">
-
-            <!-- Start Time -->
-            <div class="time-input">
-                <label for="event-start-time">Start Time:</label>
-                <input type="time" id="event-start-time" name="event-start-time" required>
-            </div>
-
-            <!-- End Time -->
-            <div class="time-input">
-                <label for="event-end-time">End Time:</label>
-                <input type="time" id="event-end-time" name="event-end-time" required>
-            </div>
-
-        </div>
+        <!-- End Date and Time -->
+        <label for="event-end-date">End Date:</label>
+        <input type="date" id="event-end-date" name="event-end-date" required>
+        <label for="event-end-time">End Time:</label>
+        <input type="time" id="event-end-time" name="event-end-time" required>
 
         <!-- Create Event Button -->
         <button type="button" id="create-event">Create</button>
-
     </div>
 
     <!-- Reminder Interval Setup -->
     <label for="remind-before-number">Remind me </label>
-    <input type="number" id="remind-before-number" min="1" value="10" style="width: 60px;"> <!-- Default to 10 intervals -->
+    <input type="number" id="remind-before-number" min="1" value="10" style="width: 60px;">
     <select id="remind-before-type">
         <option value="minutes">minutes</option>
         <option value="hours">hours</option>
@@ -81,13 +65,12 @@
     </select>
     <span> before the event</span>
 
-    <!-- Toast Container -->
+    <!-- Sort and Filter Options -->
     <button id="sortByDate">Sort by Date</button>
     <button id="sortByTitle">Sort by Title</button>
     <input type="text" id="filterKeyword" placeholder="Filter by keyword">
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="calendarscripts.js"></script>
-
 </body>
 </html>

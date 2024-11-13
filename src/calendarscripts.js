@@ -1,10 +1,10 @@
 // Mock reminder data
 const mockReminders = [
-    { id: '1', title: 'Math Study Group Reminder', time: '2024-11-11T16:00:00', frequency: 'daily' },
-    { id: '2', title: 'History Review Session Reminder', time: '2024-11-11T16:00:00', frequency: 'weekly' }
+    { id: '1', title: 'Math Study Group Reminder', time: '2024-11-14T16:00:00', frequency: 'daily' },
+    { id: '2', title: 'History Review Session Reminder', time: '2024-11-16T16:00:00', frequency: 'weekly' }
 ];
 
-// Flag to toggle between mock data and real API data - update once API in place
+// Flag to toggle between mock data and real API data
 let isApiConnected = false;
 
 // Reference to the FullCalendar instance
@@ -21,90 +21,149 @@ function initializeCalendar() {
                 left: 'prev,next today',
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+
+            // Handle single date clicks in all views
+            dateClick: function(info) {
+                const clickedDate = info.date.toISOString().split('T')[0];
+                let startTime, endTime;
+
+                // Default start and end times based on the view
+                if (calendar.view.type === 'dayGridMonth') {
+                    const now = new Date();
+                    startTime = now.toTimeString().slice(0, 5);
+                    now.setHours(now.getHours() + 1);
+                    endTime = now.toTimeString().slice(0, 5);
+                } else {
+                    startTime = info.date.toTimeString().slice(0, 5);
+                    const endDate = new Date(info.date);
+                    endDate.setHours(endDate.getHours() + 1);
+                    endTime = endDate.toTimeString().slice(0, 5);
+                }
+
+                // Set start and end dates and times in the sidebar
+                document.getElementById('event-start-date').value = clickedDate;
+                document.getElementById('event-end-date').value = clickedDate;
+                document.getElementById('event-start-time').value = startTime;
+                document.getElementById('event-end-time').value = endTime;
+
+                openSidebar();
+            },
+
+            // Handle time range selection (drag selection) with delay
+            selectable: true,
+            select: function(info) {
+                populateSidebarForDateRange(info.start, info.end);
+
+                // Ensure the sidebar opens after the selection is fully processed
+                setTimeout(openSidebar, 10); // 10ms delay to ensure consistent opening
             }
         });
         calendar.render();
     }
 }
 
-// Add event to calendar from sidebar input
-function setupEventCreation() {
-    const createEventButton = document.getElementById('create-event');
-    if (createEventButton) {
-        createEventButton.addEventListener('click', () => {
-            const title = document.getElementById('event-title').value;
-            const date = document.getElementById('event-date').value;
-            const startTime = document.getElementById('event-start-time').value;
-            const endTime = document.getElementById('event-end-time').value;
+// Populate the sidebar with start and end times based on a range selection
+function populateSidebarForDateRange(start, end) {
+    const startDateStr = start.toISOString().split('T')[0];
+    const startTime = start.toTimeString().slice(0, 5); // format HH:MM
 
-            if (title && date && startTime && endTime) {
-                const start = `${date}T${startTime}`;
-                const end = `${date}T${endTime}`;
+    const endDateStr = end.toISOString().split('T')[0];
+    const endTime = end.toTimeString().slice(0, 5); // format HH:MM
 
-                calendar.addEvent({
-                    title: title,
-                    start: start,
-                    end: end
-                });
+    // Set the start and end date/time fields in the sidebar
+    document.getElementById('event-start-date').value = startDateStr;
+    document.getElementById('event-end-date').value = endDateStr;
+    document.getElementById('event-start-time').value = startTime;
+    document.getElementById('event-end-time').value = endTime;
+}
 
-                // Clear form fields and close the sidebar
-                document.getElementById('event-title').value = '';
-                document.getElementById('event-date').value = '';
-                document.getElementById('event-start-time').value = '';
-                document.getElementById('event-end-time').value = '';
-                document.getElementById('event-sidebar').classList.remove('open');
-            } else {
-                alert("Please fill out all fields.");
-            }
-        });
+// Open the sidebar
+function openSidebar() {
+    const eventSidebar = document.getElementById('event-sidebar');
+    if (!eventSidebar.classList.contains('open')) {
+        eventSidebar.classList.add('open');
     }
 }
 
-// Function to add a reminder notification to the dropdown
-function addNotification(message) {
-    const notificationList = document.getElementById('notification-list');
-    const notificationCount = document.getElementById('notification-count');
-
-    if (notificationList && notificationCount) {
-        const existingNotification = Array.from(notificationList.children).find(
-            item => item.textContent === message
-        );
-
-        if (!existingNotification) {
-            const listItem = document.createElement('li');
-            listItem.textContent = message;
-            notificationList.appendChild(listItem);
-
-            const currentCount = parseInt(notificationCount.textContent, 10) || 0;
-            notificationCount.textContent = currentCount + 1;
-        }
-    }
+// Close the sidebar
+function closeSidebar() {
+    const eventSidebar = document.getElementById('event-sidebar');
+    eventSidebar.classList.remove('open');
 }
 
-// Setup DOM event listeners (only run if elements exist)
+// Setup DOM event listeners for sidebar behavior and Create Event button
 function setupDOMListeners() {
-    const notificationContainer = document.getElementById('notification-container');
-    if (notificationContainer) {
-        notificationContainer.addEventListener('click', function () {
-            this.classList.toggle('active');
-        });
-    }
-
     const createEventButton = document.getElementById('create-event-button');
     const eventSidebar = document.getElementById('event-sidebar');
+
     if (createEventButton && eventSidebar) {
+        // Open sidebar with current date and time on Create Event button click
         createEventButton.addEventListener('click', () => {
-            eventSidebar.classList.toggle('open');
+            const now = new Date();
+            const currentDate = now.toISOString().split('T')[0];
+            const currentTime = now.toTimeString().slice(0, 5);
+
+            // Set the start and end dates and times for the default event
+            document.getElementById('event-start-date').value = currentDate;
+            document.getElementById('event-start-time').value = currentTime;
+
+            // Set the end time to one hour later on the same date
+            const endDate = new Date(now);
+            endDate.setHours(endDate.getHours() + 1);
+            document.getElementById('event-end-date').value = endDate.toISOString().split('T')[0];
+            document.getElementById('event-end-time').value = endDate.toTimeString().slice(0, 5);
+
+            // Open the sidebar
+            openSidebar();
         });
 
-        // Close sidebar when clicking outside of it
+        // Close sidebar only if clicking outside both the sidebar and the button
         document.addEventListener('click', (event) => {
             const isClickInsideSidebar = eventSidebar.contains(event.target);
             const isClickOnButton = createEventButton.contains(event.target);
 
             if (!isClickInsideSidebar && !isClickOnButton) {
-                eventSidebar.classList.remove('open');
+                closeSidebar();
             }
+        });
+    }
+}
+
+// Setup the create event action in the sidebar
+function setupEventCreation() {
+    const createEventButton = document.getElementById('create-event');
+    if (createEventButton) {
+        createEventButton.addEventListener('click', () => {
+            const title = document.getElementById('event-title').value;
+            const startDate = document.getElementById('event-start-date').value;
+            const endDate = document.getElementById('event-end-date').value;
+            const startTime = document.getElementById('event-start-time').value;
+            const endTime = document.getElementById('event-end-time').value;
+
+            if (!title || !startDate || !startTime || !endDate || !endTime) {
+                alert("Please fill out all fields.");
+                return;
+            }
+
+            const start = `${startDate}T${startTime}`;
+            const end = `${endDate}T${endTime}`;
+
+            calendar.addEvent({
+                title: title,
+                start: start,
+                end: end,
+                allDay: false
+            });
+
+            // Clear form fields and close the sidebar
+            document.getElementById('event-title').value = '';
+            document.getElementById('event-start-date').value = '';
+            document.getElementById('event-start-time').value = '';
+            document.getElementById('event-end-date').value = '';
+            document.getElementById('event-end-time').value = '';
+
+            closeSidebar();
         });
     }
 }
@@ -123,82 +182,6 @@ function getMockEvents() {
     ];
 }
 
-// Sorting function by criteria ('date' or 'title') for events
-function sortEvents(criteria, events) {
-    if (criteria === 'date') {
-        return events.slice().sort((a, b) => new Date(a.start) - new Date(b.start));
-    } else if (criteria === 'title') {
-        return events.slice().sort((a, b) => a.title.localeCompare(b.title));
-    }
-    return events;
-}
-
-// Filtering function with keyword and events array
-function filterEvents(keyword, events) {
-    return events.filter(event => event.title.toLowerCase().includes(keyword.toLowerCase()));
-}
-
-// Function to retrieve user-defined reminder settings
-function getReminderSettings() {
-    const numberElement = document.getElementById('remind-before-number');
-    const typeElement = document.getElementById('remind-before-type');
-
-    if (numberElement && typeElement) {
-        const number = parseInt(numberElement.value, 10);
-        const type = typeElement.value;
-        return { number, type };
-    }
-    return { number: 10, type: 'days' };
-}
-
-// Calculate adjusted reminder time based on event time and settings
-function calculateReminderTime(eventTime, settings) {
-    const eventDate = new Date(eventTime);
-    const { number, type } = settings;
-
-    switch (type) {
-        case 'minutes':
-            eventDate.setMinutes(eventDate.getMinutes() - number);
-            break;
-        case 'hours':
-            eventDate.setHours(eventDate.getHours() - number);
-            break;
-        case 'days':
-            eventDate.setDate(eventDate.getDate() - number);
-            break;
-        case 'weeks':
-            eventDate.setDate(eventDate.getDate() - number * 7);
-            break;
-    }
-    return eventDate.toISOString();
-}
-
-// Function to update reminder time based on frequency
-function updateReminderTime(reminder) {
-    const time = new Date(reminder.time);
-    if (reminder.frequency === 'daily') {
-        time.setDate(time.getDate() + 1);
-    } else if (reminder.frequency === 'weekly') {
-        time.setDate(time.getDate() + 7);
-    }
-    reminder.time = time.toISOString();
-}
-
-// Function to check reminders based on user-defined time
-function checkReminders() {
-    const now = new Date().toISOString();
-    const reminderSettings = getReminderSettings();
-
-    mockReminders.forEach(reminder => {
-        const adjustedTime = calculateReminderTime(reminder.time, reminderSettings);
-        if (adjustedTime <= now) {
-            console.log(`Reminder: ${reminder.title}`);
-            addNotification(`Reminder: ${reminder.title}`);
-            updateReminderTime(reminder);
-        }
-    });
-}
-
 // Initialize the calendar and setup listeners on DOM load
 if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -208,4 +191,4 @@ if (typeof document !== 'undefined') {
     });
 }
 
-module.exports = { fetchEvents, sortEvents, filterEvents, checkReminders, updateReminderTime, mockReminders };
+module.exports = { fetchEvents, mockReminders };
