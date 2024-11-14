@@ -118,18 +118,7 @@ let questions = [
     }
 ];
 
-let userAnswers = {
-    question1 : "",
-    question2 : "",
-    question3 : "",
-    question4 : "",
-    question5 : "",
-    question6 : "",
-    question7 : "",
-    question8 : "",
-    question9 : "",
-    question10 : ""
-};
+let userAnswers = [];
 
 async function geminiAPI() {
     const model = genAI.getGenerativeModel({ model: "gemini-pro"});
@@ -172,6 +161,12 @@ async function geminiAPI() {
         i++;
     });
 
+
+
+
+
+
+
 }
 
 
@@ -181,14 +176,17 @@ const questionHeaders = document.body.querySelectorAll('.question');
 
 
 
+
 //Get text input value from quiz-topic-textbox and then call API
 generateQuizButton.addEventListener("click", () => {
     userTopic = quizTopicTextBox.value;
     geminiAPI();
-
-    
-
-
 });
+
+
+window.setUserAnswer =  function(questionNumber, choice) {
+    userAnswers[questionNumber] = choice;
+    console.log(userAnswers[questionNumber]);
+}
 
 //Create function to add a quiz question card to the dom with the variables
