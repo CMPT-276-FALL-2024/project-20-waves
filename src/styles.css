@@ -230,7 +230,7 @@ button {
 }
 
 .quiz {
-    display: grid;
+    display: none;
     grid-template-columns: repeat(2, 600px);
     grid-template-rows: repeat(5, auto);
     gap: 50px;

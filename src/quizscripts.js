@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI("");
+const genAI = new GoogleGenerativeAI("AIzaSyD59cvRLGTGbqq-oQRidggkpYzrNrw1K_I");
 
 let userTopic;
 let userScore = 0;
@@ -182,8 +182,12 @@ async function geminiAPI() {
         optionDinput.innerHTML = questions[i].data.option4;
         i++;
     });
-}
 
+    //Display quiz
+    quizSection.style.display = 'grid';
+
+}
+const quizSection = document.body.querySelector(".quiz");
 
 const quizTopicTextBox = document.body.querySelector("#quiz-topic-textbox");
 const generateQuizButton = document.body.querySelector('.generate-quiz-button');
