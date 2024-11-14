@@ -13,6 +13,7 @@
             <h1>Study Buddy</h1>
         </a>
 
+        <!-- PLANNED: WIGGLE WHEN NOTIFICATION APPEARS -->
         <!-- Notification Bell -->
         <div id="notification-container" class="notification-container">
             <span id="notification-bell" class="notification-bell">🔔</span>
@@ -23,6 +24,9 @@
             </div>
         </div>
 
+        <!-- PLANNED: ADD UPCOMING EVENTS BUTTON AND PANEL ON THE RIGHT TO SHOW -->
+
+
         <!-- Create Event Button -->
         <button id="create-event-button">Create Event</button>
     </header>
@@ -30,8 +34,9 @@
     <!-- Calendar -->
     <div id="calendar"></div>
 
-    <!-- Sidebar for Event Creation -->
+    <!-- Sidebar for Event Creation and Editing -->
     <div id="event-sidebar" class="event-sidebar">
+        <button id="close-sidebar-button" class="close-button">✖</button> <!-- Close button added here -->
         <h2>Create Event</h2>
 
         <!-- Title Input -->
@@ -52,6 +57,10 @@
 
         <!-- Create Event Button -->
         <button type="button" id="create-event">Create</button>
+        <!-- Edit Event Button (Initially hidden) -->
+        <button type="button" id="edit-event" style="display: none;">Save Changes</button>
+        <!-- Delete Event Button (Initially hidden) -->
+        <button type="button" id="delete-event" style="display: none;">Delete Event</button>
     </div>
 
     <!-- Reminder Interval Setup -->

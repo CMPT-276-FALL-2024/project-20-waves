@@ -1,18 +1,14 @@
-// Mock reminder data
-const mockReminders = [
-    { id: '1', title: 'Math Study Group Reminder', time: '2024-11-14T16:00:00', frequency: 'daily' },
-    { id: '2', title: 'History Review Session Reminder', time: '2024-11-16T16:00:00', frequency: 'weekly' }
-];
-
-// Flag to toggle between mock data and real API data
+// DEBUGGING: Set to false to use mock data, true to use API data
 let isApiConnected = false;
 
 // Reference to the FullCalendar instance
 let calendar;
+// Keeps track of the event being edited
+let selectedEvent = null;
 
+// Function to initialize the FullCalendar
 function initializeCalendar() {
     const calendarEl = document.getElementById('calendar');
-    if (calendarEl) {
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             events: fetchEvents(),
@@ -21,31 +17,18 @@ function initializeCalendar() {
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
-            // Update dateClick function in calendarscripts.js
-dateClick: function(info) {
-    const clickedDate = info.date; // Get the clicked date as a Date object
-
-    // Get the current time and add it to the clicked date for start time
-    const now = new Date();
-    clickedDate.setHours(now.getHours(), now.getMinutes(), 0, 0);
-
-    // Set start date and time
-    document.getElementById('event-start-date').value = clickedDate.toISOString().split('T')[0];
-    document.getElementById('event-start-time').value = clickedDate.toTimeString().slice(0, 5);
-
-    // Set end time to 15 minutes after start time
-    const endTime = new Date(clickedDate.getTime() + 15 * 60000);
-    document.getElementById('event-end-date').value = endTime.toISOString().split('T')[0];
-    document.getElementById('event-end-time').value = endTime.toTimeString().slice(0, 5);
-
-    openSidebar(); // Open the event creation sidebar
-},
+            dateClick: function(info) {
+                openCreateEventSidebar(info.date);
+            },
             selectable: true,
             select: function(info) {
                 populateSidebarForDateRange(info.start, info.end);
-                setTimeout(openSidebar, 10); // Open the sidebar
+                setTimeout(openSidebar, 10);
             },
-            // Event hover callbacks
+            eventClick: function(info) {
+                openEditEventSidebar(info.event);
+            },
+            // Tooltip functions for hovering over events
             eventMouseEnter: function(info) {
                 showEventTooltip(info.event);
             },
@@ -55,9 +38,8 @@ dateClick: function(info) {
         });
         calendar.render();
     }
-}
 
-
+// Function to show the tooltip for an event
 function showEventTooltip(event) {
     const tooltip = document.createElement('div');
     tooltip.id = 'event-tooltip';
@@ -95,22 +77,138 @@ function positionTooltip(event) {
     }
 }
 
-// Populate the sidebar with start and end times based on a range selection
-function populateSidebarForDateRange(start, end) {
-    const startDateStr = start.toISOString().split('T')[0];
-    const startTime = start.toTimeString().slice(0, 5); // format HH:MM
-
-    const endDateStr = end.toISOString().split('T')[0];
-    const endTime = end.toTimeString().slice(0, 5); // format HH:MM
-
-    // Set the start and end date/time fields in the sidebar
-    document.getElementById('event-start-date').value = startDateStr;
-    document.getElementById('event-end-date').value = endDateStr;
-    document.getElementById('event-start-time').value = startTime;
-    document.getElementById('event-end-time').value = endTime;
+function openCreateEventSidebar(date) {
+    // Clear form for a new event and adjust buttons
+    clearEventForm();
+    document.getElementById('create-event').style.display = 'block';
+    document.getElementById('delete-event').style.display = 'none';
+    document.getElementById('edit-event').style.display = 'none';
+    populateSidebarWithDate(date);
+    openSidebar();
+    selectedEvent = null; // Ensure no event is selected for editing
 }
 
-// Open the sidebar
+function openEditEventSidebar(event) {
+    selectedEvent = event;
+    populateSidebarWithEventDetails(event);
+
+    // Show edit and delete buttons, hide create button
+    document.getElementById('create-event').style.display = 'none';
+    document.getElementById('edit-event').style.display = 'block';
+    document.getElementById('delete-event').style.display = 'block';
+
+    openSidebar();
+}
+
+function populateSidebarWithEventDetails(event) {
+    document.getElementById('event-title').value = event.title;
+    document.getElementById('event-start-date').value = event.start.toISOString().split('T')[0];
+    document.getElementById('event-start-time').value = event.start.toTimeString().slice(0, 5);
+    if (event.end) {
+        document.getElementById('event-end-date').value = event.end.toISOString().split('T')[0];
+        document.getElementById('event-end-time').value = event.end.toTimeString().slice(0, 5);
+    }
+}
+
+function populateSidebarWithDate(date) {
+    const currentDate = date.toISOString().split('T')[0];
+    const currentTime = date.toTimeString().slice(0, 5);
+
+    document.getElementById('event-start-date').value = currentDate;
+    document.getElementById('event-start-time').value = currentTime;
+
+    // Set a default end time 15 minutes later
+    const endDate = new Date(date);
+    endDate.setMinutes(endDate.getMinutes() + 15);
+    document.getElementById('event-end-date').value = endDate.toISOString().split('T')[0];
+    document.getElementById('event-end-time').value = endDate.toTimeString().slice(0, 5);
+}
+
+function setupEditEventButton() {
+    const editEventButton = document.getElementById('edit-event');
+    if (editEventButton) {
+        editEventButton.addEventListener('click', () => {
+            if (!selectedEvent) return; // Ensure an event is selected
+
+            // Get updated details from the sidebar form
+            const title = document.getElementById('event-title').value;
+            const startDate = document.getElementById('event-start-date').value;
+            const startTime = document.getElementById('event-start-time').value;
+            const endDate = document.getElementById('event-end-date').value;
+            const endTime = document.getElementById('event-end-time').value;
+
+            // Create new date-time strings to avoid unintended date mutations
+            const newStart = `${startDate}T${startTime}`;
+            const newEnd = `${endDate}T${endTime}`;
+
+            // Update event properties
+            selectedEvent.setProp('title', title);
+            selectedEvent.setStart(newStart); // Set the new start date-time
+            selectedEvent.setEnd(newEnd); // Set the new end date-time
+
+            // Clear selected event and close the sidebar
+            selectedEvent = null;
+            closeSidebar();
+        });
+    }
+}
+
+function setupEventCreation() {
+    const createButton = document.getElementById('create-event');
+    if (createButton) {
+        createButton.addEventListener('click', () => {
+            const title = document.getElementById('event-title').value;
+            const startDate = document.getElementById('event-start-date').value;
+            const startTime = document.getElementById('event-start-time').value;
+            const endDate = document.getElementById('event-end-date').value;
+            const endTime = document.getElementById('event-end-time').value;
+
+            const start = `${startDate}T${startTime}`;
+            const end = `${endDate}T${endTime}`;
+
+            if (calendar) {
+                calendar.addEvent({ title, start, end });
+            }
+        });
+    }
+}
+
+function setupDeleteEventButton() {
+    const deleteEventButton = document.getElementById('delete-event');
+    if (deleteEventButton) {
+        deleteEventButton.addEventListener('click', () => {
+            if (selectedEvent) {
+                selectedEvent.remove();
+                closeSidebar();
+            }
+        });
+    }
+}
+
+function clearEventForm() {
+    document.getElementById('event-title').value = '';
+    document.getElementById('event-start-date').value = '';
+    document.getElementById('event-start-time').value = '';
+    document.getElementById('event-end-date').value = '';
+    document.getElementById('event-end-time').value = '';
+}
+
+// Modify setupCloseSidebarListeners to directly reference closeSidebar
+function setupCloseSidebarListeners() {
+    const closeSidebarButton = document.getElementById('close-sidebar-button');
+
+    if (closeSidebarButton) {
+        closeSidebarButton.addEventListener('click', closeSidebar); // Direct reference to closeSidebar
+    }
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeSidebar();
+        }
+    });
+}
+
+// Sidebar control functions
 function openSidebar() {
     const eventSidebar = document.getElementById('event-sidebar');
     if (!eventSidebar.classList.contains('open')) {
@@ -118,94 +216,20 @@ function openSidebar() {
     }
 }
 
-// Close the sidebar
 function closeSidebar() {
     const eventSidebar = document.getElementById('event-sidebar');
-    eventSidebar.classList.remove('open');
-}
-
-// Setup DOM event listeners for sidebar behavior and Create Event button
-function setupDOMListeners() {
-    const createEventButton = document.getElementById('create-event-button');
-    const eventSidebar = document.getElementById('event-sidebar');
-
-    if (createEventButton && eventSidebar) {
-        // Open sidebar with current date and time on Create Event button click
-        createEventButton.addEventListener('click', () => {
-            const now = new Date();
-            const currentDate = now.toISOString().split('T')[0];
-            const currentTime = now.toTimeString().slice(0, 5);
-
-            // Set the start and end dates and times for the default event
-            document.getElementById('event-start-date').value = currentDate;
-            document.getElementById('event-start-time').value = currentTime;
-
-            // Set the end time to one hour later on the same date
-            const endDate = new Date(now);
-            endDate.setHours(endDate.getHours() + 1);
-            document.getElementById('event-end-date').value = endDate.toISOString().split('T')[0];
-            document.getElementById('event-end-time').value = endDate.toTimeString().slice(0, 5);
-
-            // Open the sidebar
-            openSidebar();
-        });
-
-        // Close sidebar only if clicking outside both the sidebar and the button
-        document.addEventListener('click', (event) => {
-            const isClickInsideSidebar = eventSidebar.contains(event.target);
-            const isClickOnButton = createEventButton.contains(event.target);
-
-            if (!isClickInsideSidebar && !isClickOnButton) {
-                closeSidebar();
-            }
-        });
+    if (eventSidebar.classList.contains('open')) {
+        eventSidebar.classList.remove('open');
+        console.log("Sidebar closed."); // Debugging log
     }
 }
 
-// Setup the create event action in the sidebar
-function setupEventCreation() {
-    const createEventButton = document.getElementById('create-event');
-    if (createEventButton) {
-        createEventButton.addEventListener('click', () => {
-            const title = document.getElementById('event-title').value;
-            const startDate = document.getElementById('event-start-date').value;
-            const endDate = document.getElementById('event-end-date').value;
-            const startTime = document.getElementById('event-start-time').value;
-            const endTime = document.getElementById('event-end-time').value;
-
-            if (!title || !startDate || !startTime || !endDate || !endTime) {
-                alert("Please fill out all fields.");
-                return;
-            }
-
-            const start = `${startDate}T${startTime}`;
-            const end = `${endDate}T${endTime}`;
-
-            calendar.addEvent({
-                title: title,
-                start: start,
-                end: end,
-                allDay: false
-            });
-
-            // Clear form fields and close the sidebar
-            document.getElementById('event-title').value = '';
-            document.getElementById('event-start-date').value = '';
-            document.getElementById('event-start-time').value = '';
-            document.getElementById('event-end-date').value = '';
-            document.getElementById('event-end-time').value = '';
-
-            closeSidebar();
-        });
-    }
-}
-
-// Function to fetch events (mock or API-based)
+// Mock event data for testing without API calls
 function fetchEvents() {
     return isApiConnected ? fetchApiEvents() : getMockEvents();
 }
 
-// Mock event data for testing without API calls
+// Mock events
 function getMockEvents() {
     return [
         { id: '1', title: 'Math Study Group', start: '2024-11-10T10:00:00', end: '2024-11-10T12:00:00' },
@@ -214,13 +238,27 @@ function getMockEvents() {
     ];
 }
 
-// Initialize the calendar and setup listeners on DOM load
-if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeCalendar();
-        setupEventCreation();
-        setupDOMListeners();
-    });
-}
+// Ensure all listeners are set up on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+    initializeCalendar();
+    setupEventCreation();
+    setupEditEventButton();
+    setupDeleteEventButton();
+    setupCloseSidebarListeners(); // Set up close listeners for sidebar
+    setupDOMListeners();
+});
 
-module.exports = { fetchEvents, initializeCalendar, showEventTooltip, hideEventTooltip };
+
+module.exports = {
+    fetchEvents,
+    initializeCalendar,
+    showEventTooltip,
+    hideEventTooltip,
+    openSidebar,
+    closeSidebar,
+    setupEventCreation,
+    setupDeleteEventButton,
+    openCreateEventSidebar,
+    openEditEventSidebar,
+    setupCloseSidebarListeners,
+};
