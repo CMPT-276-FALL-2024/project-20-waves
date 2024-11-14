@@ -234,7 +234,7 @@ button {
     grid-template-columns: repeat(2, 600px);
     grid-template-rows: repeat(5, auto);
     gap: 50px;
-    display: none;
+    /*display: none;*/
     animation: fadeIn 0.3s;
 }
 
@@ -277,6 +277,11 @@ button {
 
 .multiple-choice-options input[type="radio"]:checked + label {
     background-color: gray;
+}
+
+.question {
+    text-align: center;
+    font-weight: bold;
 }
 
 

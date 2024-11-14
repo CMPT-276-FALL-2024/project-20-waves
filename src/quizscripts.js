@@ -3,50 +3,8 @@ import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai";
 const genAI = new GoogleGenerativeAI("");
 
 let userTopic;
-
-async function geminiAPI() {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
-
-    const prompt = "give a 10 question multiple choice quiz about " + userTopic;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-
-    //Parse the API results then place into array with objects
-    const text = response.text();
-    
-    const textArray = text.split("\n\n");
-
-    for (let i = 0; i < 11; i++) {
-        textArray[i] = textArray[i].split("\n");
-        
-    }
-
-    const answerArray = textArray[textArray.length - 1].split("\n");
-    
-    for (let i = 0; i < 10; i++) {
-        questions[i].data.question = textArray[i + 1][0];
-        questions[i].data.option1 = textArray[i + 1][1];
-        questions[i].data.option2 = textArray[i + 1][2];
-        questions[i].data.option3 = textArray[i + 1][3];
-        questions[i].data.option4 = textArray[i + 1][4];
-        questions[i].data.answer = answerArray[i + 1];
-    }
-
-    console.log(questions);
-
-}
-
-
-//Get text input value from quiz-topic-textbox and then call API
-//Parse the API results then place into array with objects
-//Set each question to the question from array
-//Set each questions options values to the options from the API call
-//Create an answers array to store the users answers
-//Display quiz
-//When an option is selected place the value of that radio button into user answer array
-//When quiz is submitted compare the user answer array to the results arrays answers
-//Return score
+let userScore = 0;
+const TOTALQUESTIONS = 10;
 
 let questions = [
     {
@@ -173,14 +131,64 @@ let userAnswers = {
     question10 : ""
 };
 
+async function geminiAPI() {
+    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+
+    const prompt = "give a 10 question multiple choice quiz about " + userTopic;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+
+    const text = response.text();
+
+    //Parse the API results into seperate question arrays
+    const textArray = text.split("\n\n");
+
+    //Parse each array within the outer array to get each part of each question into seperate elements
+    for (let i = 0; i < 11; i++) {
+        textArray[i] = textArray[i].split("\n");
+        
+    }
+
+    //Parse the last element of the array (last element has all the answers as one element) into seperate elements and assign to array
+    const answerArray = textArray[textArray.length - 1].split("\n");
+    
+    //Assign the question, options, and answer for each question into each question object in the questions array
+    for (let i = 0; i < 10; i++) {
+        questions[i].data.question = textArray[i + 1][0];
+        questions[i].data.option1 = textArray[i + 1][1];
+        questions[i].data.option2 = textArray[i + 1][2];
+        questions[i].data.option3 = textArray[i + 1][3];
+        questions[i].data.option4 = textArray[i + 1][4];
+        questions[i].data.answer = answerArray[i + 1];
+    }
+
+    console.log(questions);
+
+    //Display question cards
+    let i = 0;
+    questionHeaders.forEach(questionHeader => {
+        questionHeader.innerHTML = questions[i].data.question;
+        i++;
+    });
+
+}
+
 
 const quizTopicTextBox = document.body.querySelector("#quiz-topic-textbox");
 const generateQuizButton = document.body.querySelector('.generate-quiz-button');
+const questionHeaders = document.body.querySelectorAll('.question');
 
+
+
+//Get text input value from quiz-topic-textbox and then call API
 generateQuizButton.addEventListener("click", () => {
     userTopic = quizTopicTextBox.value;
     geminiAPI();
+
+    
+
+
 });
 
-
-
+//Create function to add a quiz question card to the dom with the variables
