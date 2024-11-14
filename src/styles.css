@@ -360,3 +360,17 @@ button {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.error-msg {
+    font-weight: bold;
+    font-size: 20px;
+    color: rgb(255, 0, 0);
+    position: absolute;
+    display: none;
+}
+
+.error-msg-position {
+    display: flex;
+    justify-content: center;
+}
+

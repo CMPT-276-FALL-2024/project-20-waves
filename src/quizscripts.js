@@ -207,8 +207,9 @@ const quizSubmitButton = document.body.querySelector('.quiz-submit-button');
 
 const loader = document.body.querySelector(".loader");
 
+const errorMessage = document.body.querySelector(".error-msg");
+
 quizSubmitButton.addEventListener("click", () => {
-    console.log(userAnswers);
     //Compare the user answer and actual answers
     for (let i = 0; i < 10; i++) {
         if (questions[i].data.answer.includes(userAnswers[i])) {
@@ -226,7 +227,13 @@ quizSubmitButton.addEventListener("click", () => {
 generateQuizButton.addEventListener("click", () => {
     flashCardsSection.style.display = 'none';
     userTopic = quizTopicTextBox.value;
-    geminiAPI();
+
+    if (!userTopic) {
+        errorMessage.style.display = 'inline';
+    } else {
+        errorMessage.style.display = 'none';
+        geminiAPI();
+    } 
 });
 
 window.setUserAnswer =  function(questionNumber, choice) {
