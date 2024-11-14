@@ -230,11 +230,10 @@ button {
 }
 
 .quiz {
-    display: none;
+    display: grid;
     grid-template-columns: repeat(2, 600px);
     grid-template-rows: repeat(5, auto);
     gap: 50px;
-    /*display: none;*/
     animation: fadeIn 0.3s;
 }
 
@@ -284,6 +283,33 @@ button {
     font-weight: bold;
 }
 
+.quiz-submit-button-position {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 100px;
+}
+
+.quiz-submit-button {
+    background-color: lightgreen;
+    font-size: 30px;
+    width: 150px;
+    height: 45px;
+    border-radius: 10px;
+    position: absolute;
+    left: 900px;
+    top: 1745px;
+    margin-bottom: 100px;
+}
+
+.quiz-score {
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.quiz-score-position {
+    display: flex;
+    justify-content: center;
+}
 
 
 

@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI("AIzaSyD59cvRLGTGbqq-oQRidggkpYzrNrw1K_I");
+const genAI = new GoogleGenerativeAI("");
 
 let userTopic;
 let userScore = 0;
@@ -184,10 +184,12 @@ async function geminiAPI() {
     });
 
     //Display quiz
+    flashCardsSection.style.display = 'none';
     quizSection.style.display = 'grid';
 
 }
 const quizSection = document.body.querySelector(".quiz");
+const flashCardsSection = document.body.querySelector(".flashcard-section");
 
 const quizTopicTextBox = document.body.querySelector("#quiz-topic-textbox");
 const generateQuizButton = document.body.querySelector('.generate-quiz-button');
@@ -197,6 +199,26 @@ const optionAinputs = document.body.querySelectorAll('#option-a');
 const optionBinputs = document.body.querySelectorAll('#option-b');
 const optionCinputs = document.body.querySelectorAll('#option-c');
 const optionDinputs = document.body.querySelectorAll('#option-d');
+
+const quizScore = document.body.querySelector('.quiz-score')
+
+const quizSubmitButton = document.body.querySelector('.quiz-submit-button');
+
+quizSubmitButton.addEventListener("click", () => {
+    console.log(userAnswers);
+    //Compare the user answer and actual answers
+    for (let i = 0; i < 10; i++) {
+        if (questions[i].data.answer.includes(userAnswers[i])) {
+            userScore++;
+        }
+    }
+
+
+    quizScore.innerHTML = 'Score: ' + userScore.toString() + '/10'; 
+    quizScore.style.display = 'inline'
+});
+
+
 
 //Get text input value from quiz-topic-textbox and then call API
 generateQuizButton.addEventListener("click", () => {
