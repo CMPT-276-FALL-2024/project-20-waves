@@ -161,12 +161,27 @@ async function geminiAPI() {
         i++;
     });
 
+    i = 0;
+    optionAinputs.forEach(optionAinput => {
+        optionAinput.innerHTML = questions[i].data.option1;
+        i++;
+    });
 
-
-
-
-
-
+    i = 0;
+    optionBinputs.forEach(optionBinput => {
+        optionBinput.innerHTML = questions[i].data.option2;
+        i++;
+    });
+    i = 0;
+    optionCinputs.forEach(optionCinput => {
+        optionCinput.innerHTML = questions[i].data.option3;
+        i++;
+    });
+    i = 0;
+    optionDinputs.forEach(optionDinput => {
+        optionDinput.innerHTML = questions[i].data.option4;
+        i++;
+    });
 }
 
 
@@ -174,8 +189,10 @@ const quizTopicTextBox = document.body.querySelector("#quiz-topic-textbox");
 const generateQuizButton = document.body.querySelector('.generate-quiz-button');
 const questionHeaders = document.body.querySelectorAll('.question');
 
-
-
+const optionAinputs = document.body.querySelectorAll('#option-a');
+const optionBinputs = document.body.querySelectorAll('#option-b');
+const optionCinputs = document.body.querySelectorAll('#option-c');
+const optionDinputs = document.body.querySelectorAll('#option-d');
 
 //Get text input value from quiz-topic-textbox and then call API
 generateQuizButton.addEventListener("click", () => {
@@ -183,10 +200,7 @@ generateQuizButton.addEventListener("click", () => {
     geminiAPI();
 });
 
-
 window.setUserAnswer =  function(questionNumber, choice) {
     userAnswers[questionNumber] = choice;
-    console.log(userAnswers[questionNumber]);
 }
 
-//Create function to add a quiz question card to the dom with the variables
