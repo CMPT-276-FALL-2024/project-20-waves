@@ -11,6 +11,7 @@ function initializeCalendar() {
     const calendarEl = document.getElementById('calendar');
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
+            selectable: true,
             events: fetchEvents(),
             headerToolbar: {
                 left: 'prev,next today',
@@ -20,10 +21,10 @@ function initializeCalendar() {
             dateClick: function(info) {
                 openCreateEventSidebar(info.date);
             },
-            selectable: true,
             select: function(info) {
+                console.log("Date range selected from:", info.start, "to", info.end);
                 populateSidebarForDateRange(info.start, info.end);
-                setTimeout(openSidebar, 10);
+                openSidebar();
             },
             eventClick: function(info) {
                 openEditEventSidebar(info.event);
@@ -77,6 +78,13 @@ function positionTooltip(event) {
     }
 }
 
+function populateSidebarForDateRange(start, end) {
+    document.getElementById('event-start-date').value = start.toISOString().split('T')[0];
+    document.getElementById('event-start-time').value = start.toTimeString().slice(0, 5);
+    document.getElementById('event-end-date').value = end.toISOString().split('T')[0];
+    document.getElementById('event-end-time').value = end.toTimeString().slice(0, 5);
+}
+
 function openCreateEventSidebar(date) {
     // Clear form for a new event and adjust buttons
     clearEventForm();
@@ -122,6 +130,15 @@ function populateSidebarWithDate(date) {
     endDate.setMinutes(endDate.getMinutes() + 15);
     document.getElementById('event-end-date').value = endDate.toISOString().split('T')[0];
     document.getElementById('event-end-time').value = endDate.toTimeString().slice(0, 5);
+}
+
+function setupCreateEventButton() {
+    const createEventButton = document.getElementById('create-event-button');
+    if (createEventButton) {
+        createEventButton.addEventListener('click', () => {
+            openCreateEventSidebar(new Date()); // Open sidebar with the current date as default
+        });
+    }
 }
 
 function setupEditEventButton() {
@@ -243,6 +260,7 @@ function getMockEvents() {
 document.addEventListener('DOMContentLoaded', () => {
     initializeCalendar();
     setupEventCreation();
+    setupCreateEventButton();
     setupEditEventButton();
     setupDeleteEventButton();
     setupCloseSidebarListeners(); // Set up close listeners for sidebar
@@ -262,10 +280,4 @@ module.exports = {
     openCreateEventSidebar,
     openEditEventSidebar,
     setupCloseSidebarListeners,
-
-    setupEditEventButton,
-    clearEventForm,
-    populateSidebarWithEventDetails,
-    populateSidebarWithDate,
-    positionTooltip
 };
