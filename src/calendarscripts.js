@@ -21,13 +21,25 @@ function initializeCalendar() {
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
-            // Ensures date click functionality works independently
-            dateClick: function(info) {
-                const clickedDate = info.dateStr; // Get the date string in 'YYYY-MM-DD' format
-                document.getElementById('event-start-date').value = clickedDate;
-                document.getElementById('event-end-date').value = clickedDate;
-                openSidebar();
-            },
+            // Update dateClick function in calendarscripts.js
+dateClick: function(info) {
+    const clickedDate = info.date; // Get the clicked date as a Date object
+
+    // Get the current time and add it to the clicked date for start time
+    const now = new Date();
+    clickedDate.setHours(now.getHours(), now.getMinutes(), 0, 0);
+
+    // Set start date and time
+    document.getElementById('event-start-date').value = clickedDate.toISOString().split('T')[0];
+    document.getElementById('event-start-time').value = clickedDate.toTimeString().slice(0, 5);
+
+    // Set end time to 15 minutes after start time
+    const endTime = new Date(clickedDate.getTime() + 15 * 60000);
+    document.getElementById('event-end-date').value = endTime.toISOString().split('T')[0];
+    document.getElementById('event-end-time').value = endTime.toTimeString().slice(0, 5);
+
+    openSidebar(); // Open the event creation sidebar
+},
             selectable: true,
             select: function(info) {
                 populateSidebarForDateRange(info.start, info.end);
