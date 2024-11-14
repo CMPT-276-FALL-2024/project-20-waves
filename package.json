@@ -6,7 +6,6 @@
   "directories": {
     "doc": "docs"
   },
-
   "type": "module",
   "scripts": {
     "test": "jest"

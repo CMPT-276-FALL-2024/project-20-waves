@@ -1,11 +1,13 @@
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI('');
+const genAI = new GoogleGenerativeAI("");
+
+let userTopic;
 
 async function geminiAPI() {
     const model = genAI.getGenerativeModel({ model: "gemini-pro"});
 
-    const prompt = "give a 10 question multiple choice quiz about java";
+    const prompt = "give a 10 question multiple choice quiz about " + userTopic;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -20,7 +22,6 @@ async function geminiAPI() {
         
     }
 
-
     const answerArray = textArray[textArray.length - 1].split("\n");
     
     for (let i = 0; i < 10; i++) {
@@ -34,32 +35,7 @@ async function geminiAPI() {
 
     console.log(questions);
 
-
-
-
-    
-
-
-
-    
-    
-
-
-    
-
-
-
-
-
-    
-    
 }
-
-geminiAPI();
-
-
-
-
 
 
 //Get text input value from quiz-topic-textbox and then call API
@@ -184,7 +160,6 @@ let questions = [
     }
 ];
 
-
 let userAnswers = {
     question1 : "",
     question2 : "",
@@ -197,5 +172,15 @@ let userAnswers = {
     question9 : "",
     question10 : ""
 };
+
+
+const quizTopicTextBox = document.body.querySelector("#quiz-topic-textbox");
+const generateQuizButton = document.body.querySelector('.generate-quiz-button');
+
+generateQuizButton.addEventListener("click", () => {
+    userTopic = quizTopicTextBox.value;
+    geminiAPI();
+});
+
 
 
