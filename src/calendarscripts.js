@@ -10,7 +10,6 @@ let isApiConnected = false;
 // Reference to the FullCalendar instance
 let calendar;
 
-// Function to initialize the FullCalendar instance
 function initializeCalendar() {
     const calendarEl = document.getElementById('calendar');
     if (calendarEl) {
@@ -22,44 +21,65 @@ function initializeCalendar() {
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
-
-            // Handle single date clicks in all views
+            // Ensures date click functionality works independently
             dateClick: function(info) {
-                const clickedDate = info.date.toISOString().split('T')[0];
-                let startTime, endTime;
-
-                // Default start and end times based on the view
-                if (calendar.view.type === 'dayGridMonth') {
-                    const now = new Date();
-                    startTime = now.toTimeString().slice(0, 5);
-                    now.setHours(now.getHours() + 1);
-                    endTime = now.toTimeString().slice(0, 5);
-                } else {
-                    startTime = info.date.toTimeString().slice(0, 5);
-                    const endDate = new Date(info.date);
-                    endDate.setHours(endDate.getHours() + 1);
-                    endTime = endDate.toTimeString().slice(0, 5);
-                }
-
-                // Set start and end dates and times in the sidebar
+                const clickedDate = info.dateStr; // Get the date string in 'YYYY-MM-DD' format
                 document.getElementById('event-start-date').value = clickedDate;
                 document.getElementById('event-end-date').value = clickedDate;
-                document.getElementById('event-start-time').value = startTime;
-                document.getElementById('event-end-time').value = endTime;
-
                 openSidebar();
             },
-
-            // Handle time range selection (drag selection) with delay
             selectable: true,
             select: function(info) {
                 populateSidebarForDateRange(info.start, info.end);
-
-                // Ensure the sidebar opens after the selection is fully processed
-                setTimeout(openSidebar, 10); // 10ms delay to ensure consistent opening
+                setTimeout(openSidebar, 10); // Open the sidebar
+            },
+            // Event hover callbacks
+            eventMouseEnter: function(info) {
+                showEventTooltip(info.event);
+            },
+            eventMouseLeave: function(info) {
+                hideEventTooltip();
             }
         });
         calendar.render();
+    }
+}
+
+
+function showEventTooltip(event) {
+    const tooltip = document.createElement('div');
+    tooltip.id = 'event-tooltip';
+    tooltip.className = 'event-tooltip';
+
+    // Format start and end times to display only hours and minutes
+    const startTime = event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const endTime = event.end ? event.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+    tooltip.innerHTML = `
+        <strong>${event.title}</strong><br>
+        Start: ${startTime}<br>
+        ${endTime ? `End: ${endTime}` : ''}
+    `;
+
+    // Set the tooltip position to follow the mouse
+    document.addEventListener('mousemove', positionTooltip);
+    document.body.appendChild(tooltip);
+}
+
+function hideEventTooltip() {
+    const tooltip = document.getElementById('event-tooltip');
+    if (tooltip) {
+        tooltip.remove();
+    }
+    document.removeEventListener('mousemove', positionTooltip);
+}
+
+// Helper function to position the tooltip near the mouse cursor
+function positionTooltip(event) {
+    const tooltip = document.getElementById('event-tooltip');
+    if (tooltip) {
+        tooltip.style.left = `${event.pageX + 15}px`;
+        tooltip.style.top = `${event.pageY + 15}px`;
     }
 }
 
@@ -191,4 +211,4 @@ if (typeof document !== 'undefined') {
     });
 }
 
-module.exports = { fetchEvents, mockReminders };
+module.exports = { fetchEvents, initializeCalendar, showEventTooltip, hideEventTooltip };

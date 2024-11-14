@@ -1,4 +1,15 @@
-const { fetchEvents, mockReminders } = require('./calendarscripts.js');
+// Mocking FullCalendar globally for the test environment - prevents calendar from creating a real calendar instance
+global.FullCalendar = {
+    Calendar: jest.fn().mockImplementation(() => {
+        return {
+            render: jest.fn(),
+            addEvent: jest.fn(),
+            getEvents: jest.fn(() => []), // Mock an empty array for events
+        };
+    }),
+};
+
+const { fetchEvents, initializeCalendar, showEventTooltip, hideEventTooltip } = require('./calendarscripts.js');
 
 // Mocking DOM elements for tests
 beforeEach(() => {
@@ -119,5 +130,52 @@ describe('Calendar Scripts', () => {
             end: '2024-11-14T11:00',
             allDay: false
         });
+    });
+});
+
+
+// Test suite for the hover functionality
+describe('Calendar Event Hover Tooltip', () => {
+    // Set up the DOM and initialize the calendar before each test
+    beforeEach(() => {
+        document.body.innerHTML = `
+            <div id="calendar"></div>
+        `;
+
+        initializeCalendar(); // Initialize FullCalendar within the test environment
+
+        // Mock event data for hover testing
+        const mockEvent = {
+            id: '1',
+            title: 'Test Event',
+            start: new Date('2024-11-14T09:00:00'),
+            end: new Date('2024-11-14T11:00:00')
+        };
+
+        showEventTooltip(mockEvent); // Simulate showing the tooltip on hover
+    });
+
+    afterEach(() => {
+        hideEventTooltip(); // Ensure tooltip is removed after each test
+    });
+
+    // Test: Verify tooltip appears with correct content on hover
+    test('should display tooltip with correct content on hover', () => {
+        const tooltip = document.getElementById('event-tooltip');
+        expect(tooltip).toBeTruthy(); // Tooltip should exist
+
+        // Verify the tooltip content
+        expect(tooltip.innerHTML).toContain('Test Event');
+        expect(tooltip.innerHTML).toContain('09:00'); // Only hours and minutes
+        expect(tooltip.innerHTML).toContain('11:00');
+    });
+
+    // Test: Verify tooltip disappears on mouse leave
+    test('should remove tooltip on mouse leave', () => {
+        hideEventTooltip(); // Simulate mouse leave by hiding the tooltip
+
+        // Tooltip should no longer exist in the DOM
+        const tooltip = document.getElementById('event-tooltip');
+        expect(tooltip).toBeNull();
     });
 });
