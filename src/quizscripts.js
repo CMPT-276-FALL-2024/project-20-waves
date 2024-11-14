@@ -186,7 +186,6 @@ async function geminiAPI() {
     });
 
     //Display quiz
-    flashCardsSection.style.display = 'none';
     quizSection.style.display = 'grid';
 
 }
@@ -225,6 +224,7 @@ quizSubmitButton.addEventListener("click", () => {
 
 //Get text input value from quiz-topic-textbox and then call API
 generateQuizButton.addEventListener("click", () => {
+    flashCardsSection.style.display = 'none';
     userTopic = quizTopicTextBox.value;
     geminiAPI();
 });
