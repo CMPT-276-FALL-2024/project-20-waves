@@ -5,30 +5,62 @@ const genAI = new GoogleGenerativeAI('');
 async function geminiAPI() {
     const model = genAI.getGenerativeModel({ model: "gemini-pro"});
 
-    const prompt = "give a 10 question quiz about " + "java";
+    const prompt = "give a 10 question multiple choice quiz about java";
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
 
     //Parse the API results then place into array with objects
     const text = response.text();
+    
+    const textArray = text.split("\n\n");
 
-    const regexExpression = /(\d+\.[^0-9]+)/g;
-
-    const responseQuestions = [...text.matchAll(regex)];
-
-    const questionsArray = responseQuestions.map(question => question[0]);
-
-    for (let i = 0; i < 10; i++) {
-        questions[i].data.question = questionsArray[i];
+    for (let i = 0; i < 11; i++) {
+        textArray[i] = textArray[i].split("\n");
+        
     }
 
+
+    const answerArray = textArray[textArray.length - 1].split("\n");
+    
     for (let i = 0; i < 10; i++) {
-        console.log(questionsArray[i]);
+        questions[i].data.question = textArray[i + 1][0];
+        questions[i].data.option1 = textArray[i + 1][1];
+        questions[i].data.option2 = textArray[i + 1][2];
+        questions[i].data.option3 = textArray[i + 1][3];
+        questions[i].data.option4 = textArray[i + 1][4];
+        questions[i].data.answer = answerArray[i + 1];
     }
+
+    console.log(questions);
+
+
+
+
+    
+
+
+
+    
+    
+
+
+    
+
+
+
+
+
+    
+    
 }
 
 geminiAPI();
+
+
+
+
+
 
 //Get text input value from quiz-topic-textbox and then call API
 //Parse the API results then place into array with objects
@@ -152,6 +184,7 @@ let questions = [
     }
 ];
 
+
 let userAnswers = {
     question1 : "",
     question2 : "",
@@ -164,26 +197,5 @@ let userAnswers = {
     question9 : "",
     question10 : ""
 };
-
-
-/*
-const generateQuizButton = document.querySelector(".generate-quiz-button");
-const quizTopicTextBox = document.querySelector("#quiz-topic-textbox");
-
-//Generate quiz option button
-generateQuizButton.addEventListener("click", () => {
-    flashCards.style.display = 'none';
-    quiz.style.display = 'grid';
-    editFlashCardsMenu.style.display = 'none';
- });
-
- generateQuizButton.addEventListener("click", () => {
-    //Get textbox value
-    let topic = quizTopicTextBox.value;
-    let prompt = "give a 1 question quiz about java";
- });
-
-*/
-
 
 
