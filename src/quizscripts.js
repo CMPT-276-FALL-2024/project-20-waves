@@ -4,7 +4,6 @@ const genAI = new GoogleGenerativeAI("");
 
 let userTopic;
 let userScore = 0;
-const TOTALQUESTIONS = 10;
 
 let questions = [
     {
@@ -121,6 +120,9 @@ let questions = [
 let userAnswers = [];
 
 async function geminiAPI() {
+
+    loader.style.display = 'inline';
+
     const model = genAI.getGenerativeModel({ model: "gemini-pro"});
 
     const prompt = "give a 10 question multiple choice quiz about " + userTopic;
@@ -152,7 +154,7 @@ async function geminiAPI() {
         questions[i].data.answer = answerArray[i + 1];
     }
 
-    console.log(questions);
+    loader.style.display = 'none';
 
     //Display question cards
     let i = 0;
@@ -204,6 +206,8 @@ const quizScore = document.body.querySelector('.quiz-score')
 
 const quizSubmitButton = document.body.querySelector('.quiz-submit-button');
 
+const loader = document.body.querySelector(".loader");
+
 quizSubmitButton.addEventListener("click", () => {
     console.log(userAnswers);
     //Compare the user answer and actual answers
@@ -212,7 +216,6 @@ quizSubmitButton.addEventListener("click", () => {
             userScore++;
         }
     }
-
 
     quizScore.innerHTML = 'Score: ' + userScore.toString() + '/10'; 
     quizScore.style.display = 'inline'
