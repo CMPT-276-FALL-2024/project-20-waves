@@ -180,6 +180,7 @@ function setupDeleteEventButton() {
             if (selectedEvent) {
                 selectedEvent.remove();
                 closeSidebar();
+                selectedEvent = null;
             }
         });
     }
@@ -261,4 +262,10 @@ module.exports = {
     openCreateEventSidebar,
     openEditEventSidebar,
     setupCloseSidebarListeners,
+
+    setupEditEventButton,
+    clearEventForm,
+    populateSidebarWithEventDetails,
+    populateSidebarWithDate,
+    positionTooltip
 };

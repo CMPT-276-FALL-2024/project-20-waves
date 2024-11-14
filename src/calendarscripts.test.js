@@ -179,3 +179,47 @@ describe('Calendar Event Hover Tooltip', () => {
         expect(tooltip).toBeNull();
     });
 });
+
+
+describe('Delete Event Functionality', () => {
+    let deleteEventButton;
+
+    beforeEach(() => {
+        // Set up the DOM elements required by populateSidebarWithEventDetails and openEditEventSidebar
+        document.body.innerHTML = `
+            <input type="text" id="event-title" />
+            <input type="date" id="event-start-date" />
+            <input type="time" id="event-start-time" />
+            <input type="date" id="event-end-date" />
+            <input type="time" id="event-end-time" />
+            <button id="create-event">Create Event</button>
+            <button id="edit-event" style="display: none;">Edit Event</button>
+            <button id="delete-event" style="display: none;">Delete Event</button>
+            <div id="event-sidebar" class="event-sidebar"></div>
+        `;
+
+        // Mock the selected event to simulate selection and deletion, using Date objects for start and end
+        global.selectedEvent = {
+            title: 'Test Event',
+            start: new Date('2024-11-14T09:00:00'),
+            end: new Date('2024-11-14T11:00:00'),
+            remove: jest.fn(), // Mock the remove method on selectedEvent
+        };
+
+        // Import functions and set up delete button
+        const { setupDeleteEventButton, openEditEventSidebar } = require('./calendarscripts.js');
+        setupDeleteEventButton();
+
+        // Simulate selecting an event
+        openEditEventSidebar(global.selectedEvent);
+
+        deleteEventButton = document.getElementById('delete-event');
+    });
+
+    test('should call remove on selectedEvent when delete button is clicked', () => {
+        deleteEventButton.click(); // Simulate the delete button click
+
+        // Assert that remove was called on selectedEvent
+        expect(global.selectedEvent.remove).toHaveBeenCalled();
+    });
+});
