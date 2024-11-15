@@ -204,7 +204,6 @@ const optionDinputs = document.body.querySelectorAll('#option-d');
 
 const quizScore = document.body.querySelector('.quiz-score')
 
-
 const quizSubmitButton = document.body.querySelector('.quiz-submit-button');
 
 const loader = document.body.querySelector(".loader");
@@ -220,23 +219,24 @@ let allButtons =[];
 
 quizSubmitButton.addEventListener("click", () => {
 
+    //Reset variables
     selectedButtons = [];
     allButtons =[];
+    let userScore = 0;
 
-    //Get array of selected radio buttons
-
-    //If the radio button is checked, push the coresponding label to the 
+    //If the radio button is checked, add the label of that radio button to the selected buttons array
     for (let i = 0; i < 40; i++) {
         if (radioButtons[i].checked) {
             selectedButtons.push(labels[i]);
         }
+
+        //Add the label to the all buttons array
         allButtons.push(labels[i]);
     }
 
     //Compare the user answer and actual answers
     for (let i = 0; i < 10; i++) {
-        //If selected answer is correct make the button green
-
+        //If selected answer is correct make the button green and increment user score
         if (questions[i].data.answer.includes(userAnswers[i])) {
             selectedButtons[i].style.backgroundColor = 'lightgreen';
             userScore++;
@@ -248,8 +248,12 @@ quizSubmitButton.addEventListener("click", () => {
         }
     }
 
+    //Make correct buttons green by going through each questions answer and by going thorugh the labels
+    // 4 at a time (for each question) setting the correct label in the array to green
+    // After its set to green go to the next 4 labels for the next 4 options in the next question
+
     let j = 0;
-    //Make correct buttons green
+
     for (let i = 0; i < 10; i++) {
         if (questions[i].data.answer.includes('a')) {
             allButtons[j].style.backgroundColor = 'lightgreen';
@@ -270,7 +274,7 @@ quizSubmitButton.addEventListener("click", () => {
         j+=4;
      }
 
-
+    //Display user score
     quizScore.innerHTML = 'Score: ' + userScore.toString() + '/10'; 
     quizScore.style.display = 'inline'
 });
@@ -280,12 +284,23 @@ generateQuizButton.addEventListener("click", () => {
     flashCardsSection.style.display = 'none';
     userTopic = quizTopicTextBox.value;
 
+    //Uncheck all radio buttons
+    document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+
+    //Reset all background colours of labels
+    document.querySelectorAll('label').forEach(label => label.style.backgroundColor = '');
+    
+    //If user topic is blank, display error message and dont call API
     if (!userTopic) {
         errorMessage.style.display = 'inline';
-    } else {
+    } 
+    
+    //If user topic is entered hide all quiz components and call API
+    else {
         errorMessage.style.display = 'none';
         quizSection.style.display = 'none';
         quizSubmitButton.style.display = 'none';
+        quizScore.style.display = 'none';
         geminiAPI();
     } 
 });
