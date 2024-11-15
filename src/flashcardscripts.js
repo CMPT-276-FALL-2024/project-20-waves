@@ -48,6 +48,8 @@ let flashCardCurrentSide = "front";
 //For options
 const flashcardsButton = document.querySelector(".flashcards-option");
 
+const quizSubmitButton = document.querySelector(".quiz-submit-button");
+
 
 //For flashcards
 const flashCards = document.querySelector(".flashcard-section");
@@ -71,6 +73,7 @@ const quiz = document.querySelector(".quiz");
 flashcardsButton.addEventListener("click", () => {
    flashCards.style.display = 'inline';
    quiz.style.display = 'none';
+   quizSubmitButton.style.display = 'none';
 });
 
 //Update the front of the flash card

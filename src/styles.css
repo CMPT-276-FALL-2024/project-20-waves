@@ -244,8 +244,8 @@ button {
 .quiz-question-card {
     background-color: lightgray;
     width: 500px;
-    height: 250px;
     border-radius: 25px;
+    padding: 20px;
 }
 
 .q1, .q2, .q3, .q4, .q5, .q5, .q6, .q7, .q8, .q9, .q10  {
@@ -264,7 +264,8 @@ button {
 
 .multiple-choice-options label {
     width: 400px;
-    border-radius: 20px;
+    border-radius: 5px;
+    padding: 5px;
     
 }
 
@@ -287,11 +288,6 @@ button {
     font-weight: bold;
 }
 
-.quiz-submit-button-position {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 100px;
-}
 
 .quiz-submit-button {
     background-color: lightgreen;
@@ -299,10 +295,13 @@ button {
     width: 150px;
     height: 45px;
     border-radius: 10px;
-    position: absolute;
-    left: 900px;
-    top: 1745px;
-    margin-bottom: 100px;
+    margin-top: 40px;
+    margin-bottom: 50px;
+    display: none;
+}
+
+.submit-button-go-to-part {
+    margin-left: 45%;
 }
 
 .quiz-score {

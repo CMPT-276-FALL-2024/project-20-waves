@@ -187,6 +187,7 @@ async function geminiAPI() {
 
     //Display quiz
     quizSection.style.display = 'grid';
+    quizSubmitButton.style.display = 'inline';
 
 }
 const quizSection = document.body.querySelector(".quiz");
@@ -203,26 +204,33 @@ const optionDinputs = document.body.querySelectorAll('#option-d');
 
 const quizScore = document.body.querySelector('.quiz-score')
 
+
 const quizSubmitButton = document.body.querySelector('.quiz-submit-button');
 
 const loader = document.body.querySelector(".loader");
 
 const errorMessage = document.body.querySelector(".error-msg");
 
+//Select all radio buttons
 const radioButtons = document.body.querySelectorAll(".option");
-let selectedRadioButtons = [];
 const labels = document.querySelectorAll('label');
 
-
-
+let selectedButtons = [];
+let allButtons =[];
 
 quizSubmitButton.addEventListener("click", () => {
 
+    selectedButtons = [];
+    allButtons =[];
+
     //Get array of selected radio buttons
+
+    //If the radio button is checked, push the coresponding label to the 
     for (let i = 0; i < 40; i++) {
         if (radioButtons[i].checked) {
-            selectedRadioButtons.push(labels[i]);
+            selectedButtons.push(labels[i]);
         }
+        allButtons.push(labels[i]);
     }
 
     //Compare the user answer and actual answers
@@ -230,24 +238,42 @@ quizSubmitButton.addEventListener("click", () => {
         //If selected answer is correct make the button green
 
         if (questions[i].data.answer.includes(userAnswers[i])) {
-            selectedRadioButtons[i].style.backgroundColor = 'lightgreen';
+            selectedButtons[i].style.backgroundColor = 'lightgreen';
             userScore++;
         } 
         
         //If selected answer is incorrect make the button red
         else {
-            selectedRadioButtons[i].style.backgroundColor = 'red';
+            selectedButtons[i].style.backgroundColor = 'red';
+        }
+    }
+
+    let j = 0;
+    //Make correct buttons green
+    for (let i = 0; i < 10; i++) {
+        if (questions[i].data.answer.includes('a')) {
+            allButtons[j].style.backgroundColor = 'lightgreen';
         }
 
+        else if (questions[i].data.answer.includes('b')) {
+            allButtons[j + 1].style.backgroundColor = 'lightgreen';
+        }
         
-    }
+        else if (questions[i].data.answer.includes('c')) {
+            allButtons[j + 2].style.backgroundColor = 'lightgreen';
+        }
+        
+        else if (questions[i].data.answer.includes('d')) {
+            allButtons[j + 3].style.backgroundColor = 'lightgreen';
+        }
+
+        j+=4;
+     }
 
 
     quizScore.innerHTML = 'Score: ' + userScore.toString() + '/10'; 
     quizScore.style.display = 'inline'
 });
-
-
 
 //Get text input value from quiz-topic-textbox and then call API
 generateQuizButton.addEventListener("click", () => {
@@ -259,6 +285,7 @@ generateQuizButton.addEventListener("click", () => {
     } else {
         errorMessage.style.display = 'none';
         quizSection.style.display = 'none';
+        quizSubmitButton.style.display = 'none';
         geminiAPI();
     } 
 });
