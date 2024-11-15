@@ -3,44 +3,46 @@ let isApiConnected = false;
 
 // Reference to the FullCalendar instance
 let calendar;
+
 // Keeps track of the event being edited
 let selectedEvent = null;
 
-// Function to initialize the FullCalendar
+// Initialize FullCalendar
 function initializeCalendar() {
     const calendarEl = document.getElementById('calendar');
-        calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            selectable: true,
-            events: fetchEvents(),
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            },
-            dateClick: function(info) {
-                openCreateEventSidebar(info.date);
-            },
-            select: function(info) {
-                console.log("Date range selected from:", info.start, "to", info.end);
-                populateSidebarForDateRange(info.start, info.end);
-                openSidebar();
-            },
-            eventClick: function(info) {
-                openEditEventSidebar(info.event);
-            },
-            // Tooltip functions for hovering over events
-            eventMouseEnter: function(info) {
-                showEventTooltip(info.event);
-            },
-            eventMouseLeave: function(info) {
-                hideEventTooltip();
-            }
-        });
-        calendar.render();
-    }
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        selectable: true,
+        events: fetchEvents(),
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
 
-// Function to show the tooltip for an event
+        dateClick: function(info) {
+            openCreateEventSidebar(info.date);
+        },
+        select: function(info) {
+            console.log("Date range selected from:", info.start, "to", info.end);
+            populateSidebarForDateRange(info.start, info.end);
+            openSidebar();
+        },
+        eventClick: function(info) {
+            openEditEventSidebar(info.event);
+        },
+        // Tooltop functions for hovering over events
+        eventMouseEnter: function(info) {
+            showEventTooltip(info.event);
+        },
+        eventMouseLeave: function(info) {
+            hideEventTooltip();
+        }
+    });
+    calendar.render();
+}
+
+// Tooltip functionality
 function showEventTooltip(event) {
     const tooltip = document.createElement('div');
     tooltip.id = 'event-tooltip';
@@ -54,13 +56,12 @@ function showEventTooltip(event) {
         <strong>${event.title}</strong><br>
         Start: ${startTime}<br>
         ${endTime ? `End: ${endTime}` : ''}
-    `;
+        `;
 
-    // Set the tooltip position to follow the mouse
+    // Set tooltip to follow cursor
     document.addEventListener('mousemove', positionTooltip);
     document.body.appendChild(tooltip);
 }
-
 function hideEventTooltip() {
     const tooltip = document.getElementById('event-tooltip');
     if (tooltip) {
@@ -68,8 +69,7 @@ function hideEventTooltip() {
     }
     document.removeEventListener('mousemove', positionTooltip);
 }
-
-// Helper function to position the tooltip near the mouse cursor
+// Helper function to position tooltip near cursor
 function positionTooltip(event) {
     const tooltip = document.getElementById('event-tooltip');
     if (tooltip) {
@@ -78,46 +78,60 @@ function positionTooltip(event) {
     }
 }
 
-function populateSidebarForDateRange(start, end) {
-    document.getElementById('event-start-date').value = start.toISOString().split('T')[0];
-    document.getElementById('event-start-time').value = start.toTimeString().slice(0, 5);
-    document.getElementById('event-end-date').value = end.toISOString().split('T')[0];
-    document.getElementById('event-end-time').value = end.toTimeString().slice(0, 5);
-}
-
+// Open and closing of sidebar
 function openCreateEventSidebar(date) {
-    // Clear form for a new event and adjust buttons
+// clear form for a new event and adjust buttons
     clearEventForm();
     document.getElementById('create-event').style.display = 'block';
     document.getElementById('delete-event').style.display = 'none';
     document.getElementById('edit-event').style.display = 'none';
     populateSidebarWithDate(date);
     openSidebar();
-    selectedEvent = null; // Ensure no event is selected for editing
+    selectedEvent = null;
 }
 
 function openEditEventSidebar(event) {
     selectedEvent = event;
     populateSidebarWithEventDetails(event);
-
-    // Show edit and delete buttons, hide create button
     document.getElementById('create-event').style.display = 'none';
     document.getElementById('edit-event').style.display = 'block';
     document.getElementById('delete-event').style.display = 'block';
-
     openSidebar();
 }
 
+// Sidebar population functions
+// Populate sidebar with date range
+function populateSidebarForDateRange(start, end) {
+    document.getElementById('event-start-date').value = start.toISOString().split('T')[0];
+    document.getElementById('event-start-time').value = start.toTimeString().slice(0, 5);
+    document.getElementById('event-end-date').value = end.toISOString().split('T')[0];
+    document.getElementById('event-end-time').value = end.toTimeString().slice(0, 5);
+}
+// Populate sidebar with event details (for editing)
 function populateSidebarWithEventDetails(event) {
     document.getElementById('event-title').value = event.title;
     document.getElementById('event-start-date').value = event.start.toISOString().split('T')[0];
     document.getElementById('event-start-time').value = event.start.toTimeString().slice(0, 5);
+
+    const notifyNumberElement = document.getElementById('notify-before-number');
+    const notifyTypeElement = document.getElementById('notify-before-type');
+
+    if (event.extendedProps && event.extendedProps.notification && notifyNumberElement && notifyTypeElement) {
+        const { notifyBeforeNumber, notifyBeforeType } = event.extendedProps.notification;
+        notifyNumberElement.value = notifyBeforeNumber;
+        notifyTypeElement.value = notifyBeforeType;
+    } else if (notifyNumberElement && notifyTypeElement) {
+        notifyNumberElement.value = 10;
+        notifyTypeElement.value = 'minutes';
+    }
+
     if (event.end) {
         document.getElementById('event-end-date').value = event.end.toISOString().split('T')[0];
         document.getElementById('event-end-time').value = event.end.toTimeString().slice(0, 5);
     }
 }
 
+// Populate sidebar with date (from click)
 function populateSidebarWithDate(date) {
     const currentDate = date.toISOString().split('T')[0];
     const currentTime = date.toTimeString().slice(0, 5);
@@ -132,11 +146,12 @@ function populateSidebarWithDate(date) {
     document.getElementById('event-end-time').value = endDate.toTimeString().slice(0, 5);
 }
 
+// Event creation and editing
 function setupCreateEventButton() {
     const createEventButton = document.getElementById('create-event-button');
     if (createEventButton) {
         createEventButton.addEventListener('click', () => {
-            openCreateEventSidebar(new Date()); // Open sidebar with the current date as default
+            openCreateEventSidebar(new Date());
         });
     }
 }
@@ -145,7 +160,7 @@ function setupEditEventButton() {
     const editEventButton = document.getElementById('edit-event');
     if (editEventButton) {
         editEventButton.addEventListener('click', () => {
-            if (!selectedEvent) return; // Ensure an event is selected
+            if (!selectedEvent) return;
 
             // Get updated details from the sidebar form
             const title = document.getElementById('event-title').value;
@@ -154,14 +169,13 @@ function setupEditEventButton() {
             const endDate = document.getElementById('event-end-date').value;
             const endTime = document.getElementById('event-end-time').value;
 
-            // Create new date-time strings to avoid unintended date mutations
             const newStart = `${startDate}T${startTime}`;
             const newEnd = `${endDate}T${endTime}`;
 
             // Update event properties
             selectedEvent.setProp('title', title);
-            selectedEvent.setStart(newStart); // Set the new start date-time
-            selectedEvent.setEnd(newEnd); // Set the new end date-time
+            selectedEvent.setStart(newStart);
+            selectedEvent.setEnd(newEnd);
 
             // Clear selected event and close the sidebar
             selectedEvent = null;
@@ -171,24 +185,61 @@ function setupEditEventButton() {
 }
 
 function setupEventCreation() {
-    const createButton = document.getElementById('create-event');
+    const createButton = document.getElementById('create-event'); // Button in the sidebar
     if (createButton) {
         createButton.addEventListener('click', () => {
-            const title = document.getElementById('event-title').value;
+            // Retrieve form values
+            const title = document.getElementById('event-title').value.trim();
             const startDate = document.getElementById('event-start-date').value;
             const startTime = document.getElementById('event-start-time').value;
             const endDate = document.getElementById('event-end-date').value;
             const endTime = document.getElementById('event-end-time').value;
 
-            const start = `${startDate}T${startTime}`;
-            const end = `${endDate}T${endTime}`;
+            // Check for required fields
+            if (!title) {
+                alert("Please enter a title for the event.");
+                return;
+            }
+            if (!startDate || !startTime) {
+                alert("Please enter a valid start date and time.");
+                return;
+            }
+            if (!endDate || !endTime) {
+                alert("Please enter a valid end date and time.");
+                return;
+            }
+
+            // Check that end date/time is after start date/time
+            const start = new Date(`${startDate}T${startTime}`);
+            const end = new Date(`${endDate}T${endTime}`);
+            if (end <= start) {
+                alert("End time must be after start time.");
+                return;
+            }
+
+            const notifyBeforeNumber = document.getElementById('notify-before-number').value;
+            const notifyBeforeType = document.getElementById('notify-before-type').value;
+
+            const notification = {
+                notifyBeforeNumber: parseInt(notifyBeforeNumber),
+                notifyBeforeType
+            };
 
             if (calendar) {
-                calendar.addEvent({ title, start, end });
+                calendar.addEvent({
+                    title,
+                    start,
+                    end,
+                    extendedProps: { notification }
+                });
             }
+
+            closeSidebar();
         });
     }
 }
+
+
 
 function setupDeleteEventButton() {
     const deleteEventButton = document.getElementById('delete-event');
@@ -242,12 +293,11 @@ function closeSidebar() {
     }
 }
 
-// Mock event data for testing without API calls
+// Event fetching
 function fetchEvents() {
     return isApiConnected ? fetchApiEvents() : getMockEvents();
 }
 
-// Mock events
 function getMockEvents() {
     return [
         { id: '1', title: 'Math Study Group', start: '2024-11-10T10:00:00', end: '2024-11-10T12:00:00' },
@@ -263,10 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCreateEventButton();
     setupEditEventButton();
     setupDeleteEventButton();
-    setupCloseSidebarListeners(); // Set up close listeners for sidebar
+    setupCloseSidebarListeners();
     setupDOMListeners();
 });
-
 
 module.exports = {
     fetchEvents,
@@ -279,5 +328,5 @@ module.exports = {
     setupDeleteEventButton,
     openCreateEventSidebar,
     openEditEventSidebar,
-    setupCloseSidebarListeners,
+    setupCloseSidebarListeners
 };

@@ -20,9 +20,18 @@ beforeEach(() => {
         <input type="date" id="event-end-date" />
         <input type="time" id="event-end-time" />
         <input type="text" id="event-title" />
-        <button id="create-event">Create</button>
+        <button id="create-event" style="display: none;">Create</button>
+        <button id="edit-event" style="display: none;">Save Changes</button>
+        <button id="delete-event" style="display: none;">Delete Event</button>
         <div id="event-sidebar" class="event-sidebar"></div>
         <button id="create-event-button">Create Event</button>
+        <input type="number" id="notify-before-number" value="10" />
+        <select id="notify-before-type">
+            <option value="minutes">minutes</option>
+            <option value="hours">hours</option>
+            <option value="days">days</option>
+            <option value="weeks">weeks</option>
+        </select>
     `;
 
     // Mock the calendar object with an addEvent function for tests
@@ -185,32 +194,36 @@ describe('Delete Event Functionality', () => {
     let deleteEventButton;
 
     beforeEach(() => {
-        // Set up the DOM elements required by populateSidebarWithEventDetails and openEditEventSidebar
         document.body.innerHTML = `
-            <input type="text" id="event-title" />
+            <div id="calendar"></div>
             <input type="date" id="event-start-date" />
             <input type="time" id="event-start-time" />
             <input type="date" id="event-end-date" />
             <input type="time" id="event-end-time" />
-            <button id="create-event">Create Event</button>
-            <button id="edit-event" style="display: none;">Edit Event</button>
+            <input type="text" id="event-title" />
+            <button id="create-event" style="display: none;">Create</button>
+            <button id="edit-event" style="display: none;">Save Changes</button>
             <button id="delete-event" style="display: none;">Delete Event</button>
             <div id="event-sidebar" class="event-sidebar"></div>
+            <button id="create-event-button">Create Event</button>
+            <input type="number" id="notify-before-number" value="10" />
+            <select id="notify-before-type">
+                <option value="minutes">minutes</option>
+                <option value="hours">hours</option>
+                <option value="days">days</option>
+                <option value="weeks">weeks</option>
+            </select>
         `;
 
-        // Mock the selected event to simulate selection and deletion, using Date objects for start and end
         global.selectedEvent = {
             title: 'Test Event',
             start: new Date('2024-11-14T09:00:00'),
             end: new Date('2024-11-14T11:00:00'),
-            remove: jest.fn(), // Mock the remove method on selectedEvent
+            remove: jest.fn(),
         };
 
-        // Import functions and set up delete button
         const { setupDeleteEventButton, openEditEventSidebar } = require('./calendarscripts.js');
         setupDeleteEventButton();
-
-        // Simulate selecting an event
         openEditEventSidebar(global.selectedEvent);
 
         deleteEventButton = document.getElementById('delete-event');

@@ -531,3 +531,14 @@ input[type="text"] {
 .close-button:hover {
     color: #555;
 }
+
+#notification-setting {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+#notification-setting select,
+#notification-setting input[type="number"] {
+    margin-right: 5px;
+}
