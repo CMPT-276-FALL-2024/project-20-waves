@@ -209,13 +209,39 @@ const loader = document.body.querySelector(".loader");
 
 const errorMessage = document.body.querySelector(".error-msg");
 
+const radioButtons = document.body.querySelectorAll(".option");
+let selectedRadioButtons = [];
+const labels = document.querySelectorAll('label');
+
+
+
+
 quizSubmitButton.addEventListener("click", () => {
-    //Compare the user answer and actual answers
-    for (let i = 0; i < 10; i++) {
-        if (questions[i].data.answer.includes(userAnswers[i])) {
-            userScore++;
+
+    //Get array of selected radio buttons
+    for (let i = 0; i < 40; i++) {
+        if (radioButtons[i].checked) {
+            selectedRadioButtons.push(labels[i]);
         }
     }
+
+    //Compare the user answer and actual answers
+    for (let i = 0; i < 10; i++) {
+        //If selected answer is correct make the button green
+
+        if (questions[i].data.answer.includes(userAnswers[i])) {
+            selectedRadioButtons[i].style.backgroundColor = 'lightgreen';
+            userScore++;
+        } 
+        
+        //If selected answer is incorrect make the button red
+        else {
+            selectedRadioButtons[i].style.backgroundColor = 'red';
+        }
+
+        
+    }
+
 
     quizScore.innerHTML = 'Score: ' + userScore.toString() + '/10'; 
     quizScore.style.display = 'inline'
@@ -232,6 +258,7 @@ generateQuizButton.addEventListener("click", () => {
         errorMessage.style.display = 'inline';
     } else {
         errorMessage.style.display = 'none';
+        quizSection.style.display = 'none';
         geminiAPI();
     } 
 });
