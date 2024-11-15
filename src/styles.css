@@ -431,17 +431,53 @@ input[type="text"] {
 
 /* Sidebar Styling */
 .event-sidebar {
-    position: fixed;
-    right: -400px;
-    top: 0;
-    width: 300px;
-    height: 100%;
+    display: none; /* Start hidden */
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    width: 250px;
+    height: auto;
     background-color: #e8e7e7;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
-    padding: 20px;
-    transition: right 0.3s ease;
+    padding: 10px;
+    border-radius: 8px;
     z-index: 1000;
-    overflow-y: auto;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+.event-sidebar.open {
+    display: block;
+    opacity: 1;
+}
+
+.drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: grab;
+    background: #ccc;
+    padding: 5px 10px;
+    font-weight: bold;
+    border-bottom: 1px solid #aaa;
+    border-radius: 8px 8px 0 0;
+}
+
+.drag-handle .drag-text {
+    margin: 0;
+}
+
+/* Styling for the "X" Close Button in the Sidebar */
+.close-button {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+}
+
+.close-button:hover {
+    color: #555;
 }
 
 /* Open sidebar */
@@ -514,22 +550,6 @@ input[type="text"] {
     font-size: 0.9em;
     z-index: 1000;
     pointer-events: none; /* Makes the tooltip ignore mouse events */
-}
-
-/* Styling for the "X" Close Button in the Sidebar */
-.close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: #333;
-}
-
-.close-button:hover {
-    color: #555;
 }
 
 #notification-setting {

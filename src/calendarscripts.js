@@ -3,11 +3,12 @@ let isApiConnected = false;
 
 // Reference to the FullCalendar instance
 let calendar;
-
 // Keeps track of the event being edited
 let selectedEvent = null;
 
+//
 // Initialize FullCalendar
+//
 function initializeCalendar() {
     const calendarEl = document.getElementById('calendar');
     calendar = new FullCalendar.Calendar(calendarEl, {
@@ -21,7 +22,7 @@ function initializeCalendar() {
         },
 
         dateClick: function(info) {
-            openCreateEventSidebar(info.date);
+            openCreateEventSidebarWithCurrentTime(info.date);
         },
         select: function(info) {
             console.log("Date range selected from:", info.start, "to", info.end);
@@ -42,13 +43,14 @@ function initializeCalendar() {
     calendar.render();
 }
 
+//
 // Tooltip functionality
+//
 function showEventTooltip(event) {
     const tooltip = document.createElement('div');
     tooltip.id = 'event-tooltip';
     tooltip.className = 'event-tooltip';
 
-    // Format start and end times to display only hours and minutes
     const startTime = event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const endTime = event.end ? event.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
@@ -58,10 +60,10 @@ function showEventTooltip(event) {
         ${endTime ? `End: ${endTime}` : ''}
         `;
 
-    // Set tooltip to follow cursor
     document.addEventListener('mousemove', positionTooltip);
     document.body.appendChild(tooltip);
 }
+
 function hideEventTooltip() {
     const tooltip = document.getElementById('event-tooltip');
     if (tooltip) {
@@ -69,7 +71,7 @@ function hideEventTooltip() {
     }
     document.removeEventListener('mousemove', positionTooltip);
 }
-// Helper function to position tooltip near cursor
+
 function positionTooltip(event) {
     const tooltip = document.getElementById('event-tooltip');
     if (tooltip) {
@@ -78,9 +80,10 @@ function positionTooltip(event) {
     }
 }
 
+//
 // Open and closing of sidebar
+//
 function openCreateEventSidebar(date) {
-// clear form for a new event and adjust buttons
     clearEventForm();
     document.getElementById('create-event').style.display = 'block';
     document.getElementById('delete-event').style.display = 'none';
@@ -99,7 +102,10 @@ function openEditEventSidebar(event) {
     openSidebar();
 }
 
+//
 // Sidebar population functions
+//
+
 // Populate sidebar with date range
 function populateSidebarForDateRange(start, end) {
     document.getElementById('event-start-date').value = start.toISOString().split('T')[0];
@@ -107,6 +113,7 @@ function populateSidebarForDateRange(start, end) {
     document.getElementById('event-end-date').value = end.toISOString().split('T')[0];
     document.getElementById('event-end-time').value = end.toTimeString().slice(0, 5);
 }
+
 // Populate sidebar with event details (for editing)
 function populateSidebarWithEventDetails(event) {
     document.getElementById('event-title').value = event.title;
@@ -131,7 +138,6 @@ function populateSidebarWithEventDetails(event) {
     }
 }
 
-// Populate sidebar with date (from click)
 function populateSidebarWithDate(date) {
     const currentDate = date.toISOString().split('T')[0];
     const currentTime = date.toTimeString().slice(0, 5);
@@ -146,6 +152,29 @@ function populateSidebarWithDate(date) {
     document.getElementById('event-end-time').value = endDate.toTimeString().slice(0, 5);
 }
 
+function openCreateEventSidebarWithCurrentTime(clickedDate) {
+    clearEventForm();
+
+    const clickedDateStr = clickedDate.toISOString().split('T')[0];
+    document.getElementById('event-start-date').value = clickedDateStr;
+    document.getElementById('event-end-date').value = clickedDateStr;
+
+    const now = new Date();
+    const currentHours = String(now.getHours()).padStart(2, '0');
+    const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+    const currentTime = `${currentHours}:${currentMinutes}`;
+
+    document.getElementById('event-start-time').value = currentTime;
+
+    const endTime = new Date(now);
+    endTime.setHours(endTime.getHours() + 1);
+    const endHours = String(endTime.getHours()).padStart(2, '0');
+    const endMinutes = String(endTime.getMinutes()).padStart(2, '0');
+    document.getElementById('event-end-time').value = `${endHours}:${endMinutes}`;
+
+    openSidebar();
+}
+
 // Event creation and editing
 function setupCreateEventButton() {
     const createEventButton = document.getElementById('create-event-button');
@@ -156,6 +185,9 @@ function setupCreateEventButton() {
     }
 }
 
+//
+// Edit event functionality
+//
 function setupEditEventButton() {
     const editEventButton = document.getElementById('edit-event');
     if (editEventButton) {
@@ -184,6 +216,9 @@ function setupEditEventButton() {
     }
 }
 
+//
+// Event creation functionality
+//
 function setupEventCreation() {
     const createButton = document.getElementById('create-event'); // Button in the sidebar
     if (createButton) {
@@ -209,7 +244,7 @@ function setupEventCreation() {
                 return;
             }
 
-            // Check that end date/time is after start date/time
+            // VALIDATION: Check that end date/time is after start date/time
             const start = new Date(`${startDate}T${startTime}`);
             const end = new Date(`${endDate}T${endTime}`);
             if (end <= start) {
@@ -239,8 +274,9 @@ function setupEventCreation() {
     }
 }
 
-
-
+//
+// Delete event functionality
+//
 function setupDeleteEventButton() {
     const deleteEventButton = document.getElementById('delete-event');
     if (deleteEventButton) {
@@ -254,6 +290,9 @@ function setupDeleteEventButton() {
     }
 }
 
+//
+// Clear event form
+//
 function clearEventForm() {
     document.getElementById('event-title').value = '';
     document.getElementById('event-start-date').value = '';
@@ -262,12 +301,16 @@ function clearEventForm() {
     document.getElementById('event-end-time').value = '';
 }
 
+//
+// Sidebar functionality
+//
+
 // Modify setupCloseSidebarListeners to directly reference closeSidebar
 function setupCloseSidebarListeners() {
     const closeSidebarButton = document.getElementById('close-sidebar-button');
 
     if (closeSidebarButton) {
-        closeSidebarButton.addEventListener('click', closeSidebar); // Direct reference to closeSidebar
+        closeSidebarButton.addEventListener('click', closeSidebar);
     }
 
     document.addEventListener('keydown', (event) => {
@@ -293,7 +336,47 @@ function closeSidebar() {
     }
 }
 
+function enableSidebarDragging() {
+    const sidebar = document.getElementById('event-sidebar');
+    const dragHandle = sidebar.querySelector('.drag-handle');
+
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    dragHandle.addEventListener('mousedown', (event) => {
+        isDragging = true;
+        offsetX = event.clientX - sidebar.offsetLeft;
+        offsetY = event.clientY - sidebar.offsetTop;
+
+        document.body.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        if (!isDragging) return;
+
+        const newLeft = event.clientX - offsetX;
+        const newTop = event.clientY - offsetY;
+
+        const maxLeft = window.innerWidth - sidebar.offsetWidth;
+        const maxTop = window.innerHeight - sidebar.offsetHeight;
+        sidebar.style.left = `${Math.max(0, Math.min(newLeft, maxLeft))}px`;
+        sidebar.style.top = `${Math.max(0, Math.min(newTop, maxTop))}px`;
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+
+            document.body.style.cursor = '';
+        }
+    });
+}
+
+//
 // Event fetching
+//
+
 function fetchEvents() {
     return isApiConnected ? fetchApiEvents() : getMockEvents();
 }
@@ -314,6 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEditEventButton();
     setupDeleteEventButton();
     setupCloseSidebarListeners();
+    enableSidebarDragging();
     setupDOMListeners();
 });
 
@@ -328,5 +412,6 @@ module.exports = {
     setupDeleteEventButton,
     openCreateEventSidebar,
     openEditEventSidebar,
+    enableSidebarDragging,
     setupCloseSidebarListeners
 };

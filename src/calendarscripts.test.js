@@ -236,3 +236,109 @@ describe('Delete Event Functionality', () => {
         expect(global.selectedEvent.remove).toHaveBeenCalled();
     });
 });
+
+describe('Draggable Event Sidebar', () => {
+    let sidebar, dragHandle;
+
+    beforeEach(() => {
+        document.body.innerHTML = `
+            <div id="event-sidebar" class="event-sidebar">
+                <div class="drag-handle">
+                    <span class="drag-text">☰ Drag</span>
+                    <button id="close-sidebar-button" class="close-button">✖</button>
+                </div>
+                <!-- Other sidebar elements -->
+            </div>
+        `;
+
+        sidebar = document.getElementById('event-sidebar');
+        dragHandle = sidebar.querySelector('.drag-handle');
+
+        // Mock sidebar dragging
+        let isDragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        dragHandle.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.clientX - sidebar.offsetLeft;
+            offsetY = e.clientY - sidebar.offsetTop;
+            document.body.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const newLeft = e.clientX - offsetX;
+                const newTop = e.clientY - offsetY;
+                sidebar.style.left = `${newLeft}px`;
+                sidebar.style.top = `${newTop}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            document.body.style.cursor = '';
+        });
+    });
+
+    test('should initialize sidebar position and be draggable', () => {
+        // Simulate mousedown on drag handle
+        const initialX = 100;
+        const initialY = 200;
+        const moveX = 300;
+        const moveY = 400;
+
+        dragHandle.dispatchEvent(new MouseEvent('mousedown', {
+            clientX: initialX,
+            clientY: initialY,
+        }));
+
+        document.dispatchEvent(new MouseEvent('mousemove', {
+            clientX: moveX,
+            clientY: moveY,
+        }));
+
+        document.dispatchEvent(new MouseEvent('mouseup'));
+
+        expect(sidebar.style.left).toBe(`${moveX - initialX}px`);
+        expect(sidebar.style.top).toBe(`${moveY - initialY}px`);
+    });
+
+    test('should stop dragging when mouse is released', () => {
+        const moveX = 150;
+        const moveY = 250;
+
+        dragHandle.dispatchEvent(new MouseEvent('mousedown', {
+            clientX: 100,
+            clientY: 100,
+        }));
+
+        document.dispatchEvent(new MouseEvent('mousemove', {
+            clientX: moveX,
+            clientY: moveY,
+        }));
+
+        document.dispatchEvent(new MouseEvent('mouseup'));
+
+        // Check that cursor is reset
+        expect(document.body.style.cursor).toBe('');
+    });
+
+    test('should not drag when mousedown is not on drag handle', () => {
+        sidebar.dispatchEvent(new MouseEvent('mousedown', {
+            clientX: 0,
+            clientY: 0,
+        }));
+
+        const initialLeft = sidebar.style.left;
+        const initialTop = sidebar.style.top;
+
+        document.dispatchEvent(new MouseEvent('mousemove', {
+            clientX: 300,
+            clientY: 300,
+        }));
+
+        expect(sidebar.style.left).toBe(initialLeft);
+        expect(sidebar.style.top).toBe(initialTop);
+    });
+});
