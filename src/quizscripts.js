@@ -2,9 +2,7 @@ import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI("");
 
-let userTopic;
-let userScore = 0;
-
+//Questions object to hold data for each question returned by the APi
 let questions = [
     {
         data : {
@@ -117,10 +115,57 @@ let questions = [
     }
 ];
 
+//Arrays for users answers, user selected buttons for question options, and all buttons for question options
 let userAnswers = [];
+let selectedButtons = [];
+let allButtons =[];
 
+//Variables for user topic and user quiz score
+let userTopic;
+let userScore = 0;
+
+//Select quiz and flashcards sections
+const quizSection = document.body.querySelector(".quiz");
+const flashCardsSection = document.body.querySelector(".flashcard-section");
+
+//Select all question headers
+const questionHeaders = document.body.querySelectorAll('.question');
+
+//Select quiz topic textbox
+const quizTopicTextBox = document.body.querySelector("#quiz-topic-textbox");
+
+//Select generate quiz button
+const generateQuizButton = document.body.querySelector('.generate-quiz-button');
+
+//Select all option input buttons
+const optionAinputs = document.body.querySelectorAll('#option-a');
+const optionBinputs = document.body.querySelectorAll('#option-b');
+const optionCinputs = document.body.querySelectorAll('#option-c');
+const optionDinputs = document.body.querySelectorAll('#option-d');
+
+//Select quiz score
+const quizScore = document.body.querySelector('.quiz-score')
+
+//Select quiz submit button
+const quizSubmitButton = document.body.querySelector('.quiz-submit-button');
+
+//Select loading spinner
+const loader = document.body.querySelector(".loader");
+
+//Select error message
+const errorMessage = document.body.querySelector(".error-msg");
+
+//Select all radio buttons
+const radioButtons = document.body.querySelectorAll(".option");
+
+//Select all labels
+const labels = document.querySelectorAll('label');
+
+
+//API function
 async function geminiAPI() {
 
+    //Display loading spinner
     loader.style.display = 'inline';
 
     const model = genAI.getGenerativeModel({ model: "gemini-pro"});
@@ -138,7 +183,6 @@ async function geminiAPI() {
     //Parse each array within the outer array to get each part of each question into seperate elements
     for (let i = 0; i < 11; i++) {
         textArray[i] = textArray[i].split("\n");
-        
     }
 
     //Parse the last element of the array (last element has all the answers as one element) into seperate elements and assign to array
@@ -154,31 +198,38 @@ async function geminiAPI() {
         questions[i].data.answer = answerArray[i + 1];
     }
 
+    //Hide loading spinner
     loader.style.display = 'none';
 
-    //Display question cards
+    //For each question header, set the text to the question from the questions object
     let i = 0;
     questionHeaders.forEach(questionHeader => {
         questionHeader.innerHTML = questions[i].data.question;
         i++;
     });
 
+    //For each option a, set the text to option 1 from the questions object
     i = 0;
     optionAinputs.forEach(optionAinput => {
         optionAinput.innerHTML = questions[i].data.option1;
         i++;
     });
 
+    //For each option b, set the text to option 2 from the questions object
     i = 0;
     optionBinputs.forEach(optionBinput => {
         optionBinput.innerHTML = questions[i].data.option2;
         i++;
     });
+
+    //For each option c, set the text to option 3 from the questions object
     i = 0;
     optionCinputs.forEach(optionCinput => {
         optionCinput.innerHTML = questions[i].data.option3;
         i++;
     });
+
+    //For each option d, set the text to option 4 from the questions object
     i = 0;
     optionDinputs.forEach(optionDinput => {
         optionDinput.innerHTML = questions[i].data.option4;
@@ -190,33 +241,8 @@ async function geminiAPI() {
     quizSubmitButton.style.display = 'inline';
 
 }
-const quizSection = document.body.querySelector(".quiz");
-const flashCardsSection = document.body.querySelector(".flashcard-section");
 
-const quizTopicTextBox = document.body.querySelector("#quiz-topic-textbox");
-const generateQuizButton = document.body.querySelector('.generate-quiz-button');
-const questionHeaders = document.body.querySelectorAll('.question');
-
-const optionAinputs = document.body.querySelectorAll('#option-a');
-const optionBinputs = document.body.querySelectorAll('#option-b');
-const optionCinputs = document.body.querySelectorAll('#option-c');
-const optionDinputs = document.body.querySelectorAll('#option-d');
-
-const quizScore = document.body.querySelector('.quiz-score')
-
-const quizSubmitButton = document.body.querySelector('.quiz-submit-button');
-
-const loader = document.body.querySelector(".loader");
-
-const errorMessage = document.body.querySelector(".error-msg");
-
-//Select all radio buttons
-const radioButtons = document.body.querySelectorAll(".option");
-const labels = document.querySelectorAll('label');
-
-let selectedButtons = [];
-let allButtons =[];
-
+//When quiz submit button is clicked check answers and return results
 quizSubmitButton.addEventListener("click", () => {
 
     //Reset variables
@@ -279,9 +305,13 @@ quizSubmitButton.addEventListener("click", () => {
     quizScore.style.display = 'inline'
 });
 
-//Get text input value from quiz-topic-textbox and then call API
+//When generate quiz button is clicked, get the topic entered by the user and then call API
 generateQuizButton.addEventListener("click", () => {
+
+    //Hide flash cards section
     flashCardsSection.style.display = 'none';
+
+    //Get textbox value
     userTopic = quizTopicTextBox.value;
 
     //Uncheck all radio buttons
@@ -305,7 +335,7 @@ generateQuizButton.addEventListener("click", () => {
     } 
 });
 
+//Function to get the users input from the HTML file's radio buttons
 window.setUserAnswer =  function(questionNumber, choice) {
     userAnswers[questionNumber] = choice;
 }
-

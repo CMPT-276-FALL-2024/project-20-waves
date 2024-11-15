@@ -44,12 +44,10 @@ let flashCardNumber = 0;
 let editMenuToggled = false;
 let flashCardCurrentSide = "front";
 
-
 //For options
 const flashcardsButton = document.querySelector(".flashcards-option");
 
 const quizSubmitButton = document.querySelector(".quiz-submit-button");
-
 
 //For flashcards
 const flashCards = document.querySelector(".flashcard-section");
@@ -67,7 +65,6 @@ const doneEditButton = document.querySelector("#done-edit-button");
 
 //For quiz
 const quiz = document.querySelector(".quiz");
-
 
 //Flash card option button
 flashcardsButton.addEventListener("click", () => {
