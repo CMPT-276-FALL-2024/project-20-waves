@@ -132,4 +132,4 @@ dist
 
 # Ignore sensitive config files
 config/credentials.json
-.env
+config/secretKeys.js
