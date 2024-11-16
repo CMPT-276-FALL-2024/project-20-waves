@@ -117,24 +117,55 @@ function populateSidebarForDateRange(start, end) {
 // Populate sidebar with event details (for editing)
 function populateSidebarWithEventDetails(event) {
     document.getElementById('event-title').value = event.title;
-    document.getElementById('event-start-date').value = event.start.toISOString().split('T')[0];
-    document.getElementById('event-start-time').value = event.start.toTimeString().slice(0, 5);
+
+    const convertToLocalTime = (date) => {
+        const localDate = new Date(date); // Ensure input is treated as UTC
+        return new Date(
+            localDate.getUTCFullYear(),
+            localDate.getUTCMonth(),
+            localDate.getUTCDate(),
+            localDate.getUTCHours(),
+            localDate.getUTCMinutes(),
+            localDate.getUTCSeconds()
+        );
+    };
+
+    const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const formatTime = (date) => {
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    };
+
+    // Convert start and end times to local time
+    const startDate = convertToLocalTime(new Date(event.start));
+    const endDate = event.end ? convertToLocalTime(new Date(event.end)) : null;
+
+    // Populate start and end date/time fields
+    document.getElementById('event-start-date').value = formatDate(startDate);
+    document.getElementById('event-start-time').value = formatTime(startDate);
+
+    if (endDate) {
+        document.getElementById('event-end-date').value = formatDate(endDate);
+        document.getElementById('event-end-time').value = formatTime(endDate);
+    }
 
     const notifyNumberElement = document.getElementById('notify-before-number');
     const notifyTypeElement = document.getElementById('notify-before-type');
 
-    if (event.extendedProps && event.extendedProps.notification && notifyNumberElement && notifyTypeElement) {
+    if (event.extendedProps && event.extendedProps.notification) {
         const { notifyBeforeNumber, notifyBeforeType } = event.extendedProps.notification;
         notifyNumberElement.value = notifyBeforeNumber;
         notifyTypeElement.value = notifyBeforeType;
-    } else if (notifyNumberElement && notifyTypeElement) {
-        notifyNumberElement.value = 10;
+    } else {
+        notifyNumberElement.value = 1; // Default notification settings
         notifyTypeElement.value = 'minutes';
-    }
-
-    if (event.end) {
-        document.getElementById('event-end-date').value = event.end.toISOString().split('T')[0];
-        document.getElementById('event-end-time').value = event.end.toTimeString().slice(0, 5);
     }
 }
 
@@ -203,6 +234,11 @@ function setupEditEventButton() {
 
             const newStart = `${startDate}T${startTime}`;
             const newEnd = `${endDate}T${endTime}`;
+
+            if (newEnd <= newStart) {
+                alert("End time must be after start time.");
+                return;
+            }
 
             // Update event properties
             selectedEvent.setProp('title', title);
@@ -413,5 +449,6 @@ module.exports = {
     openCreateEventSidebar,
     openEditEventSidebar,
     enableSidebarDragging,
+    populateSidebarWithEventDetails,
     setupCloseSidebarListeners
 };

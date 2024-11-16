@@ -9,7 +9,7 @@ global.FullCalendar = {
     }),
 };
 
-const { fetchEvents, initializeCalendar, showEventTooltip, hideEventTooltip } = require('./calendarscripts.js');
+const { fetchEvents, initializeCalendar, showEventTooltip, hideEventTooltip, populateSidebarWithEventDetails } = require('./calendarscripts.js');
 
 // Mocking DOM elements for tests
 beforeEach(() => {
@@ -341,4 +341,21 @@ describe('Draggable Event Sidebar', () => {
         expect(sidebar.style.left).toBe(initialLeft);
         expect(sidebar.style.top).toBe(initialTop);
     });
+});
+
+
+test('populateSidebarWithEventDetails should set correct local dates', () => {
+    const mockEvent = {
+        title: 'Test Event',
+        start: new Date('2024-11-14T09:00:00Z'),
+        end: new Date('2024-11-14T11:00:00Z'),
+        extendedProps: {}
+    };
+
+    populateSidebarWithEventDetails(mockEvent);
+
+    expect(document.getElementById('event-start-date').value).toBe('2024-11-14');
+    expect(document.getElementById('event-start-time').value).toBe('09:00');
+    expect(document.getElementById('event-end-date').value).toBe('2024-11-14');
+    expect(document.getElementById('event-end-time').value).toBe('11:00');
 });
