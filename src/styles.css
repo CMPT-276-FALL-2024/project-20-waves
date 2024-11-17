@@ -264,3 +264,38 @@ button {
         opacity: 0;
     }
 }
+
+/*home page Styling*/
+/*basic elements*/
+.todo-list{
+    background-color: lightblue;
+    width: 25%;
+    height: 60%;
+    position:absolute;
+    top: 20%;
+    left: 0;
+}
+.timer{ 
+    background-color: rgb(89, 89, 95);
+    width: 25%;
+    height: 15%;
+    position:absolute;
+    right: 0;
+    bottom: 50%;
+}
+.chatbot{
+    background-color: rgb(89, 89, 95);
+    width: 25%;
+    height: 40%;
+    position:absolute;
+    right: 0;
+    bottom: 0;
+}
+.gif{
+    background-color: rgb(89, 89, 95);
+    width: 20%;
+    height: 20%;
+    position:absolute;
+    right: 40%;
+    bottom: 30% ;
+}
