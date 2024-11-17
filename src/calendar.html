@@ -1,33 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css"
+      rel="stylesheet"
+    />
     <title>Study Buddy Calendar</title>
-</head>
-<body>
+  </head>
+  <body>
     <header>
-        <a href="./index.html">
-            <h1>Study Buddy</h1>
-        </a>
+      <a href="./index.html">
+        <h1>Study Buddy</h1>
+      </a>
 
-        <!-- PLANNED: WIGGLE WHEN NOTIFICATION APPEARS -->
-        <!-- Notification Bell -->
-        <div id="notification-container" class="notification-container">
-            <span id="notification-bell" class="notification-bell">🔔</span>
-            <span id="notification-count" class="notification-count">0</span>
-            <div id="notification-dropdown" class="notification-dropdown">
-                <h3>Reminders</h3>
-                <ul id="notification-list"></ul>
-            </div>
+      <!-- PLANNED: WIGGLE WHEN NOTIFICATION APPEARS -->
+      <!-- Notification Bell -->
+      <div id="notification-container" class="notification-container">
+        <span id="notification-bell" class="notification-bell">🔔</span>
+        <span id="notification-count" class="notification-count">0</span>
+        <div id="notification-dropdown" class="notification-dropdown">
+          <h3>Reminders</h3>
+          <ul id="notification-list"></ul>
         </div>
+      </div>
 
-        <!-- PLANNED: ADD UPCOMING EVENTS BUTTON AND PANEL ON THE RIGHT TO SHOW -->
+      <!-- Sign in and Sign out Buttons -->
+      <button onclick="handleSignInClick()">Sign in with Google</button>
+      <button onclick="handleSignOutClick()">Sign Out</button>
 
-        <!-- Create Event Button -->
-        <button id="create-event-button">Create Event</button>
+      <!-- PLANNED: ADD UPCOMING EVENTS BUTTON AND PANEL ON THE RIGHT TO SHOW -->
+
+      <!-- Create Event Button -->
+      <button id="create-event-button">Create Event</button>
     </header>
 
     <!-- Calendar -->
@@ -35,71 +42,103 @@
 
     <!-- Sidebar for Event Creation and Editing -->
     <div id="event-sidebar" class="event-sidebar">
-        <div class="drag-handle">
-            <span class="drag-text">☰ Drag</span>
-            <button id="close-sidebar-button" class="close-button">✖</button>
-        </div>
-        <h2>Create Event</h2>
+      <div class="drag-handle">
+        <span class="drag-text">☰ Drag</span>
+        <button id="close-sidebar-button" class="close-button">✖</button>
+      </div>
+      <h2>Create Event</h2>
 
-        <!-- Title Input -->
-        <label for="event-title">Title:</label>
-        <input type="text" id="event-title" name="event-title" placeholder="Enter event title" required>
+      <!-- Title Input -->
+      <label for="event-title">Title:</label>
+      <input
+        type="text"
+        id="event-title"
+        name="event-title"
+        placeholder="Enter event title"
+        required
+      />
 
-        <!-- Start Date and Time -->
-        <label for="event-start-date">Start Date:</label>
-        <input type="date" id="event-start-date" name="event-start-date" required>
-        <label for="event-start-time">Start Time:</label>
-        <input type="time" id="event-start-time" name="event-start-time" required>
+      <!-- Start Date and Time -->
+      <label for="event-start-date">Start Date:</label>
+      <input
+        type="date"
+        id="event-start-date"
+        name="event-start-date"
+        required
+      />
+      <label for="event-start-time">Start Time:</label>
+      <input
+        type="time"
+        id="event-start-time"
+        name="event-start-time"
+        required
+      />
 
-        <!-- End Date and Time -->
-        <label for="event-end-date">End Date:</label>
-        <input type="date" id="event-end-date" name="event-end-date" required>
-        <label for="event-end-time">End Time:</label>
-        <input type="time" id="event-end-time" name="event-end-time" required>
+      <!-- End Date and Time -->
+      <label for="event-end-date">End Date:</label>
+      <input type="date" id="event-end-date" name="event-end-date" required />
+      <label for="event-end-time">End Time:</label>
+      <input type="time" id="event-end-time" name="event-end-time" required />
 
-        <!-- Notification Settings -->
-        <label for="notification-setting">Notification:</label>
-        <div id="notification-setting">
-            <input type="number" id="notify-before-number" min="1" value="10" style="width: 50px;">
-            <select id="notify-before-type">
-                <option value="minutes">minutes</option>
-                <option value="hours">hours</option>
-                <option value="days" selected>days</option>
-                <option value="weeks">weeks</option>
-            </select>
-            <span> before the event</span>
-        </div>
+      <!-- Notification Settings -->
+      <label for="notification-setting">Notification:</label>
+      <div id="notification-setting">
+        <input
+          type="number"
+          id="notify-before-number"
+          min="1"
+          value="10"
+          style="width: 50px"
+        />
+        <select id="notify-before-type">
+          <option value="minutes">minutes</option>
+          <option value="hours">hours</option>
+          <option value="days" selected>days</option>
+          <option value="weeks">weeks</option>
+        </select>
+        <span> before the event</span>
+      </div>
 
-        <!-- Create Event Button -->
-        <button type="button" id="create-event">Create</button>
+      <!-- Create Event Button -->
+      <button type="button" id="create-event">Create</button>
 
-        <!-- Edit Event Button (Initially hidden) -->
-        <button type="button" id="edit-event" style="display: none;">Save Changes</button>
+      <!-- Edit Event Button (Initially hidden) -->
+      <button type="button" id="edit-event" style="display: none">
+        Save Changes
+      </button>
 
-        <!-- Delete Event Button (Initially hidden) -->
-        <button type="button" id="delete-event" style="display: none;">Delete Event</button>
-
+      <!-- Delete Event Button (Initially hidden) -->
+      <button type="button" id="delete-event" style="display: none">
+        Delete Event
+      </button>
     </div>
 
     <!-- Reminder Interval Setup -->
     <label for="remind-before-number">Remind me </label>
-    <input type="number" id="remind-before-number" min="1" value="10" style="width: 60px;">
+    <input
+      type="number"
+      id="remind-before-number"
+      min="1"
+      value="10"
+      style="width: 60px"
+    />
     <select id="remind-before-type">
-        <option value="minutes">minutes</option>
-        <option value="hours">hours</option>
-        <option value="days" selected>days</option>
-        <option value="weeks">weeks</option>
+      <option value="minutes">minutes</option>
+      <option value="hours">hours</option>
+      <option value="days" selected>days</option>
+      <option value="weeks">weeks</option>
     </select>
     <span> before the event</span>
 
     <!-- Sort and Filter Options -->
-     <!-- PLANNED: REMOVE? -->
+    <!-- PLANNED: REMOVE? -->
     <button id="sortByDate">Sort by Date</button>
     <button id="sortByTitle">Sort by Title</button>
-    <input type="text" id="filterKeyword" placeholder="Filter by keyword">
+    <input type="text" id="filterKeyword" placeholder="Filter by keyword" />
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="calendarscripts.js"></script>
-</body>
+  </body>
 </html>
-
