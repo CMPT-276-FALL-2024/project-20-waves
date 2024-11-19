@@ -49,22 +49,14 @@
   </header>
 
   <div id="calendar-container">
-    <div class="fc-toolbar custom-toolbar">
-      <div class="fc-toolbar-left">
-        <button class="fc-prev-button">◀</button>
-        <button class="fc-today-button">Today</button>
-        <button class="fc-next-button">▶</button>
-      </div>
-      <div class="fc-toolbar-center">
-        <div class="fc-toolbar-title">November 2024</div>
-      </div>
-      <div class="fc-toolbar-right">
-        <button class="fc-month-button">Month</button>
-        <button class="fc-week-button">Week</button>
-        <button class="fc-day-button">Day</button>
-      </div>
-    </div>
     <div id="calendar"></div>
+  </div>
+
+  <div id="sign-out-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <p>You have successfully signed out.</p>
+      <button onclick="closeSignOutModal()">Close</button>
+    </div>
   </div>
 
     <!-- Sidebar for Event Creation and Editing -->
@@ -139,6 +131,9 @@
         Delete Event
       </button>
     </div>
+
+    <button id="create-event-fab" class="fab">+</button>
+
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js"></script>

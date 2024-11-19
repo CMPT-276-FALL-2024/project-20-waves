@@ -37,27 +37,29 @@ body {
     font-family: 'Roboto', sans-serif;
   }
 
-/* Buttons Styling */
+/****************************************************
+                  Main Button Styling
+ ****************************************************/
 button {
-    background-color: #007bff; /* Blue background */
-    color: white; /* White text */
-    border: none; /* Remove border */
-    border-radius: 5px; /* Rounded corners */
-    padding: 8px 15px; /* Spacing */
-    font-size: 0.9rem; /* Slightly smaller font size */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
+  background-color: rgba(255, 255, 255, 0.9); /* Frosted white */
+  color: #44576D; /* Navy text */
+  border: 2px solid #AAC7D8; /* Light blue border */
+  border-radius: 6px; /* Rounded corners */
+  padding: 6px 12px;
+  font-size: 14px;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
 button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    transform: scale(1.05); /* Slightly enlarge */
-  }
+  background-color: #AAC7D8; /* Light blue hover */
+  color: white; /* Contrast white text */
+}
 button:focus {
     outline: none; /* Remove default focus outline */
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.75); /* Add custom focus glow */
   }
-
-/* General Button Styles */
+  /****************************************************************
+                  Google Button Styling
+  ****************************************************************/
 .google-button {
     display: flex;
     align-items: center;
@@ -80,7 +82,9 @@ button:focus {
     height: 14px;
     margin-right: 8px; /* Space between logo and text */
   }
-  /* Different states */
+  /****************************************************************
+                  Google Sign-In/Sign-Out Button Styling
+  ****************************************************************/
 .google-button.sign-in {
     border: 1px solid #4285f4; /* Google's blue border */
   }
@@ -96,8 +100,9 @@ button:focus {
 .google-button.sign-out {
     border: 1px solid #757575; /* Subtle gray border */
   }
-
-  /* Notification Bell Container */
+/****************************************************
+                  Notification Styling
+ ****************************************************/
 .notification-container {
   position: relative;
   display: flex;
@@ -148,42 +153,26 @@ button:focus {
 .notification-container.active .notification-dropdown {
   display: block;
 }
-
-
-
-
-a {
-    text-decoration: none;
+#notification-setting {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
 }
-.nav-button {
-    background-color: lightgray;
-    font-size: 25px;
-    text-align: center;
-    width: 155px;
-    height: 45px;
-    border: none;
-    border-radius: 10px;
-}
-a:hover {
-    background-color: rgb(180, 180, 180);
-}
-a:visited {
-    color: black;
-    text-decoration: none;
-}
-#calendar-button {
-    float: left;
-}
-#practice-button {
-    float: right;
+#notification-setting select,
+#notification-setting input[type="number"] {
+  margin-right: 5px;
 }
 
-/* Styling for FullCalendar Container */
+
+
+/****************************************************
+                  Calendar Styling
+ ****************************************************/
 #calendar-container {
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0;
+  padding: 20px;
 }
 #calendar {
   background-color: rgba(255, 255, 255, 0.85); /* Frosted glass effect */
@@ -196,6 +185,9 @@ a:visited {
   box-sizing: border-box; /* NEW */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Light, modern shadow */
 }
+/****************************************************
+                  Calendar Toolbar Styling
+ ****************************************************/
 .fc-toolbar {
   background-color: #44576D; /* Navy background */
   color: white; /* White text */
@@ -204,17 +196,6 @@ a:visited {
   width: 100%;
   margin: 0;
   box-sizing: border-box; /* NEW */
-}
-.custom-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0px;
-  background-color: #44576D;
-  padding: 10px 15px;
-  border-radius: 10px 10px 0 0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  color: white;
 }
 .fc-toolbar-center {
   position: absolute; /* Remove it from the flow */
@@ -233,6 +214,9 @@ a:visited {
   gap: 10px;
   align-items: center;
 }
+/****************************************************
+                  Calendar Day/Header Styling
+ ****************************************************/
 .fc-daygrid-day {
   border: 1px dotted #E6E6E6; /* Subtle dotted grid lines */
   background-color: transparent; /* Keep base transparent */
@@ -264,7 +248,10 @@ a:visited {
   padding: 5px;
   display: inline-block; /* Ensures the circular shape works */
 }
-.fc-button {
+/****************************************************
+                  Calendar Toolbar Button Styling
+ ****************************************************/
+.fc-toolbar .fc-button {
   background-color: rgba(255, 255, 255, 0.9); /* Frosted white */
   color: #44576D; /* Navy text */
   border: 2px solid #AAC7D8; /* Light blue border */
@@ -273,11 +260,11 @@ a:visited {
   font-size: 14px;
   transition: background-color 0.2s, box-shadow 0.2s;
 }
-.fc-button:hover {
+.fc-toolbar .fc-button:hover {
   background-color: #AAC7D8; /* Light blue hover */
   color: white; /* Contrast white text */
 }
-.fc-button-active {
+.fc-toolbar .fc-button-active {
   background-color: #44576D; /* Navy active state */
   color: white;
   border-color: #29353C; /* Darker navy for active */
@@ -293,25 +280,43 @@ font-size: 1.25em;
   font-size: 16px;
   line-height: 1;
 }
-
-
-
-.fc-event {
-    background-color: #2196F3; /* Blue background for events */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 3px 5px;
-    font-size: 0.9em;
-    cursor: pointer;
+/****************************************************
+                  Event Styling
+ ****************************************************/
+ .fc-event {
+  background-color: #44576D;
+  color: white; /* White text */
+  border-color: #44576D;
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow */
+  transition: transform 0.2 ease, box-shadow 0.2 ease;
 }
-/* Adjustments for Event Hover */
+.fc-event-dot {
+  display: none; /* Hide the default dot */
+}
 .fc-event:hover {
-    background-color: #1976D2; /* Slightly darker blue */
+  transform: scale(1.1);
+  cursor: pointer;
+  color: #44576D;
+  background-color: #E6E6E6;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+}
+.fc-event .fc-event-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 
-/* Sidebar Styling */
+
+
+
+
+/****************************************************
+                  Event Sidebar Styling
+ ****************************************************/
 .event-sidebar {
     display: none; /* Start hidden */
     position: absolute;
@@ -434,17 +439,117 @@ font-size: 1.25em;
     pointer-events: none; /* Makes the tooltip ignore mouse events */
 }
 
-#notification-setting {
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
+
+/* Modal background */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
-#notification-setting select,
-#notification-setting input[type="number"] {
-    margin-right: 5px;
+/****************************************************
+            Floating Action Button Styling
+ ****************************************************/
+ /* Floating Action Button (FAB) Styling */
+.fab {
+  position: fixed;
+  bottom: 20px; /* Distance from the bottom */
+  right: 20px; /* Distance from the left */
+  width: 60px;
+  height: 60px;
+  background-color: #44576D; /* Navy blue */
+  color: white;
+  border: none;
+  border-radius: 50%; /* Make it circular */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  font-size: 3rem; /* Larger font for the + symbol */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1000; /* Ensure it's above other elements */
+}
+
+/* Hover and Active States */
+.fab:hover {
+  transform: scale(1.1); /* Slightly enlarge on hover */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3); /* More prominent shadow */
+}
+.fab:active {
+  transform: scale(0.95); /* Slightly shrink on click */
+}
+
+/****************************************************
+                  Modal Content Styling
+ ****************************************************/
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.modal-content button {
+  background-color: #44576D;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.modal-content button:hover {
+  background-color: #29353C; /* Darker shade */
 }
 
 
 
 
+
+
+
+
+
+a {
+  text-decoration: none;
+}
+.nav-button {
+  background-color: lightgray;
+  font-size: 25px;
+  text-align: center;
+  width: 155px;
+  height: 45px;
+  border: none;
+  border-radius: 10px;
+}
+a:hover {
+  background-color: rgb(180, 180, 180);
+}
+a:visited {
+  color: black;
+  text-decoration: none;
+}
+#calendar-button {
+  float: left;
+}
+#practice-button {
+  float: right;
+}
+
+
+
+
+
+/****************************************************
+                  Wish List
+****************************************************/
+/*
+1. Get rid of dot on events in calendar
+*/

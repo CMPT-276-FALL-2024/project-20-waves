@@ -20,6 +20,8 @@ let gapiInited = false;
 
 
 
+
+
 ////////
 // API
 ////////
@@ -86,7 +88,20 @@ function handleSignInClick() {
 function handleSignOutClick() {
   accessToken = null; // Clear the access token
   console.log("User signed out");
+
+  if (calendar) {
+    calendar.removeAllEvents();
+    console.log("All events removed from calendar");
+  }
+
   updateAuthButtons(false);
+
+  const modal = document.getElementById("sign-out-modal");
+  modal.style.display = "flex";
+}
+function closeSignOutModal() {
+  const modal = document.getElementById("sign-out-modal");
+  modal.style.display = "none";
 }
 
 ////////
@@ -138,7 +153,11 @@ function initializeCalendar() {
     initialView: "dayGridMonth",
     selectable: true,
     events: fetchEvents(),
-    headerToolbar: false,
+    headerToolbar: {
+      left: "prev,next today",
+      center: "title",
+      right: "dayGridMonth,timeGridWeek,timeGridDay",
+    },
     footerToolbar: false,
 
     dateClick: function (info) {
@@ -404,13 +423,14 @@ function setupEditEventButton() {
   }
 }
 
+
 ////////
-// Create Event Button
+// Initialize Event FAB
 ////////
-function setupCreateEventButton() {
-  const createEventButton = document.getElementById("create-event-button");
-  if (createEventButton) {
-    createEventButton.addEventListener("click", () => {
+function createEventFAB() {
+  const createEventFab = document.getElementById("create-event-fab");
+  if (createEventFab) {
+    createEventFab.addEventListener("click", () => {
       openCreateEventSidebar(new Date());
     });
   }
@@ -538,19 +558,20 @@ function getMockEvents() {
   ];
 }
 
+
+
+
 // Ensure all listeners are set up on DOM load
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Page loaded. Checking user authentication status.");
   const isSignedIn = false;
   updateAuthButtons(isSignedIn);
-
+  createEventFAB();
   initializeCalendar();
   initializeGapiClient();
   initializeGISClient();
   handleSignInClick();
-  handleSignOutClick();
   setupEventCreation();
-  setupCreateEventButton();
   setupEditEventButton();
   setupDeleteEventButton();
   setupCloseSidebarListeners();
@@ -580,3 +601,27 @@ module.exports = {
 ////////
 // 1. The calendar will update with events from Google each time logged in (duplicating events)
 // 2. The log in button doens't swap to log out when logged in until second log in
+
+
+////////
+// WISH LIST
+////////
+// 1. Colour coded events
+/* const calendar = new FullCalendar.Calendar(calendarEl, {
+  initialView: "dayGridMonth",
+  events: fetchEvents(),
+  eventDidMount: function (info) {
+    const event = info.event;
+
+    // Apply custom colors based on event type or other properties
+    if (event.extendedProps.type === "important") {
+      info.el.style.backgroundColor = "#f94144"; // Red
+      info.el.style.borderColor = "#f3722c"; // Orange border
+      info.el.style.color = "white"; // White text
+    } else if (event.extendedProps.type === "casual") {
+      info.el.style.backgroundColor = "#90be6d"; // Green
+      info.el.style.borderColor = "#43aa8b"; // Dark green border
+      info.el.style.color = "#333"; // Dark text
+    }
+  },
+}); */
