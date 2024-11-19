@@ -2,6 +2,7 @@
 const {
     clearEventForm,
     populateSidebarWithEventDetails,
+    enableSidebarDragging,
     fetchGoogleCalendarEvents,
   } = require("./calendarscripts");
 

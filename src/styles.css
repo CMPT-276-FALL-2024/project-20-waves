@@ -11,10 +11,75 @@ body {
     background-color: #f0f0f0;
 }
 
-/* Navigation Styling */
-button:hover {
-    background-color: gray;
-}
+/* Buttons Styling */
+button {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 8px 15px; /* Spacing */
+    font-size: 0.9rem; /* Slightly smaller font size */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  /* Hover and Focus Effects */
+  button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly enlarge */
+  }
+
+  button:focus {
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.75); /* Add custom focus glow */
+  }
+
+/* General Button Styles */
+.google-button {
+    display: flex;
+    align-items: center; /* Center the logo and text vertically */
+    justify-content: center; /* Center content horizontally */
+    padding: 8px 15px; /* Add padding around the button */
+    background-color: white; /* Match Google's button color */
+    color: #757575; /* Subtle gray text color */
+    border: 1px solid #ddd; /* Light border */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 14px; /* Slightly smaller font */
+    font-weight: bold;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+
+  .google-button:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .google-button img {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px; /* Space between logo and text */
+  }
+  /* Different states */
+  .google-button.sign-in {
+    border: 1px solid #4285f4; /* Google's blue border */
+  }
+  .google-button.sign-out {
+    border: 1px solid #757575; /* Subtle gray border for contrast */
+    background-color: white; /* Keep the white background */
+    color: #757575; /* Use the same gray text color */
+  }
+
+  .google-button.sign-out:hover {
+    background-color: #f5f5f5; /* Slightly darker background on hover */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Consistent shadow effect */
+  }
+
+  .google-button.sign-out {
+    border: 1px solid #757575; /* Subtle gray border */
+  }
+
+
+
 
 a {
     text-decoration: none;
@@ -47,229 +112,6 @@ a:visited {
     float: right;
 }
 
-/* Practice Page Styling */
-.options {
-    display: flex;
-    width: 100%;
-    justify-content: center;
-    margin-top: 50px;
-    margin-bottom: 25px;
-}
-
-/* Flashcards and Quiz Styling */
-.flashcards-option, .generate-quiz-button {
-    background-color: lightgray;
-    font-size: 25px;
-    width: 175px;
-    height: 40px;
-    text-align: center;
-    border-radius: 10px;
-}
-
-.generate-quiz-button {
-    width: 200px;
-}
-
-#quiz-topic-textbox {
-    width: 400px;
-    height: 40px;
-    border-radius: 20px;
-    border-width: 1px;
-    margin-right: 25px;
-    margin-left: 100px;
-}
-
-::placeholder {
-    text-align: center;
-}
-
-.flashcard-section {
-    display: none;
-    animation: fadeIn 0.3s;
-}
-
-.flashcard-position {
-    display: flex;
-    justify-content: center;
-}
-
-.flashcard {
-    background-color: lightgray;
-    height: 350px;
-    width: 650px;
-    border-radius: 40px;
-    padding: 15px;
-    font-size: 35px;
-}
-
-.flashcard-flip-clickbox {
-    position: absolute;
-    width: 550px;
-    height: 375px;
-    top: 185px;
-    left: 685px;
-}
-
-#flashcard-front-text {
-    text-align: center;
-}
-
-#flashcard-number {
-    text-align: center;
-    font-size: 25px;
-}
-
-#flashcard-middle {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 100px;
-}
-
-button {
-    border: none;
-}
-
-#flashcard-middle > button {
-    height: 50px;
-    width: 50px;
-    border-radius: 50px;
-    font-size: 40px;
-    background-color: darkgray;
-}
-
-#flashcard-middle > button:hover {
-    background-color: gray;
-}
-
-.shuffle-flashcards-button-position {
-    display: flex;
-    justify-content: center;
-    margin-top: 25px;
-}
-
-.shuffle-flashcards-button {
-    background-color: lightgray;
-    font-size: 25px;
-    width: 125px;
-    height: 45px;
-    border-radius: 10px;
-}
-
-.shuffle-flashcards-button {
-    background-color: lightgray;
-    font-size: 25px;
-    width: 125px;
-    height: 45px;
-    border-radius: 10px;
-}
-
-/*Edit flash cards menu styling*/
-.edit-button-position {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
-}
-
-.edit-flashcards-button {
-    background-color: lightgray;
-    font-size: 25px;
-    width: 200px;
-    height: 45px;
-    border-radius: 10px;
-}
-
-.edit-flashcards-menu-position {
-    display: flex;
-    justify-content: center;
-}
-
-.edit-flashcards-menu {
-    background-color: lightgray;
-    width: 800px;
-    height: 1050px;
-    border-radius: 15px;
-    display: flex;
-    justify-content: space-evenly;
-    font-size: 30px;
-    margin-top: 50px;
-    display: none;
-
-}
-
-.edit-front, .edit-back {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-}
-
-.edit-front > input, .edit-back > input {
-    border: none;
-    margin-top: 55px;
-    width: 300px;
-    height: 35px;
-    border-radius: 5px;
-}
-
-#done-edit-button {
-    background-color: lightgreen;
-    font-size: 25px;
-    width: 100px;
-    height: 35px;
-    border-radius: 10px;
-    position: absolute;
-    left: 900px;
-    top: 1745px;
-    display: none;
-}
-
-#done-edit-button:hover {
-    background-color: green;
-}
-
-/* Quiz Styling */
-.quiz-position {
-    display: flex;
-    justify-content: center;
-    margin-top: 50px;
-}
-
-.quiz {
-    display: grid;
-    grid-template-columns: repeat(2, 600px);
-    grid-template-rows: repeat(5, auto);
-    gap: 50px;
-    display: none;
-    animation: fadeIn 0.3s;
-}
-
-.quiz-question {
-    background-color: lightgray;
-    width: 500px;
-    height: 250px;
-    border-radius: 25px;
-}
-
-/* Quiz Answer Styling */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
-}
 
 
 /* Calendar Styling */

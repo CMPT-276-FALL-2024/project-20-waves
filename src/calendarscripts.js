@@ -19,6 +19,7 @@ let accessToken;
 let gapiInited = false;
 
 
+
 ////////
 // API
 ////////
@@ -53,19 +54,39 @@ function initializeGISClient() {
   });
 }
 
+
+////////
+// Sign In / Out
+////////
+function updateAuthButtons(isSignedIn) {
+  const signInButton = document.getElementById("sign-in-button");
+  const signOutButton = document.getElementById("sign-out-button");
+
+  if (isSignedIn) {
+    signInButton.style.display = "none";
+    signOutButton.style.display = "block";
+  } else {
+    signInButton.style.display = "block";
+    signOutButton.style.display = "none";
+  }
+}
+
 function handleSignInClick() {
   console.log("Handle Sign In: Requesting access token");
   if (!gapiInited) {
     console.error("GAPI client not initialized!");
     return;
   }
-  console.log(tokenClient.requestAccessToken());
-  tokenClient.requestAccessToken(); // Request an access token
+  tokenClient.requestAccessToken();
+  console.log("User signed in");
+  updateAuthButtons(true);
+
 }
 
 function handleSignOutClick() {
   accessToken = null; // Clear the access token
   console.log("User signed out");
+  updateAuthButtons(false);
 }
 
 ////////
@@ -522,6 +543,10 @@ function getMockEvents() {
 
 // Ensure all listeners are set up on DOM load
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("Page loaded. Checking user authentication status.");
+  const isSignedIn = false;
+  updateAuthButtons(isSignedIn);
+
   initializeCalendar();
   initializeGapiClient();
   initializeGISClient();
@@ -551,3 +576,10 @@ module.exports = {
   setupCloseSidebarListeners,
   fetchEvents
 };
+
+
+////////
+// BUGS
+////////
+// 1. The calendar will update with events from Google each time logged in (duplicating events)
+// 2. The log in button doens't swap to log out when logged in until second log in
