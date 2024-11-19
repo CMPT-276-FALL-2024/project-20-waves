@@ -1,15 +1,41 @@
-/* Header Styling */
-header {
-    text-align: center;
+
+/****************************************************
+                  Header Styling
+ ****************************************************/
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #e6e6e6;
+  border-bottom: 1px solid #ccc;
+  position: relative; /* Allow the title to be absolutely positioned */
+}
+.header-left,
+.header-right {
+  display: flex;
+  align-items: center;
+}
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+.header-center .logo {
+  font-size: 32px;
+  font-weight: bold;
+  color: #44576D;
+  margin: 0;
 }
 
-/* Body Styling */
 body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #e6e6e6; /* Light gray */
+    background-image: linear-gradient(135deg, #E6E6E6 50%, #DFEBF6 100%);
     margin: 0;
     padding: 0;
-    background-color: #f0f0f0;
-}
+    font-family: 'Roboto', sans-serif;
+  }
 
 /* Buttons Styling */
 button {
@@ -22,14 +48,11 @@ button {
     cursor: pointer; /* Pointer cursor on hover */
     transition: background-color 0.3s ease, transform 0.2s ease;
   }
-
-  /* Hover and Focus Effects */
-  button:hover {
+button:hover {
     background-color: #0056b3; /* Darker blue on hover */
     transform: scale(1.05); /* Slightly enlarge */
   }
-
-  button:focus {
+button:focus {
     outline: none; /* Remove default focus outline */
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.75); /* Add custom focus glow */
   }
@@ -37,46 +60,94 @@ button {
 /* General Button Styles */
 .google-button {
     display: flex;
-    align-items: center; /* Center the logo and text vertically */
-    justify-content: center; /* Center content horizontally */
-    padding: 8px 15px; /* Add padding around the button */
-    background-color: white; /* Match Google's button color */
-    color: #757575; /* Subtle gray text color */
-    border: 1px solid #ddd; /* Light border */
-    border-radius: 5px; /* Rounded corners */
-    font-size: 14px; /* Slightly smaller font */
+    align-items: center;
+    justify-content: center;
+    padding: 8px 15px;
+    background-color: white;
+    color: #757575;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
     font-weight: bold;
     cursor: pointer;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
   }
-
-  .google-button:hover {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.google-button:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
-
-  .google-button img {
-    width: 18px;
-    height: 18px;
+.google-button img {
+    width: 14px;
+    height: 14px;
     margin-right: 8px; /* Space between logo and text */
   }
   /* Different states */
-  .google-button.sign-in {
+.google-button.sign-in {
     border: 1px solid #4285f4; /* Google's blue border */
   }
-  .google-button.sign-out {
+.google-button.sign-out {
     border: 1px solid #757575; /* Subtle gray border for contrast */
     background-color: white; /* Keep the white background */
     color: #757575; /* Use the same gray text color */
   }
-
-  .google-button.sign-out:hover {
+.google-button.sign-out:hover {
     background-color: #f5f5f5; /* Slightly darker background on hover */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Consistent shadow effect */
   }
-
-  .google-button.sign-out {
+.google-button.sign-out {
     border: 1px solid #757575; /* Subtle gray border */
   }
+
+  /* Notification Bell Container */
+.notification-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.notification-bell {
+  font-size: 24px;
+}
+.notification-count {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 3px 7px;
+  font-size: 14px;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+}
+.notification-dropdown {
+  display: none;
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 250px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+.notification-dropdown h3 {
+  margin: 0;
+  padding: 10px;
+  background-color: #333;
+  color: white;
+  text-align: center;
+}
+.notification-dropdown ul {
+  list-style-type: none;
+  padding: 10px;
+  margin: 0;
+}
+.notification-dropdown li {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+.notification-container.active .notification-dropdown {
+  display: block;
+}
 
 
 
@@ -84,7 +155,6 @@ button {
 a {
     text-decoration: none;
 }
-
 .nav-button {
     background-color: lightgray;
     font-size: 25px;
@@ -94,66 +164,138 @@ a {
     border: none;
     border-radius: 10px;
 }
-
 a:hover {
     background-color: rgb(180, 180, 180);
 }
-
 a:visited {
     color: black;
     text-decoration: none;
 }
-
 #calendar-button {
     float: left;
 }
-
 #practice-button {
     float: right;
 }
 
-
-
-/* Calendar Styling */
-#reminder-frequency {
-    margin: 10px;
-    padding: 5px;
-    border-radius: 5px;
-    font-size: 1em;
-}
-
 /* Styling for FullCalendar Container */
+#calendar-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+}
 #calendar {
-    width: 90%;
-    max-width: 1000px;
-    margin: 20px auto; /* Center the calendar */
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+  background-color: rgba(255, 255, 255, 0.85); /* Frosted glass effect */
+  backdrop-filter: blur(10px);
+  border: 1px solid #AAC7D8;
+  border-radius: 15px;
+  width: 100%;
+  max-height: 600px;
+  margin: 0;
+  box-sizing: border-box; /* NEW */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Light, modern shadow */
 }
-
-.fc .fc-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    font-size: 1em;
-    cursor: pointer;
+.fc-toolbar {
+  background-color: #44576D; /* Navy background */
+  color: white; /* White text */
+  border-radius: 15px 15px 0 0;
+  padding: 10px;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box; /* NEW */
 }
-
-.fc .fc-button:hover {
-    background-color: #45a049; /* Hover: darker */
+.custom-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0px;
+  background-color: #44576D;
+  padding: 10px 15px;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  color: white;
 }
-
+.fc-toolbar-center {
+  position: absolute; /* Remove it from the flow */
+  left: 50%; /* Start from the horizontal center */
+  transform: translateX(-50%); /* Shift back by half its width */
+  text-align: center; /* Ensure the title text remains centered */
+  width: max-content; /* Fit the content precisely */
+}
 .fc-toolbar-title {
-    font-size: 1.5em;
-    color: #333333;
-    font-weight: bold;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+}
+.fr-toolbar-left, .fr-toolbar-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.fc-daygrid-day {
+  border: 1px dotted #E6E6E6; /* Subtle dotted grid lines */
+  background-color: transparent; /* Keep base transparent */
+}
+.fc-daygrid-day-header {
+  background-color: rgba(255, 255, 255, 0.8); /* Frosted white */
+  border-top: 1px solid #AAC7D8;
+  border-bottom: 1px solid #AAC7D8;
+  border-radius: 10px 10px 0 0;
+  padding: 10px 0;
+}
+.fc-daygrid-day:hover {
+  background-color: rgba(170, 199, 216, 0.15); /* Light blue on hover */
+}
+.fc-daygrid-day-number {
+  color:#29353C;
+  font-size: 1.1em; /* Larger day number */
+  font-weight: bold; /* Bold text for emphasis */
+}
+.fc-daygrid-day.fc-day-sat,
+.fc-daygrid-day.fc-day-sun {
+  background-color: rgba(170, 199, 216, 0.2); /* Slightly shaded weekends */
+}
+.fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+  font-size: 18px; /* Slightly larger for emphasis */
+  color: #44576D; /* Navy text */
+  background-color: #AAC7D8; /* Light blue background */
+  border-radius: 50%; /* Circular highlight */
+  padding: 5px;
+  display: inline-block; /* Ensures the circular shape works */
+}
+.fc-button {
+  background-color: rgba(255, 255, 255, 0.9); /* Frosted white */
+  color: #44576D; /* Navy text */
+  border: 2px solid #AAC7D8; /* Light blue border */
+  border-radius: 6px; /* Rounded corners */
+  padding: 6px 12px;
+  font-size: 14px;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+.fc-button:hover {
+  background-color: #AAC7D8; /* Light blue hover */
+  color: white; /* Contrast white text */
+}
+.fc-button-active {
+  background-color: #44576D; /* Navy active state */
+  color: white;
+  border-color: #29353C; /* Darker navy for active */
+}
+.fc-view {
+font-size: 1.25em;
+}
+.fc-prev-button, .fc-next-button {
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
 }
 
-/* Calendar Event Styling */
+
+
 .fc-event {
     background-color: #2196F3; /* Blue background for events */
     color: white;
@@ -163,113 +305,11 @@ a:visited {
     font-size: 0.9em;
     cursor: pointer;
 }
-
 /* Adjustments for Event Hover */
 .fc-event:hover {
     background-color: #1976D2; /* Slightly darker blue */
 }
 
-/* Calendar Views Styling (days, weeks, months) */
-.fc-view {
-    font-size: 1em;
-}
-
-/* Sorting and Filtering Controls */
-button, input[type="text"] {
-    margin: 10px 5px;
-    padding: 8px 12px;
-    font-size: 1em;
-    border: 1px solid #cccccc;
-    border-radius: 5px;
-    background-color: #e7e7e7;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #ddd;
-}
-
-input[type="text"] {
-    width: 200px; /* Width for filter input */
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    #calendar {
-        width: 100%;
-        padding: 10px;
-    }
-
-    .fc-toolbar-title {
-        font-size: 1.2em;
-    }
-}
-
-/* Reminder Styling */
-/* Notification Bell Container */
-.notification-container {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    margin-top: -60px;
-    margin-right: 20px;
-}
-
-/* Notification Bell Icon */
-.notification-bell {
-    font-size: 24px;
-}
-
-/* Notification Count Badge */
-.notification-count {
-    background-color: red;
-    color: white;
-    border-radius: 50%;
-    padding: 3px 7px;
-    font-size: 14px;
-    position: absolute;
-    top: -10px;
-    right: -10px;
-}
-
-/* Notification Dropdown Panel */
-.notification-dropdown {
-    display: none;
-    position: absolute;
-    top: 30px;
-    right: 0;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 250px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-}
-
-/* Dropdown Content */
-.notification-dropdown h3 {
-    margin: 0;
-    padding: 10px;
-    background-color: #333;
-    color: white;
-    text-align: center;
-}
-
-.notification-dropdown ul {
-    list-style-type: none;
-    padding: 10px;
-    margin: 0;
-}
-
-.notification-dropdown li {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
-}
-
-/* Show Dropdown on Click */
-.notification-container.active .notification-dropdown {
-    display: block;
-}
 
 /* Sidebar Styling */
 .event-sidebar {
@@ -404,3 +444,7 @@ input[type="text"] {
 #notification-setting input[type="number"] {
     margin-right: 5px;
 }
+
+
+
+

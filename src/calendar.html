@@ -1,62 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
-
     <title>Study Buddy Calendar</title>
   </head>
+
   <body>
     <header class="header">
-      <a href="./index.html" class="logo">
-        <h1>Study Buddy</h1>
-      </a>
-
-      <div class="header-right"></div>
-      <!-- Notification Bell -->
-      <div id="notification-container" class="notification-container">
-        <span id="notification-bell" class="notification-bell">🔔</span>
-        <span id="notification-count" class="notification-count">0</span>
-        <div id="notification-dropdown" class="notification-dropdown">
-          <h3>Reminders</h3>
-          <ul id="notification-list"></ul>
-        </div>
+      <!-- Left: Notification Bell -->
+      <div class="header-left">
+          <div id="notification-container" class="notification-container">
+              <span id="notification-bell" class="notification-bell">🔔</span>
+              <span id="notification-count" class="notification-count">0</span>
+          </div>
       </div>
 
-      <!-- Sign in and Sign out Buttons -->
-      <button
-        id="sign-in-button"
-        class="google-button sign-in"
-        onclick="handleSignInClick()"
-        style="display: none;"
-      >
-      <img
-    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-    alt="Google Logo"
-  />
-        Sign in with Google
-      </button>
-      <button id="sign-out-button" onclick="handleSignOutClick()" style="display:none;">Sign Out</button>
-    </header>
+      <!-- Center: Title -->
+      <div class="header-center">
+          <h1 class="logo">Study Buddy</h1>
+      </div>
 
+      <!-- Right: Google Sign-In/Out -->
+      <div class="header-right">
+          <button
+              id="sign-in-button"
+              class="google-button sign-in"
+              onclick="handleSignInClick()"
+              style="display: block;"
+          >
+              <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="Google Logo"
+              />
+              Sign in with Google
+          </button>
+          <button
+              id="sign-out-button"
+              class="google-button sign-out"
+              onclick="handleSignOutClick()"
+              style="display: none;"
+          >
+              Sign Out
+          </button>
+      </div>
+  </header>
 
-      <!-- Create Event Button -->
-      <button
-      id="sign-out-button"
-      class="google-button sign-out"
-      style="display: none"
-      onclick="handleSignOutClick()"
-    >
-      <img
-        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-        alt="Google Logo"
-      />
-      Sign Out
-    </button>
-
-    <!-- Calendar -->
+  <div id="calendar-container">
+    <div class="fc-toolbar custom-toolbar">
+      <div class="fc-toolbar-left">
+        <button class="fc-prev-button">◀</button>
+        <button class="fc-today-button">Today</button>
+        <button class="fc-next-button">▶</button>
+      </div>
+      <div class="fc-toolbar-center">
+        <div class="fc-toolbar-title">November 2024</div>
+      </div>
+      <div class="fc-toolbar-right">
+        <button class="fc-month-button">Month</button>
+        <button class="fc-week-button">Week</button>
+        <button class="fc-day-button">Day</button>
+      </div>
+    </div>
     <div id="calendar"></div>
+  </div>
 
     <!-- Sidebar for Event Creation and Editing -->
     <div id="event-sidebar" class="event-sidebar">
@@ -130,23 +139,6 @@
         Delete Event
       </button>
     </div>
-
-    <!-- Reminder Interval Setup -->
-    <label for="remind-before-number">Remind me </label>
-    <input
-      type="number"
-      id="remind-before-number"
-      min="1"
-      value="10"
-      style="width: 60px"
-    />
-    <select id="remind-before-type">
-      <option value="minutes">minutes</option>
-      <option value="hours">hours</option>
-      <option value="days" selected>days</option>
-      <option value="weeks">weeks</option>
-    </select>
-    <span> before the event</span>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js"></script>

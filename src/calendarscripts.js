@@ -138,11 +138,8 @@ function initializeCalendar() {
     initialView: "dayGridMonth",
     selectable: true,
     events: fetchEvents(),
-    headerToolbar: {
-      left: "prev,next today",
-      center: "title",
-      right: "dayGridMonth,timeGridWeek,timeGridDay",
-    },
+    headerToolbar: false,
+    footerToolbar: false,
 
     dateClick: function (info) {
       openCreateEventSidebarWithCurrentTime(info.date);
