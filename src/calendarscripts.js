@@ -6,9 +6,6 @@
 // Global Variables
 ////////
 
-// DEBUGGING: Set to false to use mock data, true to use API data
-let isApiConnected = false;
-
 // Calendar variables
 let calendar;
 let selectedEvent = null;
@@ -18,7 +15,8 @@ let tokenClient;
 let accessToken;
 let gapiInited = false;
 
-
+// Debugging
+let isApiConnected = false;
 
 
 
@@ -331,19 +329,6 @@ function populateSidebarWithEventDetails(event) {
   document.getElementById("event-start-time").value = startTime;
   document.getElementById("event-end-date").value = endDate;
   document.getElementById("event-end-time").value = endTime;
-
-  const notifyNumberElement = document.getElementById("notify-before-number");
-  const notifyTypeElement = document.getElementById("notify-before-type");
-
-  if (event.extendedProps && event.extendedProps.notification) {
-    const { notifyBeforeNumber, notifyBeforeType } =
-      event.extendedProps.notification;
-    notifyNumberElement.value = notifyBeforeNumber;
-    notifyTypeElement.value = notifyBeforeType;
-  } else {
-    notifyNumberElement.value = 1; // Default notification settings
-    notifyTypeElement.value = "minutes";
-  }
 }
 // Click event creation
 function populateSidebarWithDate(date) {
@@ -558,24 +543,64 @@ function getMockEvents() {
   ];
 }
 
-
-
-
-// Ensure all listeners are set up on DOM load
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Page loaded. Checking user authentication status.");
-  const isSignedIn = false;
-  updateAuthButtons(isSignedIn);
-  createEventFAB();
-  initializeCalendar();
-  initializeGapiClient();
-  initializeGISClient();
-  handleSignInClick();
-  setupEventCreation();
-  setupEditEventButton();
-  setupDeleteEventButton();
-  setupCloseSidebarListeners();
-  enableSidebarDragging();
+  try {
+    console.log("Page loaded. Checking user authentication status.");
+    const isSignedIn = false;
+    updateAuthButtons(isSignedIn);
+  } catch (error) {
+    console.error("Error setting up auth buttons:", error);
+  }
+  try {
+    createEventFAB();
+  } catch (error) {
+    console.error("Error setting up event FAB:", error);
+  }
+  try {
+    initializeCalendar();
+  } catch (error) {
+    console.error("Error initializing calendar:", error);
+  }
+  try {
+    initializeGapiClient();
+  } catch (error) {
+    console.error("Error initializing GAPI client:", error);
+  }
+  try {
+    initializeGISClient();
+  } catch (error) {
+    console.error("Error initializing GIS client:", error);
+  }
+  try {
+    handleSignInClick();
+  } catch (error) {
+    console.error("Error setting up sign-in click handler:", error);
+  }
+  try {
+    setupEventCreation();
+  } catch (error) {
+    console.error("Error setting up event creation:", error);
+  }
+  try {
+    setupEditEventButton();
+  } catch (error) {
+    console.error("Error setting up edit event button:", error);
+  }
+  try {
+    setupDeleteEventButton();
+  } catch (error) {
+    console.error("Error setting up delete event button:", error);
+  }
+  try {
+    setupCloseSidebarListeners();
+  } catch (error) {
+    console.error("Error setting up close sidebar listeners:", error);
+  }
+  try {
+    enableSidebarDragging();
+  } catch (error) {
+    console.error("Error enabling sidebar dragging:", error);
+  }
 });
 module.exports = {
   fetchGoogleCalendarEvents,
@@ -625,3 +650,4 @@ module.exports = {
     }
   },
 }); */
+//2. Notifications

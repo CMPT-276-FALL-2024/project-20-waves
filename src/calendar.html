@@ -10,12 +10,7 @@
 
   <body>
     <header class="header">
-      <!-- Left: Notification Bell -->
       <div class="header-left">
-          <div id="notification-container" class="notification-container">
-              <span id="notification-bell" class="notification-bell">🔔</span>
-              <span id="notification-count" class="notification-count">0</span>
-          </div>
       </div>
 
       <!-- Center: Title -->
@@ -99,24 +94,7 @@
       <label for="event-end-time">End Time:</label>
       <input type="time" id="event-end-time" name="event-end-time" required />
 
-      <!-- Notification Settings -->
-      <label for="notification-setting">Notification:</label>
-      <div id="notification-setting">
-        <input
-          type="number"
-          id="notify-before-number"
-          min="1"
-          value="10"
-          style="width: 50px"
-        />
-        <select id="notify-before-type">
-          <option value="minutes">minutes</option>
-          <option value="hours">hours</option>
-          <option value="days" selected>days</option>
-          <option value="weeks">weeks</option>
-        </select>
-        <span> before the event</span>
-      </div>
+
 
       <!-- Create Event Button -->
       <button type="button" id="create-event">Create</button>

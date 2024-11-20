@@ -65,12 +65,6 @@ const {
             title: "Test Event",
             start: new Date("2024-11-25T10:00:00Z"),
             end: new Date("2024-11-25T12:00:00Z"),
-            extendedProps: {
-              notification: {
-                notifyBeforeNumber: 10,
-                notifyBeforeType: "minutes",
-              },
-            },
           };
 
           // Mock the DOM elements for the sidebar fields
@@ -105,12 +99,6 @@ const {
           );
           expect(mockInputElements["event-end-time"].value).toBe(
             event.end.toTimeString().slice(0, 5)
-          );
-          expect(mockInputElements["notify-before-number"].value).toBe(
-            event.extendedProps.notification.notifyBeforeNumber
-          );
-          expect(mockInputElements["notify-before-type"].value).toBe(
-            event.extendedProps.notification.notifyBeforeType
           );
 
           // Restore the original `getElementById` implementation
