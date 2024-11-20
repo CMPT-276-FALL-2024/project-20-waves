@@ -28,7 +28,7 @@ function initializeGapiClient() {
   console.log("Initializing GAPI client");
   gapi.load("client", async () => {
     await gapi.client.init({
-      apiKey: "", // Replace with your actual API key
+      apiKey: "", // Replace with actual API key
       discoveryDocs: [
         "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
       ],
@@ -40,7 +40,7 @@ function initializeGapiClient() {
 // Initialize the GIS client
 function initializeGISClient() {
   tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: "", // Replace with your actual Client ID
+    client_id: "", // Replace with actual Client ID
     scope: "https://www.googleapis.com/auth/calendar",
     callback: (response) => {
       if (response.error) {
@@ -91,9 +91,7 @@ function handleSignOutClick() {
     calendar.removeAllEvents();
     console.log("All events removed from calendar");
   }
-
   updateAuthButtons(false);
-
   const modal = document.getElementById("sign-out-modal");
   modal.style.display = "flex";
 }
