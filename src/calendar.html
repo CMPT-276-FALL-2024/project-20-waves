@@ -95,6 +95,7 @@
         required
       />
 
+
       <!-- End Date and Time -->
       <label for="event-end-date">End Date:</label>
       <input type="date" id="event-end-date" name="event-end-date" required />
@@ -102,6 +103,38 @@
       <input type="time" id="event-end-time" name="event-end-time" required />
 
 
+
+      <div id="notification-toggle">
+        <label>
+          <input type="checkbox" id="enable-notifications" /> Notify before event
+        </label>
+      </div>
+
+      <div id="notification-options" style="display: none;">
+        <h3>Notification Options</h3>
+
+        <!-- Notification Type -->
+        <label for="notification-type">Type:</label>
+        <select id="notification-type" name="notification-type">
+          <option value="popup">Popup</option>
+          <option value="email">Email</option>
+        </select>
+
+        <!-- Notification Time -->
+        <label for="notification-time">Notify me:</label>
+        <input
+          type="number"
+          id="notification-time"
+          name="notification-time"
+          placeholder="10"
+          min="0"
+        />
+        <select id="notification-time-unit" name="notification-time-unit">
+          <option value="minutes">Minutes</option>
+          <option value="hours">Hours</option>
+          <option value="days">Days</option>
+        </select>
+      </div>
 
       <!-- Create Event Button -->
       <button type="button" id="create-event">Create</button>

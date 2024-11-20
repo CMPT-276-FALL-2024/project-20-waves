@@ -273,6 +273,15 @@ font-size: 1.25em;
     z-index: 1000;
     transition: opacity 0.3s ease;
 }
+.event-sidebar.open {
+  left: 0;
+}
+.event-sidebar h2 {
+color: #44576D; /* Navy */
+font-size: 1.5em;
+margin-bottom: 10px;
+border-bottom: 2px solid #AAC7D8;
+}
 .event-sidebar button {
   background-color: #AAC7D8; /* Light blue */
   color: white;
@@ -321,16 +330,6 @@ font-size: 1.25em;
 .close-button:hover {
     color: #AAC7D8;
 }
-
-.event-sidebar.open {
-    left: 0;
-}
-.event-sidebar h2 {
-  color: #44576D; /* Navy */
-  font-size: 1.5em;
-  margin-bottom: 10px;
-  border-bottom: 2px solid #AAC7D8;
-}
 .event-sidebar label {
   color: #44576D; /* Navy */
   font-weight: bold;
@@ -373,6 +372,42 @@ font-size: 1.25em;
     border-radius: 5px;
 }
 
+
+#notification-options h3 {
+  font-size: 1.2em;
+  color: #44576D; /* Navy */
+  margin-bottom: 10px;
+}
+
+#notification-options label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #44576D;
+}
+
+#notification-options select,
+#notification-options input[type="number"] {
+  width: calc(100% - 20px);
+  margin-top: 5px;
+  padding: 8px;
+  border: 1px solid #AAC7D8; /* Light blue border */
+  border-radius: 5px;
+  font-size: 1em;
+}
+#notification-toggle {
+  margin-top: 20px;
+}
+
+#notification-options {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #AAC7D8;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  display: none; /* Start hidden */
+}
+
 /****************************************************
                   Event Tooltip Styling
  ****************************************************/
@@ -404,7 +439,6 @@ font-size: 1.25em;
   align-items: center;
   z-index: 9999;
 }
-
 .modal-content {
   background-color: #fff;
   padding: 20px;
@@ -412,7 +446,6 @@ font-size: 1.25em;
   text-align: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-
 .modal-content p {
   margin-bottom: 20px;
   font-size: 1.2em;
@@ -426,7 +459,6 @@ font-size: 1.25em;
   border-radius: 5px;
   cursor: pointer;
 }
-
 .modal-content button:hover {
   background-color: #29353C; /* Darker shade */
 }
@@ -454,7 +486,6 @@ font-size: 1.25em;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   z-index: 1000; /* Ensure it's above other elements */
 }
-
 /* Hover and Active States */
 .fab:hover {
   transform: scale(1.1); /* Slightly enlarge on hover */
@@ -464,27 +495,6 @@ font-size: 1.25em;
   transform: scale(0.95); /* Slightly shrink on click */
 }
 
-/****************************************************
-                  Modal Content Styling
- ****************************************************/
-.modal-content {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-.modal-content button {
-  background-color: #44576D;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.modal-content button:hover {
-  background-color: #29353C; /* Darker shade */
-}
 
 
 

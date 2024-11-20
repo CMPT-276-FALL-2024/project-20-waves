@@ -16,7 +16,7 @@ let accessToken;
 let gapiInited = false;
 
 // Debugging
-let isApiConnected = false;
+let isApiConnected = true;
 
 
 
@@ -107,37 +107,38 @@ function closeSignOutModal() {
 ////////
 function fetchGoogleCalendarEvents() {
   if (!accessToken) {
-    console.error("No access token available");
-    return;
+      console.error("No access token available");
+      return;
   }
 
-  console.log("Access token is available:", accessToken);
-
   gapi.client.calendar.events
-    .list({
-      calendarId: "primary",
-      timeMin: new Date().toISOString(),
-      showDeleted: false,
-      singleEvents: true,
-      orderBy: "startTime",
-    })
-    .then((response) => {
-      console.log("gapi.client.calendar.events.list was called successfully");
-      const googleEvents = response.result.items;
-      const fullCalendarEvents = googleEvents.map((event) => ({
-        title: event.summary,
-        start: event.start.dateTime || event.start.date,
-        end: event.end.dateTime || event.end.date,
-        id: event.id,
-      }));
-      console.log("Mapped events for fullCalendar:", fullCalendarEvents);
+      .list({
+          calendarId: "primary",
+          timeMin: new Date().toISOString(),
+          showDeleted: false,
+          singleEvents: true,
+          orderBy: "startTime",
+      })
+      .then((response) => {
+          const googleEvents = response.result.items;
+          console.log("Raw Google Events:", googleEvents); // Debug here
 
-      if (calendar)
-      calendar.addEventSource(fullCalendarEvents);
-    })
-    .catch((error) => {
-      console.error("Error fetching calendar events:", error);
-    });
+          const fullCalendarEvents = googleEvents.map((event) => ({
+              title: event.summary,
+              start: event.start.dateTime || event.start.date,
+              end: event.end.dateTime || event.end.date,
+              id: event.id,
+              extendedProps: {
+                  reminders: event.reminders, // Map reminders explicitly
+                  ...event.extendedProperties,
+              },
+          }));
+
+          if (calendar) calendar.addEventSource(fullCalendarEvents);
+      })
+      .catch((error) => {
+          console.error("Error fetching calendar events:", error);
+      });
 }
 
 ////////
@@ -235,6 +236,7 @@ function openCreateEventSidebar(date) {
   selectedEvent = null;
 }
 function openEditEventSidebar(event) {
+  console.log("Event data passed to sidebar:", event);
   selectedEvent = event;
   populateSidebarWithEventDetails(event);
   document.getElementById("create-event").style.display = "none";
@@ -314,21 +316,68 @@ function populateSidebarForDateRange(start, end) {
   document.getElementById("event-end-date").value = end.toISOString().split("T")[0];
   document.getElementById("event-end-time").value = end.toTimeString().slice(0, 5);
 }
+
 // For editing an existing event
 function populateSidebarWithEventDetails(event) {
-  document.getElementById("event-title").value = event.title;
+  console.log("Event details for population:", event);
 
-  // Use raw values directly for start and end times
-  const startDate = event.start.toISOString().split("T")[0];
-  const startTime = event.start.toTimeString().slice(0, 5);
+  // Extract details from _def
+  const { title, extendedProps } = event._def;
 
-  const endDate = event.end ? event.end.toISOString().split("T")[0] : "";
-  const endTime = event.end ? event.end.toTimeString().slice(0, 5) : "";
+  // Title
+  document.getElementById("event-title").value = title || "";
 
-  document.getElementById("event-start-date").value = startDate;
-  document.getElementById("event-start-time").value = startTime;
-  document.getElementById("event-end-date").value = endDate;
-  document.getElementById("event-end-time").value = endTime;
+  // Start and end times from _instance
+  const start = event._instance.range.start;
+  const end = event._instance.range.end;
+
+  if (start) {
+      const startDate = start.toISOString().split("T")[0];
+      const startTime = start.toISOString().split("T")[1].substring(0, 5); // HH:MM
+      document.getElementById("event-start-date").value = startDate;
+      document.getElementById("event-start-time").value = startTime;
+  }
+
+  if (end) {
+      const endDate = end.toISOString().split("T")[0];
+      const endTime = end.toISOString().split("T")[1].substring(0, 5); // HH:MM
+      document.getElementById("event-end-date").value = endDate;
+      document.getElementById("event-end-time").value = endTime;
+  }
+
+  // Notifications
+  const notificationCheckbox = document.getElementById("enable-notifications");
+  const notificationOptions = document.getElementById("notification-options");
+
+  console.log("Extended Props:", extendedProps);
+
+  if (extendedProps && extendedProps.reminders) {
+      const reminders = extendedProps.reminders;
+      console.log("Reminders:", reminders);
+
+      if (reminders.overrides && reminders.overrides.length > 0) {
+          const reminder = reminders.overrides[0]; // Assuming the first override
+          console.log("Reminder being used:", reminder);
+
+          notificationCheckbox.checked = true;
+          notificationOptions.style.display = "block";
+
+          // Populate reminder fields
+          document.getElementById("notification-type").value = reminder.method || "popup"; // 'popup' or 'email'
+          document.getElementById("notification-time").value = reminder.minutes || 10; // Time in minutes
+
+          // Adjust time unit if needed (defaulting to minutes for simplicity)
+          document.getElementById("notification-time-unit").value = "minutes";
+      } else {
+          console.log("No valid overrides found for reminders.");
+          notificationCheckbox.checked = false;
+          notificationOptions.style.display = "none";
+      }
+  } else {
+      console.log("No reminders found in extendedProps.");
+      notificationCheckbox.checked = false;
+      notificationOptions.style.display = "none";
+  }
 }
 // Click event creation
 function populateSidebarWithDate(date) {
@@ -379,24 +428,55 @@ function setupEditEventButton() {
   const editEventButton = document.getElementById("edit-event");
   if (editEventButton) {
     editEventButton.addEventListener("click", () => {
-      if (!selectedEvent) return;
+      if (!selectedEvent) {
+        openValidationModal("No event selected for editing.");
+        return;
+      }
 
       // Get updated details from the sidebar form
-      const title = document.getElementById("event-title").value;
-      const startDate = document.getElementById("event-start-date").value;
-      const startTime = document.getElementById("event-start-time").value;
-      const endDate = document.getElementById("event-end-date").value;
-      const endTime = document.getElementById("event-end-time").value;
+      const titleInput = document.getElementById("event-title");
+      const startDateInput = document.getElementById("event-start-date");
+      const startTimeInput = document.getElementById("event-start-time");
+      const endDateInput = document.getElementById("event-end-date");
+      const endTimeInput = document.getElementById("event-end-time");
+
+      if (!titleInput || !startDateInput || !startTimeInput || !endDateInput || !endTimeInput) {
+        openValidationModal("One or more required inputs are missing.");
+        return;
+      }
+
+      const title = titleInput.value.trim();
+      const startDate = startDateInput.value.trim();
+      const startTime = startTimeInput.value.trim();
+      const endDate = endDateInput.value.trim();
+      const endTime = endTimeInput.value.trim();
+
+      // Validate form values
+      if (!title) {
+        openValidationModal("Event title cannot be empty.");
+        return;
+      }
+      if (!startDate || !startTime || !endDate || !endTime) {
+        openValidationModal("Please fill out all date and time fields.");
+        return;
+      }
 
       const newStart = `${startDate}T${startTime}`;
       const newEnd = `${endDate}T${endTime}`;
 
-      if (newEnd <= newStart) {
-        alert("End time must be after start time.");
+      if (new Date(newEnd) <= new Date(newStart)) {
+        openValidationModal("End time must be after start time.");
         return;
       }
 
       // Update event properties
+      if (typeof selectedEvent.setProp !== "function" ||
+          typeof selectedEvent.setStart !== "function" ||
+          typeof selectedEvent.setEnd !== "function") {
+        openValidationModal("Unable to update event. Selected event is invalid.");
+        return;
+      }
+
       selectedEvent.setProp("title", title);
       selectedEvent.setStart(newStart);
       selectedEvent.setEnd(newEnd);
@@ -431,6 +511,7 @@ function createEventFAB() {
   const createEventFab = document.getElementById("create-event-fab");
   if (createEventFab) {
     createEventFab.addEventListener("click", () => {
+      clearEventForm();
       openCreateEventSidebar(new Date());
     });
   }
@@ -440,7 +521,7 @@ function createEventFAB() {
 // Create Event Functionality
 ////////
 function setupEventCreation() {
-  const createButton = document.getElementById("create-event"); // Button in the sidebar
+  const createButton = document.getElementById("create-event");
   if (createButton) {
     createButton.addEventListener("click", () => {
       // Retrieve form values
@@ -449,8 +530,9 @@ function setupEventCreation() {
       const startTime = document.getElementById("event-start-time").value;
       const endDate = document.getElementById("event-end-date").value;
       const endTime = document.getElementById("event-end-time").value;
+      const notificationsEnabled = document.getElementById("enable-notifications").checked;
 
-      // Check for required fields
+      // Validate required fields
       if (!title) {
         openValidationModal("Please enter a title for the event.");
         return;
@@ -460,45 +542,70 @@ function setupEventCreation() {
         return;
       }
 
-      // Use raw date and time values
-      const start = `${startDate}T${startTime}`;
-      const end = `${endDate}T${endTime}`;
-
-      if (end <= start) {
+     // Ensure dateTime includes seconds
+    const start = `${startDate}T${startTime}:00`;
+    const end = `${endDate}T${endTime}:00`;
+      console.log("Start Date:", start);
+      console.log("End Date:", end);
+      if (new Date(start) >= new Date(end)) {
         openValidationModal("End time must be after start time.");
         return;
       }
 
-      // Add event to FullCalendar
-      if (calendar) {
-        calendar.addEvent({
-          title,
-          start: start.toISOString(),
-          end: end.toISOString(),
-        });
-      }
+      const timeZone = "UTC"; // Set a default time zone or fetch dynamically
 
-      // Add event to Google Calendar
+      // Prepare the minimal event payload (no reminders)
+      const eventResource = {
+        summary: title,
+        start: { dateTime: start, timeZone },
+        end: { dateTime: end, timeZone },
+      };
+
+      // Debugging: Log the payload before sending
+      console.log("Event Resource Payload (no notifications):", eventResource);
+
+      // Add the event to Google Calendar
       if (gapiInited) {
         gapi.client.calendar.events
           .insert({
             calendarId: "primary",
-            resource: {
-              summary: title,
-              start: { dateTime: start.toISOString() },
-              end: { dateTime: end.toISOString() },
-            },
+            resource: eventResource,
           })
           .then(() => {
-            alert("Event successfully added to Google Calendar!");
+            if (calendar) {
+              calendar.addEvent({
+                title: eventResource.summary,
+                start: eventResource.start.dateTime,
+                end: eventResource.end.dateTime,
+              });
+            }
           })
           .catch((error) => {
             console.error("Error adding event to Google Calendar:", error);
-            openValidationModal("Failed to add event to Google Calendar.");
+            if (error.result && error.result.error) {
+                console.error("Error adding event to Google Calendar:", JSON.stringify(error, null, 2));
+                console.log("Payload Sent:", JSON.stringify(eventResource, null, 2));
+              console.error("Error Details:", error.result.error);
+              console.log("Payload Sent:", JSON.stringify(eventResource, null, 2));
+            }
+            openValidationModal("Failed to add event to Google Calendar. Check console for details.");
           });
       }
-
       closeSidebar();
+    });
+  }
+}
+
+////////
+// Notifications
+////////
+function setupNotificationToggle() {
+  const notificationToggle = document.getElementById("enable-notifications");
+  const notificationOptions = document.getElementById("notification-options");
+
+  if (notificationToggle && notificationOptions) {
+    notificationToggle.addEventListener("change", (event) => {
+      notificationOptions.style.display = event.target.checked ? "block" : "none";
     });
   }
 }
@@ -523,18 +630,32 @@ function setupDeleteEventButton() {
 // Create Event Functionality
 ////////
 function clearEventForm() {
-  document.getElementById("event-title").value = "";
-  document.getElementById("event-start-date").value = "";
-  document.getElementById("event-start-time").value = "";
-  document.getElementById("event-end-date").value = "";
-  document.getElementById("event-end-time").value = "";
+  const titleInput = document.getElementById("event-title");
+  const startDateInput = document.getElementById("event-start-date");
+  const startTimeInput = document.getElementById("event-start-time");
+  const endDateInput = document.getElementById("event-end-date");
+  const endTimeInput = document.getElementById("event-end-time");
+  const notificationCheckbox = document.getElementById("enable-notifications");
+  const notificationOptions = document.getElementById("notification-options");
+
+  if (titleInput) titleInput.value = "";
+  if (startDateInput) startDateInput.value = "";
+  if (startTimeInput) startTimeInput.value = "";
+  if (endDateInput) endDateInput.value = "";
+  if (endTimeInput) endTimeInput.value = "";
+
+  if (notificationCheckbox) notificationCheckbox.checked = false;
+  if (notificationOptions) notificationOptions.style.display = "none";
 }
 
 ////////
 // Event Fetching Functionality
 ////////
 function fetchEvents() {
-  return isApiConnected ? fetchGoogleCalendarEvents() : getMockEvents();
+  if (!isApiConnected) {
+    console.log("API not connected. Fetching mock events.");
+    return getMockEvents();
+  }
 }
 
 ////////
@@ -621,23 +742,22 @@ document.addEventListener("DOMContentLoaded", () => {
   } catch (error) {
     console.error("Error enabling sidebar dragging:", error);
   }
+  try {
+    setupNotificationToggle();
+  } catch (error) {
+    console.error("Error setting up notification toggle:", error);
+  }
 });
 module.exports = {
-  fetchGoogleCalendarEvents,
   clearEventForm,
-  initializeCalendar,
-  showEventTooltip,
-  hideEventTooltip,
+  setupNotificationToggle,
+  populateSidebarWithDate,
+  populateSidebarWithEventDetails,
+  populateSidebarForDateRange,
   openSidebar,
   closeSidebar,
-  setupEventCreation,
-  setupDeleteEventButton,
-  openCreateEventSidebar,
-  openEditEventSidebar,
-  enableSidebarDragging,
-  populateSidebarWithEventDetails,
-  setupCloseSidebarListeners,
-  fetchEvents
+  setupEditEventButton,
+
 };
 
 
@@ -646,7 +766,7 @@ module.exports = {
 ////////
 // 1. The calendar will update with events from Google each time logged in (duplicating events)
 // 2. The log in button doens't swap to log out when logged in until second log in
-
+// 3. Sign in, close window, considered signed in
 
 ////////
 // WISH LIST
