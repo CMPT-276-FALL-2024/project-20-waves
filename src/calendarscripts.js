@@ -408,6 +408,21 @@ function setupEditEventButton() {
   }
 }
 
+////////
+// Modal Validation
+////////
+// Open the validation modal with a message
+function openValidationModal(message) {
+  const modal = document.getElementById("validation-modal");
+  const messageElement = document.getElementById("validation-message");
+  messageElement.textContent = message; // Set the error message
+  modal.style.display = "flex";
+}
+// Close the validation modal
+function closeValidationModal() {
+  const modal = document.getElementById("validation-modal");
+  modal.style.display = "none";
+}
 
 ////////
 // Initialize Event FAB
@@ -437,11 +452,11 @@ function setupEventCreation() {
 
       // Check for required fields
       if (!title) {
-        alert("Please enter a title for the event.");
+        openValidationModal("Please enter a title for the event.");
         return;
       }
       if (!startDate || !startTime || !endDate || !endTime) {
-        alert("Please enter valid start and end dates and times.");
+        openValidationModal("Please enter valid start and end dates and times.");
         return;
       }
 
@@ -449,12 +464,17 @@ function setupEventCreation() {
       const start = `${startDate}T${startTime}`;
       const end = `${endDate}T${endTime}`;
 
+      if (end <= start) {
+        openValidationModal("End time must be after start time.");
+        return;
+      }
+
       // Add event to FullCalendar
       if (calendar) {
         calendar.addEvent({
           title,
-          start,
-          end,
+          start: start.toISOString(),
+          end: end.toISOString(),
         });
       }
 
@@ -465,8 +485,8 @@ function setupEventCreation() {
             calendarId: "primary",
             resource: {
               summary: title,
-              start: { dateTime: start },
-              end: { dateTime: end },
+              start: { dateTime: start.toISOString() },
+              end: { dateTime: end.toISOString() },
             },
           })
           .then(() => {
@@ -474,7 +494,7 @@ function setupEventCreation() {
           })
           .catch((error) => {
             console.error("Error adding event to Google Calendar:", error);
-            alert("Failed to add event to Google Calendar.");
+            openValidationModal("Failed to add event to Google Calendar.");
           });
       }
 
@@ -632,22 +652,4 @@ module.exports = {
 // WISH LIST
 ////////
 // 1. Colour coded events
-/* const calendar = new FullCalendar.Calendar(calendarEl, {
-  initialView: "dayGridMonth",
-  events: fetchEvents(),
-  eventDidMount: function (info) {
-    const event = info.event;
-
-    // Apply custom colors based on event type or other properties
-    if (event.extendedProps.type === "important") {
-      info.el.style.backgroundColor = "#f94144"; // Red
-      info.el.style.borderColor = "#f3722c"; // Orange border
-      info.el.style.color = "white"; // White text
-    } else if (event.extendedProps.type === "casual") {
-      info.el.style.backgroundColor = "#90be6d"; // Green
-      info.el.style.borderColor = "#43aa8b"; // Dark green border
-      info.el.style.color = "#333"; // Dark text
-    }
-  },
-}); */
 //2. Notifications

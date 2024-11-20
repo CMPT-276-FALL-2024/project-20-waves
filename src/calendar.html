@@ -53,12 +53,19 @@
       <button onclick="closeSignOutModal()">Close</button>
     </div>
   </div>
+  <!-- Validation Error Modal -->
+<div id="validation-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <p id="validation-message"></p>
+    <button onclick="closeValidationModal()">Close</button>
+  </div>
+</div>
 
     <!-- Sidebar for Event Creation and Editing -->
     <div id="event-sidebar" class="event-sidebar">
       <div class="drag-handle">
         <span class="drag-text">☰ Drag</span>
-        <button id="close-sidebar-button" class="close-button">✖</button>
+        <button id="close-sidebar-button" class="close-button" title="Close Sidebar">✖</button>
       </div>
       <h2>Create Event</h2>
 
