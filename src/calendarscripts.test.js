@@ -1,184 +1,156 @@
-// Import the functions you want to test
+// Import functions to test
 const {
-    clearEventForm,
-    populateSidebarWithEventDetails,
-    enableSidebarDragging,
-    fetchGoogleCalendarEvents,
-  } = require("./calendarscripts");
+  clearEventForm,
+  setupNotificationToggle,
+  populateSidebarWithDate,
+  populateSidebarForDateRange,
+  openSidebar,
+  closeSidebar,
+  setupEditEventButton,
+} = require("./calendarscripts");
 
-  // Mock dependencies
-  global.document = {
-    getElementById: jest.fn(),
-  };
-  global.console = {
-    log: jest.fn(),
-    error: jest.fn(),
-  };
-  global.gapi = {
-    client: {
-      calendar: {
-        events: {
-          list: jest.fn(),
-        },
-      },
-    },
-  };
+describe("calendarscripts.js Tests", () => {
+  // Test clearEventForm
+  describe("clearEventForm", () => {
+    it("should reset all form fields to default values", () => {
+      const mockElements = {
+        "event-title": { value: "Test Event" },
+        "event-start-date": { value: "2024-11-22" },
+        "event-start-time": { value: "10:00" },
+        "event-end-date": { value: "2024-11-22" },
+        "event-end-time": { value: "11:00" },
+        "enable-notifications": { checked: true },
+        "notification-options": { style: { display: "block" } },
+      };
 
-  describe("Calendar Scripts", () => {
-    beforeEach(() => {
-      jest.clearAllMocks(); // Reset mocks before each test
+      jest.spyOn(document, "getElementById").mockImplementation((id) => mockElements[id]);
+
+      clearEventForm();
+
+      expect(mockElements["event-title"].value).toBe("");
+      expect(mockElements["event-start-date"].value).toBe("");
+      expect(mockElements["event-start-time"].value).toBe("");
+      expect(mockElements["event-end-date"].value).toBe("");
+      expect(mockElements["event-end-time"].value).toBe("");
+      expect(mockElements["enable-notifications"].checked).toBe(false);
+      expect(mockElements["notification-options"].style.display).toBe("none");
+
+      document.getElementById.mockRestore();
     });
 
-    describe("clearEventForm", () => {
-        it("should clear the event form fields", () => {
-          // Mock DOM elements for form fields
-          const mockInputElements = {
-            "event-title": { value: "dummy title" },
-            "event-start-date": { value: "2024-11-25" },
-            "event-start-time": { value: "10:00" },
-            "event-end-date": { value: "2024-11-25" },
-            "event-end-time": { value: "11:00" },
-          };
+    it("should not throw an error if elements are missing", () => {
+      jest.spyOn(document, "getElementById").mockImplementation(() => null);
 
-          // Mock `document.getElementById` to return the mocked elements
-          jest.spyOn(document, "getElementById").mockImplementation((id) => mockInputElements[id]);
+      expect(() => clearEventForm()).not.toThrow();
 
-          // Call the function
-          clearEventForm();
-
-          // Check that all fields are cleared
-          expect(mockInputElements["event-title"].value).toBe("");
-          expect(mockInputElements["event-start-date"].value).toBe("");
-          expect(mockInputElements["event-start-time"].value).toBe("");
-          expect(mockInputElements["event-end-date"].value).toBe("");
-          expect(mockInputElements["event-end-time"].value).toBe("");
-
-          // Restore the original implementation of `getElementById`
-          document.getElementById.mockRestore();
-        });
-      });
-
-      describe("populateSidebarWithEventDetails", () => {
-        it("should populate the sidebar with event details", () => {
-          // Mock the event data
-          const event = {
-            title: "Test Event",
-            start: new Date("2024-11-25T10:00:00Z"),
-            end: new Date("2024-11-25T12:00:00Z"),
-          };
-
-          // Mock the DOM elements for the sidebar fields
-          const mockInputElements = {
-            "event-title": { value: "" },
-            "event-start-date": { value: "" },
-            "event-start-time": { value: "" },
-            "event-end-date": { value: "" },
-            "event-end-time": { value: "" },
-            "notify-before-number": { value: "" },
-            "notify-before-type": { value: "" },
-          };
-
-          // Spy on `document.getElementById` to return the mocked elements
-          jest.spyOn(document, "getElementById").mockImplementation((id) => {
-            return mockInputElements[id];
-          });
-
-          // Call the function
-          populateSidebarWithEventDetails(event);
-
-          // Assertions
-          expect(mockInputElements["event-title"].value).toBe(event.title);
-          expect(mockInputElements["event-start-date"].value).toBe(
-            event.start.toISOString().split("T")[0]
-          );
-          expect(mockInputElements["event-start-time"].value).toBe(
-            event.start.toTimeString().slice(0, 5)
-          );
-          expect(mockInputElements["event-end-date"].value).toBe(
-            event.end.toISOString().split("T")[0]
-          );
-          expect(mockInputElements["event-end-time"].value).toBe(
-            event.end.toTimeString().slice(0, 5)
-          );
-
-          // Restore the original `getElementById` implementation
-          document.getElementById.mockRestore();
-        });
-      });
-
-      /* describe("fetchGoogleCalendarEvents", () => {
-        beforeEach(() => {
-          global.accessToken = "mock_access_token"; // Set mock access token
-          global.gapi = {
-            client: {
-              calendar: {
-                events: {
-                  list: jest.fn(), // Mock the list method
-                },
-              },
-            },
-          };
-
-          // Mock `list` method with mockImplementation
-          gapi.client.calendar.events.list.mockImplementation((params) => {
-            console.log("gapi.client.calendar.events.list called with:", params);
-            return Promise.resolve({
-              result: {
-                items: [
-                  {
-                    summary: "Mock Event 1",
-                    start: { dateTime: "2024-11-25T10:00:00Z" },
-                    end: { dateTime: "2024-11-25T12:00:00Z" },
-                    id: "1",
-                  },
-                ],
-              },
-            });
-          });
-
-          jest.spyOn(console, "log").mockImplementation(() => {}); // Mock console.log
-          jest.spyOn(console, "error").mockImplementation(() => {}); // Mock console.error
-        });
-
-        afterEach(() => {
-          jest.clearAllMocks(); // Clear mocks after each test
-        });
-
-        it("should fetch events from Google Calendar", async () => {
-          // Call the function
-          await fetchGoogleCalendarEvents();
-
-          // Assertions
-          expect(gapi.client.calendar.events.list).toHaveBeenCalledWith({
-            calendarId: "primary",
-            timeMin: expect.any(String), // Expect any valid ISO string
-            showDeleted: false,
-            singleEvents: true,
-            orderBy: "startTime",
-          });
-
-          // Ensure console.log outputs mapped events
-          expect(console.log).toHaveBeenCalledWith(
-            "Mapped events for fullCalendar:",
-            [
-              {
-                title: "Mock Event 1",
-                start: "2024-11-25T10:00:00Z",
-                end: "2024-11-25T12:00:00Z",
-                id: "1",
-              },
-            ]
-          );
-        });
-
-        it("should log an error if no access token is available", () => {
-          global.accessToken = null; // Clear access token
-
-          // Call the function
-          fetchGoogleCalendarEvents();
-
-          // Assertions
-          expect(console.error).toHaveBeenCalledWith("No access token available");
-        });
-      }); */
+      document.getElementById.mockRestore();
+    });
   });
+
+  // Test setupNotificationToggle
+  describe("setupNotificationToggle", () => {
+    it("should toggle notification options display based on checkbox state", () => {
+      const mockCheckbox = { addEventListener: jest.fn() };
+      const mockOptions = { style: { display: "none" } };
+
+      jest.spyOn(document, "getElementById").mockImplementation((id) => {
+        if (id === "enable-notifications") return mockCheckbox;
+        if (id === "notification-options") return mockOptions;
+      });
+
+      setupNotificationToggle();
+
+      expect(mockCheckbox.addEventListener).toHaveBeenCalledWith("change", expect.any(Function));
+
+      const handler = mockCheckbox.addEventListener.mock.calls[0][1];
+      handler({ target: { checked: true } });
+      expect(mockOptions.style.display).toBe("block");
+
+      handler({ target: { checked: false } });
+      expect(mockOptions.style.display).toBe("none");
+
+      document.getElementById.mockRestore();
+    });
+  });
+
+  // Test populateSidebarWithDate
+  describe("populateSidebarWithDate", () => {
+    it("should populate form fields with start date and default end time", () => {
+      const mockElements = {
+        "event-start-date": { value: "" },
+        "event-start-time": { value: "" },
+        "event-end-date": { value: "" },
+        "event-end-time": { value: "" },
+      };
+
+      jest.spyOn(document, "getElementById").mockImplementation((id) => mockElements[id]);
+
+      const mockDate = new Date("2024-11-22T10:00:00");
+      populateSidebarWithDate(mockDate);
+
+      expect(mockElements["event-start-date"].value).toBe("2024-11-22");
+      expect(mockElements["event-start-time"].value).toBe("10:00");
+      expect(mockElements["event-end-date"].value).toBe("2024-11-22");
+      expect(mockElements["event-end-time"].value).toBe("10:15");
+
+      document.getElementById.mockRestore();
+    });
+  });
+
+  // Test populateSidebarForDateRange
+  describe("populateSidebarForDateRange", () => {
+    it("should populate sidebar fields for a given date range", () => {
+      const mockElements = {
+        "event-start-date": { value: "" },
+        "event-start-time": { value: "" },
+        "event-end-date": { value: "" },
+        "event-end-time": { value: "" },
+      };
+
+      jest.spyOn(document, "getElementById").mockImplementation((id) => mockElements[id]);
+
+      const start = new Date("2024-11-22T10:00:00");
+      const end = new Date("2024-11-22T11:00:00");
+      populateSidebarForDateRange(start, end);
+
+      expect(mockElements["event-start-date"].value).toBe("2024-11-22");
+      expect(mockElements["event-start-time"].value).toBe("10:00");
+      expect(mockElements["event-end-date"].value).toBe("2024-11-22");
+      expect(mockElements["event-end-time"].value).toBe("11:00");
+
+      document.getElementById.mockRestore();
+    });
+  });
+
+  // Test openSidebar
+  describe("openSidebar", () => {
+    it("should add 'open' class to sidebar", () => {
+      const sidebar = { classList: { contains: jest.fn(), add: jest.fn() } };
+
+      jest.spyOn(document, "getElementById").mockImplementation(() => sidebar);
+
+      sidebar.classList.contains.mockReturnValue(false);
+      openSidebar();
+
+      expect(sidebar.classList.add).toHaveBeenCalledWith("open");
+
+      document.getElementById.mockRestore();
+    });
+  });
+
+  // Test closeSidebar
+  describe("closeSidebar", () => {
+    it("should remove 'open' class from sidebar", () => {
+      const sidebar = { classList: { contains: jest.fn(), remove: jest.fn() } };
+
+      jest.spyOn(document, "getElementById").mockImplementation(() => sidebar);
+
+      sidebar.classList.contains.mockReturnValue(true);
+      closeSidebar();
+
+      expect(sidebar.classList.remove).toHaveBeenCalledWith("open");
+
+      document.getElementById.mockRestore();
+    });
+  });
+});
