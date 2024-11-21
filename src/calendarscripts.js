@@ -18,6 +18,9 @@ let gapiInited = false;
 // Debugging
 let isApiConnected = true;
 
+// User state
+let isUserSignedIn = false;
+let userNameElement;
 
 
 ////////
@@ -28,7 +31,7 @@ function initializeGapiClient() {
   console.log("Initializing GAPI client");
   gapi.load("client", async () => {
     await gapi.client.init({
-      apiKey: "", // Replace with actual API key
+      apiKey: "AIzaSyBN5bNmYdotHTJZNsyowJL08qZ-l5agXdQ", // Replace with your actual API key
       discoveryDocs: [
         "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
       ],
@@ -40,34 +43,70 @@ function initializeGapiClient() {
 // Initialize the GIS client
 function initializeGISClient() {
   tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: "", // Replace with actual Client ID
-    scope: "https://www.googleapis.com/auth/calendar",
+    client_id: "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com", // Replace with your actual Client ID
+    scope: "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile",
     callback: (response) => {
-      if (response.error) {
-        console.error("Error during token request:", response);
+      if (response.error || !response.access_token) {
+        console.error("Error during token request or access token is missing:", response);
+        isUserSignedIn = false;
+        updateAuthButtons();
+        openValidationModal("Failed to complete sign-in. Please try again.");
         return;
       }
       accessToken = response.access_token;
       console.log("Access token received:", accessToken);
+
+      isUserSignedIn = true;
+
+      fetchUserName()
+        .then(() => {
+          updateAuthButtons(); // Update buttons after fetching user name
+        })
+        .catch((error) => {
+          console.error("Failed to fetch user name:", error);
+        });
       fetchGoogleCalendarEvents(); // Fetch events after authentication
     },
   });
+}
+
+async function fetchUserName() {
+  console.log("Fetching user name...");
+  try {
+    const response = await gapi.client.request({
+      path: "https://www.googleapis.com/oauth2/v1/userinfo",
+    });
+    const userInfo = response.result;
+    console.log("User info fetched:", userInfo);
+    const userName = userInfo.name || "User"; // Fallback to 'User' if name is unavailable
+
+    // Update UI
+    const userNameElement = document.getElementById("user-name");
+    if (userNameElement) {
+      userNameElement.textContent = `Welcome, ${userName}`;
+      userNameElement.style.display = "inline"; // Ensure it's visible
+    }
+  } catch (error) {
+    console.error("Failed to fetch user name:", error);
+  }
 }
 
 
 ////////
 // Sign In / Out
 ////////
-function updateAuthButtons(isSignedIn) {
+function updateAuthButtons() {
   const signInButton = document.getElementById("sign-in-button");
   const signOutButton = document.getElementById("sign-out-button");
 
-  if (isSignedIn) {
+  if (isUserSignedIn) {
     signInButton.style.display = "none";
     signOutButton.style.display = "block";
+    if (userNameElement) userNameElement.style.display = "inline";
   } else {
     signInButton.style.display = "block";
     signOutButton.style.display = "none";
+    if (userNameElement) userNameElement.style.display = "none";
   }
 }
 
@@ -77,10 +116,19 @@ function handleSignInClick() {
     console.error("GAPI client not initialized!");
     return;
   }
-  tokenClient.requestAccessToken();
-  console.log("User signed in");
-  updateAuthButtons(true);
+  isUserSignedIn = false;
+  updateAuthButtons();
 
+  tokenClient.requestAccessToken();
+
+  setTimeout(() => {
+    if (!accessToken) {
+      console.warn("User did not complete sign-in process.");
+      isUserSignedIn = false;
+      updateAuthButtons();
+      openValidationModal("Sign in process was not completed.");
+    }
+  }, 5000);
 }
 
 function handleSignOutClick() {
@@ -91,7 +139,9 @@ function handleSignOutClick() {
     calendar.removeAllEvents();
     console.log("All events removed from calendar");
   }
-  updateAuthButtons(false);
+  isUserSignedIn = false;
+  updateAuthButtons();
+
   const modal = document.getElementById("sign-out-modal");
   modal.style.display = "flex";
 }
@@ -509,6 +559,10 @@ function createEventFAB() {
   const createEventFab = document.getElementById("create-event-fab");
   if (createEventFab) {
     createEventFab.addEventListener("click", () => {
+      if (!isUserSignedIn) {
+        openValidationModal("Please sign in to create events.");
+        return;
+      }
       clearEventForm();
       openCreateEventSidebar(new Date());
     });
@@ -522,6 +576,11 @@ function setupEventCreation() {
   const createButton = document.getElementById("create-event");
   if (createButton) {
     createButton.addEventListener("click", () => {
+      if (!isUserSignedIn) {
+        openValidationModal("Please log in to create an event.");
+        return;
+      }
+
       // Retrieve form values
       const title = document.getElementById("event-title").value.trim();
       const startDate = document.getElementById("event-start-date").value;
@@ -540,9 +599,8 @@ function setupEventCreation() {
         return;
       }
 
-     // Ensure dateTime includes seconds
-    const start = `${startDate}T${startTime}:00`;
-    const end = `${endDate}T${endTime}:00`;
+      const start = `${startDate}T${startTime}:00`;
+      const end = `${endDate}T${endTime}:00`;
       console.log("Start Date:", start);
       console.log("End Date:", end);
       if (new Date(start) >= new Date(end)) {
@@ -580,12 +638,6 @@ function setupEventCreation() {
           })
           .catch((error) => {
             console.error("Error adding event to Google Calendar:", error);
-            if (error.result && error.result.error) {
-                console.error("Error adding event to Google Calendar:", JSON.stringify(error, null, 2));
-                console.log("Payload Sent:", JSON.stringify(eventResource, null, 2));
-              console.error("Error Details:", error.result.error);
-              console.log("Payload Sent:", JSON.stringify(eventResource, null, 2));
-            }
             openValidationModal("Failed to add event to Google Calendar. Check console for details.");
           });
       }
@@ -613,12 +665,56 @@ function setupNotificationToggle() {
 ////////
 function setupDeleteEventButton() {
   const deleteEventButton = document.getElementById("delete-event");
+  const deleteConfirmationModal = document.getElementById("delete-confirmation-modal");
+  const deleteConfirmationMessage = document.getElementById("delete-confirmation-message");
+  const confirmDeleteButton = document.getElementById("confirm-delete-button");
+  const cancelDeleteButton = document.getElementById("cancel-delete-button");
+
   if (deleteEventButton) {
     deleteEventButton.addEventListener("click", () => {
-      if (selectedEvent) {
-        selectedEvent.remove();
-        closeSidebar();
-        selectedEvent = null;
+      if (!selectedEvent) {
+        openValidationModal("No event selected to delete.");
+        return;
+      }
+
+      const eventTitle = selectedEvent.title || "this event";
+      deleteConfirmationMessage.textContent = `Are you sure you want to delete "${eventTitle}" from Google Calendar?`;
+      deleteConfirmationModal.style.display = "flex";
+
+      // Handle "Yes" button click
+      confirmDeleteButton.onclick = async () => {
+        deleteConfirmationModal.style.display = "none"; // Hide modal
+        const eventId = selectedEvent.id; // Assuming `selectedEvent.id` holds the Google Calendar event ID
+
+        if (eventId) {
+          try {
+            // Call Google Calendar API to delete the event
+            const response = await gapi.client.calendar.events.delete({
+              calendarId: "primary",
+              eventId: eventId,
+            });
+            console.log("Event successfully deleted from Google Calendar:", response);
+
+            // Remove the event locally
+            selectedEvent.remove();
+            selectedEvent = null;
+            closeSidebar();
+            openValidationModal("Event successfully deleted from Google Calendar.");
+          } catch (error) {
+            console.error("Error deleting event from Google Calendar:", error);
+            openValidationModal("Failed to delete event from Google Calendar. Check console for details.");
+          }
+        } else {
+          openValidationModal("Event ID not found. Unable to delete event.");
+        }
+      };
+
+      // Handle "No" button click
+      cancelDeleteButton.onclick = () => {
+        deleteConfirmationModal.style.display = "none"; // Hide modal
+      };
+      if (!response.ok) {
+        openValidationModal("Failed to delete the event from Google Calendar.");
       }
     });
   }
@@ -685,8 +781,7 @@ function getMockEvents() {
 document.addEventListener("DOMContentLoaded", () => {
   try {
     console.log("Page loaded. Checking user authentication status.");
-    const isSignedIn = false;
-    updateAuthButtons(isSignedIn);
+    updateAuthButtons();
   } catch (error) {
     console.error("Error setting up auth buttons:", error);
   }
@@ -750,24 +845,29 @@ module.exports = {
   clearEventForm,
   setupNotificationToggle,
   populateSidebarWithDate,
-  populateSidebarWithEventDetails,
   populateSidebarForDateRange,
   openSidebar,
   closeSidebar,
+  setupDeleteEventButton,
+  handleSignInClick,
+  handleSignOutClick,
+  updateAuthButtons,
   setupEditEventButton,
-
 };
 
 
 ////////
 // BUGS
 ////////
-// 1. The calendar will update with events from Google each time logged in (duplicating events)
-// 2. The log in button doens't swap to log out when logged in until second log in
-// 3. Sign in, close window, considered signed in
+// 1. The calendar will update with events from Google each time logged in (duplicating events) // FIXED
+// 2. The log in button doens't swap to log out when logged in until second log in // FIXED
+// 3. Sign in, close window, considered signed in // FIXED
+// 4. Can't delete events // FIXED
+// 5. Can't edit notifications // FIXED
 
 ////////
 // WISH LIST
 ////////
 // 1. Colour coded events
-//2. Notifications
+// 2. Notifications bell at top left
+// 3. Event Reminders

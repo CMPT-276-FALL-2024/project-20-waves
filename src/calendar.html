@@ -19,34 +19,51 @@
       </div>
 
       <!-- Right: Google Sign-In/Out -->
-      <div class="header-right">
-          <button
-              id="sign-in-button"
-              class="google-button sign-in"
-              onclick="handleSignInClick()"
-              style="display: block;"
-          >
-              <img
-                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                  alt="Google Logo"
-              />
-              Sign in with Google
-          </button>
-          <button
-              id="sign-out-button"
-              class="google-button sign-out"
-              onclick="handleSignOutClick()"
-              style="display: none;"
-          >
-              Sign Out
-          </button>
-      </div>
+<div class="header-right">
+  <div id="auth-controls" style="text-align: right;">
+    <!-- Sign In Button -->
+    <button
+        id="sign-in-button"
+        class="google-button sign-in"
+        onclick="handleSignInClick()"
+        style="display: block; padding: 8px 16px; font-size: 14px; border-radius: 6px;"
+    >
+        <img
+            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+            alt="Google Logo"
+            style="vertical-align: middle; margin-right: 8px;"
+        />
+        Sign in with Google
+    </button>
+
+    <!-- User Name (Appears after signing in) -->
+    <span
+        id="user-name"
+        style="display: none; font-weight: bold; font-size: 14px; color: #333; margin-bottom: 5px; display: block;">
+    </span>
+
+    <!-- Sign Out Button (Appears after signing in) -->
+    <button
+        id="sign-out-button"
+        class="google-button sign-out"
+        onclick="handleSignOutClick()"
+        style="display: none; padding: 8px 16px; font-size: 14px; border-radius: 6px;"
+    >
+        Sign Out
+    </button>
+  </div>
+</div>
   </header>
 
   <div id="calendar-container">
     <div id="calendar"></div>
   </div>
 
+  <!-- Modals -->
+  <!-- Modals -->
+  <!-- Modals -->
+
+  <!-- Sign-In Modal -->
   <div id="sign-out-modal" class="modal" style="display: none;">
     <div class="modal-content">
       <p>You have successfully signed out.</p>
@@ -58,6 +75,13 @@
   <div class="modal-content">
     <p id="validation-message"></p>
     <button onclick="closeValidationModal()">Close</button>
+  </div>
+</div>
+<div id="delete-confirmation-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <p id="delete-confirmation-message"></p>
+    <button id="confirm-delete-button">Yes</button>
+    <button id="cancel-delete-button">No</button>
   </div>
 </div>
 

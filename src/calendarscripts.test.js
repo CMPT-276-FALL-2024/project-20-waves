@@ -154,3 +154,33 @@ describe("calendarscripts.js Tests", () => {
     });
   });
 });
+
+// Test setupEditEventButton
+describe("setupEditEventButton", () => {
+  it("should add click event listener to edit button", () => {
+    const mockButton = { addEventListener: jest.fn() };
+
+    jest.spyOn(document, "getElementById").mockImplementation(() => mockButton);
+
+    setupEditEventButton();
+
+    expect(mockButton.addEventListener).toHaveBeenCalledWith("click", expect.any(Function));
+
+    document.getElementById.mockRestore();
+  });
+});
+
+// Test setupEditEventButton
+describe("setupEditEventButton", () => {
+  it("should add click event listener to edit button", () => {
+    const mockButton = { addEventListener: jest.fn() };
+
+    jest.spyOn(document, "getElementById").mockImplementation(() => mockButton);
+
+    setupEditEventButton();
+
+    expect(mockButton.addEventListener).toHaveBeenCalledWith("click", expect.any(Function));
+
+    document.getElementById.mockRestore();
+  });
+});
