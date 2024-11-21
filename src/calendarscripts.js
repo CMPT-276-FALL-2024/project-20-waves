@@ -171,22 +171,37 @@ function fetchGoogleCalendarEvents() {
           const googleEvents = response.result.items;
           console.log("Raw Google Events:", googleEvents); // Debug here
 
-          const fullCalendarEvents = googleEvents.map((event) => ({
-              title: event.summary,
-              start: event.start.dateTime || event.start.date,
-              end: event.end.dateTime || event.end.date,
-              id: event.id,
-              extendedProps: {
-                  reminders: event.reminders, // Map reminders explicitly
-                  ...event.extendedProperties,
-              },
-          }));
+          const fullCalendarEvents = googleEvents.map((event) => {
+        // Map events for FullCalendar
+        const { summary, start, end, id, reminders } = event;
 
-          if (calendar) calendar.addEventSource(fullCalendarEvents);
-      })
-      .catch((error) => {
-          console.error("Error fetching calendar events:", error);
+        // Process reminders
+        if (reminders && reminders.overrides) {
+          reminders.overrides.forEach((reminder) => {
+            scheduleNotification(
+              summary,
+              start.dateTime || start.date,
+              reminder.minutes
+            );
+          });
+        }
+
+        return {
+          title: summary,
+          start: start.dateTime || start.date,
+          end: end.dateTime || end.date,
+          id: id,
+          extendedProps: {
+            reminders,
+          },
+        };
       });
+
+      if (calendar) calendar.addEventSource(fullCalendarEvents);
+    })
+    .catch((error) => {
+      console.error("Error fetching calendar events:", error);
+    });
 }
 
 ////////
@@ -726,6 +741,20 @@ function initializeNotifications() {
   notificationDropdown.addEventListener("click", (event) => {
     event.stopPropagation();
   });
+}
+function scheduleNotification(eventTitle, startDateTime, minutesBefore) {
+  const eventTime = new Date(startDateTime).getTime();
+  const notificationTime = eventTime - minutesBefore * 60 * 1000;
+  const currentTime = Date.now();
+
+  if (notificationTime > currentTime) {
+    // Schedule the notification
+    setTimeout(() => {
+      addNotification(`Reminder: "${eventTitle}" starts in ${minutesBefore} minutes.`);
+    }, notificationTime - currentTime);
+  } else {
+    console.log(`Skipped past notification for event "${eventTitle}"`);
+  }
 }
 
 ////////
