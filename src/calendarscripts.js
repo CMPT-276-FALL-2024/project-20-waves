@@ -223,12 +223,16 @@ function initializeCalendar() {
     footerToolbar: false,
 
     dateClick: function (info) {
-      openCreateEventSidebarWithCurrentTime(info.date);
+      requireSignIn(() => {
+        openCreateEventSidebarWithCurrentTime(info.date);
+      });
     },
     select: function (info) {
-      console.log("Date range selected from:", info.start, "to", info.end);
-      populateSidebarForDateRange(info.start, info.end);
-      openSidebar();
+      requireSignIn(() => {
+        console.log("Date range selected from:", info.start, "to", info.end);
+        populateSidebarForDateRange(info.start, info.end);
+        openSidebar();
+      });
     },
     eventClick: function (info) {
       openEditEventSidebar(info.event);
@@ -242,6 +246,18 @@ function initializeCalendar() {
     },
   });
   calendar.render();
+}
+
+////////
+// Validate User Log In
+////////
+function requireSignIn(actionCallback) {
+  if (!isUserSignedIn) {
+    openValidationModal("Please sign in to create events.");
+    return false;
+  }
+  actionCallback();
+  return true;
 }
 
 ////////
@@ -472,7 +488,6 @@ function populateSidebarWithDate(date) {
 // Clicking on a timeslot event creation
 function openCreateEventSidebarWithCurrentTime(clickedDate) {
   clearEventForm();
-
   const clickedDateStr = clickedDate.toISOString().split("T")[0];
   document.getElementById("event-start-date").value = clickedDateStr;
   document.getElementById("event-end-date").value = clickedDateStr;
@@ -583,12 +598,10 @@ function createEventFAB() {
   const createEventFab = document.getElementById("create-event-fab");
   if (createEventFab) {
     createEventFab.addEventListener("click", () => {
-      if (!isUserSignedIn) {
-        openValidationModal("Please sign in to create events.");
-        return;
-      }
-      clearEventForm();
-      openCreateEventSidebar(new Date());
+      requireSignIn(() => {
+        clearEventForm();
+        openCreateEventSidebar(new Date());
+      });
     });
   }
 }
@@ -722,6 +735,7 @@ function initializeNotifications() {
     notifications = [];
     updateNotificationBadge();
     renderNotifications();
+    notificationDropdown.style.display = "none";
     console.log("All notifications cleared");
   });
 
@@ -983,6 +997,18 @@ module.exports = {
   setupEditEventButton,
 };
 
+
+////////
+// TO DO
+////////
+// 1. Click to create and drag to create events check login status // DONE
+// 2. Getting notification events from Google Calendar //
+// 3. Auto close notifications on clear // DONE
+// 4. Remove background colour on today square // DONE
+// 5. Study Buddy home link // DONE
+// 6. Top bar doesn't scroll // DONE
+// 7. Calendar doesn't need to scroll (fits height) // DONE
+// 8.
 
 ////////
 // BUGS
