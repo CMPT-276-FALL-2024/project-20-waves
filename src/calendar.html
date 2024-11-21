@@ -11,6 +11,20 @@
   <body>
     <header class="header">
       <div class="header-left">
+        <div id="notification-container" style="position: relative;">
+          <button id="notification-bell" class="notification-bell">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/1827/1827392.png"
+              alt="Bell Icon"
+              style="width: 24px; height: 24px;"
+            />
+            <span id="notification-badge" class="notification-badge" style="display: none;">0</span>
+          </button>
+          <div id="notification-dropdown" class="notification-dropdown" style="display: none;">
+            <ul id="notification-list" class="notification-list"></ul>
+            <button id="clear-notifications" class="clear-notifications">Clear All</button>
+          </div>
+        </div>
       </div>
 
       <!-- Center: Title -->
