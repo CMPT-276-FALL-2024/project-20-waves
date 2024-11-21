@@ -18,7 +18,7 @@ let gapiInited = false;
 // Debugging
 let isApiConnected = true;
 
-// User state
+// User variables
 let isUserSignedIn = false;
 let userNameElement;
 
@@ -31,7 +31,7 @@ function initializeGapiClient() {
   console.log("Initializing GAPI client");
   gapi.load("client", async () => {
     await gapi.client.init({
-      apiKey: "AIzaSyBN5bNmYdotHTJZNsyowJL08qZ-l5agXdQ", // Replace with your actual API key
+      apiKey: "", // Replace with your actual API key
       discoveryDocs: [
         "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
       ],
@@ -43,7 +43,7 @@ function initializeGapiClient() {
 // Initialize the GIS client
 function initializeGISClient() {
   tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com", // Replace with your actual Client ID
+    client_id: "", // Replace with your actual Client ID
     scope: "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile",
     callback: (response) => {
       if (response.error || !response.access_token) {
@@ -357,6 +357,16 @@ function enableSidebarDragging() {
 ////////
 // Populate Sidebar Functionality
 ////////
+function setupNotificationToggle() {
+  const notificationToggle = document.getElementById("enable-notifications");
+  const notificationOptions = document.getElementById("notification-options");
+
+  if (notificationToggle && notificationOptions) {
+    notificationToggle.addEventListener("change", (event) => {
+      notificationOptions.style.display = event.target.checked ? "block" : "none";
+    });
+  }
+}
 // Click and drag event creation
 function populateSidebarForDateRange(start, end) {
   document.getElementById("event-start-date").value = start.toISOString().split("T")[0];
@@ -364,7 +374,6 @@ function populateSidebarForDateRange(start, end) {
   document.getElementById("event-end-date").value = end.toISOString().split("T")[0];
   document.getElementById("event-end-time").value = end.toTimeString().slice(0, 5);
 }
-
 // For editing an existing event
 function populateSidebarWithEventDetails(event) {
   console.log("Event details for population:", event);
@@ -649,15 +658,74 @@ function setupEventCreation() {
 ////////
 // Notifications
 ////////
-function setupNotificationToggle() {
-  const notificationToggle = document.getElementById("enable-notifications");
-  const notificationOptions = document.getElementById("notification-options");
+function initializeNotifications() {
+  const notificationBell = document.getElementById("notification-bell");
+  const notificationDropdown = document.getElementById("notification-dropdown");
+  const clearNotificationsButton = document.getElementById("clear-notifications");
+  const notificationList = document.getElementById("notification-list");
 
-  if (notificationToggle && notificationOptions) {
-    notificationToggle.addEventListener("change", (event) => {
-      notificationOptions.style.display = event.target.checked ? "block" : "none";
-    });
+  let notifications = [];
+
+  // Render notifications in the dropdown
+  function renderNotifications() {
+    notificationList.innerHTML = "";
+    if (notifications.length === 0) {
+      const emptyItem = document.createElement("li");
+      emptyItem.textContent = "No notifications.";
+      emptyItem.className = "notification-item";
+      notificationList.appendChild(emptyItem);
+    } else {
+      notifications.forEach((notification) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = notification;
+        listItem.className = "notification-item";
+        notificationList.appendChild(listItem);
+      });
+    }
   }
+
+  // Update the badge when notifications are added/cleared
+  function updateNotificationBadge() {
+    const badge = document.getElementById("notification-badge");
+    if (notifications.length > 0) {
+      badge.style.display = "block";
+      badge.textContent = notifications.length;
+    } else {
+      badge.style.display = "none";
+    }
+  }
+
+  // Add a notification
+  window.addNotification = function (message) {
+    notifications.push(message);
+    updateNotificationBadge();
+    renderNotifications();
+  };
+
+  // Clear all notifications
+  clearNotificationsButton.addEventListener("click", () => {
+    notifications = [];
+    updateNotificationBadge();
+    renderNotifications();
+    console.log("All notifications cleared");
+  });
+
+  // Show or hide the dropdown
+  notificationBell.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const isVisible = notificationDropdown.style.display === "block";
+    notificationDropdown.style.display = isVisible ? "none" : "block";
+  });
+
+  // Hide the dropdown when clicking outside
+  document.addEventListener("click", () => {
+    notificationDropdown.style.display = "none";
+  });
+
+  // Prevent dropdown from closing when clicking inside
+  notificationDropdown.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
 }
 
 ////////
@@ -778,7 +846,21 @@ function getMockEvents() {
   ];
 }
 
+function setupDebugKey() {
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "d" || event.key === "D") {
+      console.log("Debug key pressed!");
+      addNotification("This is a debug notification triggered by the 'D' key!");
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  try{
+    setupDebugKey();
+  } catch (error) {
+    console.error("Error setting up debug");
+  }
   try {
     console.log("Page loaded. Checking user authentication status.");
     updateAuthButtons();
@@ -840,6 +922,23 @@ document.addEventListener("DOMContentLoaded", () => {
   } catch (error) {
     console.error("Error setting up notification toggle:", error);
   }
+  try {
+    closeValidationModal();
+  } catch (error) {
+    console.error("Error closing validation modal:", error);
+  }
+  try {
+    closeSignOutModal();
+  } catch (error) {
+    console.error("Error closing sign out modal:", error);
+  }
+  try {
+    initializeNotifications();
+    console.log("Notifications initialized.");
+  } catch (error) {
+    console.error("Error initializing notifications:", error);
+  }
+
 });
 module.exports = {
   clearEventForm,

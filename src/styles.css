@@ -103,8 +103,69 @@ button:focus {
 /****************************************************
                   Notification Styling
  ****************************************************/
-
-
+.notification-bell img {
+  width: 24px;
+  height: 24px;
+}
+.notification-bell {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+#notification-badge {
+  display: none;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  font-size: 12px;
+  border-radius: 50%;
+  padding: 4px 8px;
+  min-width: 12px;
+  text-align: center;
+  font-weight: bold;
+  line-height: 1;
+}
+.notification-dropdown {
+  display: none;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  width: 200px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+#notification-list {
+  list-style: none;
+  margin: 0;
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.notification-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #333;
+}
+#clear-notifications {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: #f5f5f5;
+  border: none;
+  border-top: 1px solid #ddd;
+  cursor: pointer;
+  text-align: center;
+}
+#clear-notifications:hover {
+  background-color: #eaeaea;
+}
 /****************************************************
                   Calendar Styling
  ****************************************************/
@@ -490,19 +551,19 @@ border-bottom: 2px solid #AAC7D8;
 }
 
 
-
-/* Align container contents to the right */
+/****************************************************
+                  Auth Controls Styling
+ ****************************************************/
 #auth-controls {
-  text-align: left; /* Align contents to the right */
+  align-items: right;
+  text-align: right;
 }
-
-/* Style the user name */
 #user-name {
   font-weight: bold;
   font-size: 14px;
   color: #555;
-  margin-bottom: 5px; /* Add spacing between name and button */
-  display: block; /* Ensure it appears on its own line */
+  margin-bottom: 5px;
+  display: block;
 }
 
 
