@@ -44,6 +44,74 @@ a:visited {
 #practice-button {
     float: right;
 }
+/*styling for homepage elements*/
+/* todolist elements */
+.todo-list{
+    background-color: lightblue;
+    width: 25%;
+    height: 60%;
+    position:absolute;
+    overflow: hidden;
+    top: 20%;
+    left: 0%;
+}
+.todo-list > h1{
+    text-align:center;
+}
+
+.todo-list > p{
+    display:list-item;
+    margin-left: 5%;
+}
+ .todo-add{
+    background-color: rgb(49, 96, 112);
+    width: 50%;
+    height: 5%;
+    position:absolute;
+    text-align:center;
+    align-items: center;
+    overflow: hidden;
+    bottom: 0%;
+    right: 0%;
+} 
+.todo-remove-button{
+
+}
+.todo-input-box{
+    position: relative;
+
+
+}
+.todo-list-done{
+    position:relative;
+
+}
+/* todolist elements end */
+.timer{ 
+    background-color: rgb(89, 89, 95);
+    width: 25%;
+    height: 15%;
+    position:absolute;
+    right: 0;
+    bottom: 50%;
+}
+.chatbot{
+    background-color: rgb(89, 89, 95);
+    width: 25%;
+    height: 40%;
+    position:absolute;
+    right: 0;
+    bottom: 0;
+}
+.gif{
+    background-color: rgb(89, 89, 95);
+    width: 20%;
+    height: 20%;
+    position:absolute;
+    right: 40%;
+    bottom: 30% ;
+}
+
 
 
 /*Styling for options*/
@@ -265,37 +333,3 @@ button {
     }
 }
 
-/*home page Styling*/
-/*basic elements*/
-.todo-list{
-    background-color: lightblue;
-    width: 25%;
-    height: 60%;
-    position:absolute;
-    top: 20%;
-    left: 0;
-}
-.timer{ 
-    background-color: rgb(89, 89, 95);
-    width: 25%;
-    height: 15%;
-    position:absolute;
-    right: 0;
-    bottom: 50%;
-}
-.chatbot{
-    background-color: rgb(89, 89, 95);
-    width: 25%;
-    height: 40%;
-    position:absolute;
-    right: 0;
-    bottom: 0;
-}
-.gif{
-    background-color: rgb(89, 89, 95);
-    width: 20%;
-    height: 20%;
-    position:absolute;
-    right: 40%;
-    bottom: 30% ;
-}
