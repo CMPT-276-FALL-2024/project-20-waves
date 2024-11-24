@@ -17,9 +17,6 @@ let tokenClient;
 let accessToken;
 let gapiInited = false;
 
-// Debugging
-let isApiConnected = true;
-
 // User variables
 let isUserSignedIn = false;
 
@@ -76,7 +73,6 @@ function initializeGISClient() {
     },
   });
 }
-
 async function fetchUserName() {
   console.log("Fetching user name...");
   try {
@@ -119,7 +115,6 @@ function updateAuthButtons() {
     }
   }
 }
-
 function handleSignInClick() {
   console.log("gapiInited inside function:", gapiInited); // Debugging log
   if (!gapiInited) {
@@ -150,7 +145,6 @@ function handleSignInClick() {
     },
   });
 }
-
 function handleSignOutClick() {
   accessToken = null; // Clear the access token
   console.log("User signed out");
@@ -238,34 +232,29 @@ function calculateNotificationTime(eventStartTime, minutesBefore) {
 // Initialize the FullCalendar instance
 // includes event handling functions
 ////////
+// Initialize FullCalendar with updated handlers
 function initializeCalendar() {
   console.log("Initializing calendar");
   const calendarEl = document.getElementById("calendar");
   calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     selectable: true,
-    events: fetchEvents(),
     headerToolbar: {
       left: "prev,next today",
       center: "title",
       right: "dayGridMonth,timeGridWeek,timeGridDay",
     },
-    footerToolbar: false,
+    footerToolbar: true,
 
-    dateClick: function (info) {
-      requireSignIn(() => {
-        openCreateEventSidebarWithCurrentTime(info.date);
-      });
-    },
-    select: function (info) {
-      requireSignIn(() => {
-        populateSidebarForDateRange(info.start, info.end);
-        openSidebar();
-      });
-    },
-    eventClick: function (info) {
-      openCreateEventSidebar(info.event);
-    },
+    // Create new event on date click
+    dateClick: handleDateClick,
+
+    // Create new event by selecting a range
+    select: handleDateSelect,
+
+    // Edit existing event on event click
+    eventClick: handleEventClick,
+
     // Tooltop functions for hovering over events
     eventMouseEnter: function (info) {
       showEventTooltip(info.event);
@@ -275,6 +264,14 @@ function initializeCalendar() {
     },
   });
   calendar.render();
+}
+
+// Floating Action Button (FAB) for creating a new event
+function setupFAB() {
+  const createEventFab = document.getElementById("create-event-fab");
+  if (createEventFab) {
+    createEventFab.addEventListener("click", handleFABClick);
+  }
 }
 
 ////////
@@ -334,22 +331,30 @@ function positionTooltip(event) {
 ////////
 // Sidebar Functionality
 ////////
+// Opens the sidebar for creating a new event
 function openCreateEventSidebar(date) {
   clearEventForm();
+  populateSidebarWithDate(date); // Populate with default or selected date
   document.getElementById("create-event").style.display = "block";
-  document.getElementById("delete-event").style.display = "none";
   document.getElementById("edit-event").style.display = "none";
-  populateSidebarWithDate(date);
+  document.getElementById("delete-event").style.display = "none";
   openSidebar();
-  selectedEvent = null;
 }
+// Opens the sidebar for editing an event
 function openEditEventSidebar(event) {
-  // console.log("Event data passed to sidebar:", event);  // Debugging log
   selectedEvent = event;
-  populateSidebarWithEventDetails(event);
+  populateSidebarWithEventDetails(event); // Fill in event details
   document.getElementById("create-event").style.display = "none";
   document.getElementById("edit-event").style.display = "block";
   document.getElementById("delete-event").style.display = "block";
+  openSidebar();
+}
+function openCreateEventSidebarForDateRange(start, end) {
+  clearEventForm();
+  populateSidebarForDateRange(start, end);
+  document.getElementById("create-event").style.display = "block";
+  document.getElementById("edit-event").style.display = "none";
+  document.getElementById("delete-event").style.display = "none";
   openSidebar();
 }
 function setupCloseSidebarListeners() {
@@ -362,19 +367,6 @@ function setupCloseSidebarListeners() {
       closeSidebar();
     }
   });
-}
-function openSidebar() {
-  const eventSidebar = document.getElementById("event-sidebar");
-  if (!eventSidebar.classList.contains("open")) {
-    eventSidebar.classList.add("open");
-  }
-}
-function closeSidebar() {
-  const eventSidebar = document.getElementById("event-sidebar");
-  if (eventSidebar.classList.contains("open")) {
-    eventSidebar.classList.remove("open");
-    // console.log("Sidebar closed."); // Debugging log
-  }
 }
 function enableSidebarDragging() {
   const sidebar = document.getElementById("event-sidebar");
@@ -427,7 +419,7 @@ function enableSidebarDragging() {
     notificationQueue.push(newNotification);
   }
   console.log("Updated Notification Queue:", notificationQueue);
-} */
+}  */
 
 ////////
 // Populate Sidebar Functionality
@@ -444,7 +436,24 @@ function setupNotificationToggle() {
     });
   }
 }
-// Click and drag event creation
+// Populate sidebar with a single date and default time
+function populateSidebarWithDate(date) {
+  if (!(date instanceof Date)) date = new Date(date); // Ensure it's a Date object
+  const startDate = date.toISOString().split("T")[0];
+  const startTime = date.toTimeString().slice(0, 5); // Format as HH:MM
+  const endDate = new Date(date);
+  endDate.setMinutes(endDate.getMinutes() + 15);
+
+  document.getElementById("event-start-date").value = startDate;
+  document.getElementById("event-start-time").value = startTime;
+  document.getElementById("event-end-date").value = endDate
+    .toISOString()
+    .split("T")[0];
+  document.getElementById("event-end-time").value = endDate
+    .toTimeString()
+    .slice(0, 5);
+}
+// Populate sidebar with a date range
 function populateSidebarForDateRange(start, end) {
   document.getElementById("event-start-date").value = start
     .toISOString()
@@ -459,109 +468,33 @@ function populateSidebarForDateRange(start, end) {
     .toTimeString()
     .slice(0, 5);
 }
-// For editing an existing event
+// Populate sidebar with existing event details
 function populateSidebarWithEventDetails(event) {
-  // console.log("Event details for population:", event);  // Debugging log
+  const { title } = event._def; // Event title
+  const start = event._instance.range.start; // Event start time
+  const end = event._instance.range.end; // Event end time
 
-  // Extract details from _def
-  const { title, extendedProps } = event._def;
-
-  // Title
   document.getElementById("event-title").value = title || "";
 
-  // Start and end times from _instance
-  const start = event._instance.range.start;
-  const end = event._instance.range.end;
-
   if (start) {
-    const startDate = start.toISOString().split("T")[0];
-    const startTime = start.toISOString().split("T")[1].substring(0, 5); // HH:MM
-    document.getElementById("event-start-date").value = startDate;
-    document.getElementById("event-start-time").value = startTime;
+    document.getElementById("event-start-date").value = start
+      .toISOString()
+      .split("T")[0];
+    document.getElementById("event-start-time").value = start
+      .toISOString()
+      .split("T")[1]
+      .substring(0, 5); // HH:MM
   }
 
   if (end) {
-    const endDate = end.toISOString().split("T")[0];
-    const endTime = end.toISOString().split("T")[1].substring(0, 5); // HH:MM
-    document.getElementById("event-end-date").value = endDate;
-    document.getElementById("event-end-time").value = endTime;
+    document.getElementById("event-end-date").value = end
+      .toISOString()
+      .split("T")[0];
+    document.getElementById("event-end-time").value = end
+      .toISOString()
+      .split("T")[1]
+      .substring(0, 5); // HH:MM
   }
-
-  // Notifications
-  const notificationCheckbox = document.getElementById("enable-notifications");
-  const notificationOptions = document.getElementById("notification-options");
-
-  console.log("Extended Props:", extendedProps);
-
-  if (extendedProps && extendedProps.reminders) {
-    const reminders = extendedProps.reminders;
-    console.log("Reminders:", reminders);
-
-    if (reminders.overrides && reminders.overrides.length > 0) {
-      const reminder = reminders.overrides[0]; // Assuming the first override
-      console.log("Reminder being used:", reminder);
-
-      notificationCheckbox.checked = true;
-      notificationOptions.style.display = "block";
-
-      // Populate reminder fields
-      document.getElementById("notification-type").value =
-        reminder.method || "popup"; // 'popup' or 'email'
-      document.getElementById("notification-time").value =
-        reminder.minutes || 10; // Time in minutes
-
-      // Adjust time unit if needed (defaulting to minutes for simplicity)
-      document.getElementById("notification-time-unit").value = "minutes";
-    } else {
-      console.log("No valid overrides found for reminders.");
-      notificationCheckbox.checked = false;
-      notificationOptions.style.display = "none";
-    }
-  } else {
-    console.log("No reminders found in extendedProps.");
-    notificationCheckbox.checked = false;
-    notificationOptions.style.display = "none";
-  }
-}
-// Click event creation
-function populateSidebarWithDate(date) {
-  const currentDate = date.toISOString().split("T")[0];
-  const currentTime = date.toTimeString().slice(0, 5);
-
-  document.getElementById("event-start-date").value = currentDate;
-  document.getElementById("event-start-time").value = currentTime;
-
-  // Set a default end time 15 minutes later
-  const endDate = new Date(date);
-  endDate.setMinutes(endDate.getMinutes() + 15);
-  document.getElementById("event-end-date").value = endDate
-    .toISOString()
-    .split("T")[0];
-  document.getElementById("event-end-time").value = endDate
-    .toTimeString()
-    .slice(0, 5);
-}
-// Clicking on a timeslot event creation
-function openCreateEventSidebarWithCurrentTime(clickedDate) {
-  clearEventForm();
-  const clickedDateStr = clickedDate.toISOString().split("T")[0];
-  document.getElementById("event-start-date").value = clickedDateStr;
-  document.getElementById("event-end-date").value = clickedDateStr;
-
-  const now = new Date();
-  const currentHours = String(now.getHours()).padStart(2, "0");
-  const currentMinutes = String(now.getMinutes()).padStart(2, "0");
-  const currentTime = `${currentHours}:${currentMinutes}`;
-
-  document.getElementById("event-start-time").value = currentTime;
-
-  const endTime = new Date(now);
-  endTime.setHours(endTime.getHours() + 1);
-  const endHours = String(endTime.getHours()).padStart(2, "0");
-  const endMinutes = String(endTime.getMinutes()).padStart(2, "0");
-  document.getElementById("event-end-time").value = `${endHours}:${endMinutes}`;
-
-  openSidebar();
 }
 
 ////////
@@ -660,99 +593,34 @@ function closeValidationModal() {
 ////////
 // Initialize Event FAB
 ////////
-function createEventFAB() {
-  const createEventFab = document.getElementById("create-event-fab");
-  if (createEventFab) {
-    createEventFab.addEventListener("click", () => {
-      requireSignIn(() => {
-        clearEventForm();
-        openCreateEventSidebar(new Date());
-      });
-    });
-  }
+function handleFABClick() {
+  requireSignIn(() => {
+    clearEventForm();
+    const now = new Date();
+    openCreateEventSidebar(new Date());
+  });
 }
 
 ////////
 // Create Event Functionality
 ////////
-function setupEventCreation() {
-  const createButton = document.getElementById("create-event");
-  if (createButton) {
-    createButton.addEventListener("click", () => {
-      if (!isUserSignedIn) {
-        openValidationModal("Please log in to create an event.");
-        return;
-      }
-
-      // Retrieve form values
-      const title = document.getElementById("event-title").value.trim();
-      const startDate = document.getElementById("event-start-date").value;
-      const startTime = document.getElementById("event-start-time").value;
-      const endDate = document.getElementById("event-end-date").value;
-      const endTime = document.getElementById("event-end-time").value;
-      const notificationsEnabled = document.getElementById(
-        "enable-notifications"
-      ).checked;
-
-      // Validate required fields
-      if (!title) {
-        openValidationModal("Please enter a title for the event.");
-        return;
-      }
-      if (!startDate || !startTime || !endDate || !endTime) {
-        openValidationModal(
-          "Please enter valid start and end dates and times."
-        );
-        return;
-      }
-
-      const start = `${startDate}T${startTime}:00`;
-      const end = `${endDate}T${endTime}:00`;
-      console.log("Start Date:", start);
-      console.log("End Date:", end);
-      if (new Date(start) >= new Date(end)) {
-        openValidationModal("End time must be after start time.");
-        return;
-      }
-
-      const useThisTimeZone = "PST"; // Set a default time zone or fetch dynamically
-
-      // Prepare the minimal event payload (no reminders)
-      const eventResource = {
-        summary: title,
-        start: { dateTime: start, timeZone: useThisTimeZone },
-        end: { dateTime: end, timeZone: useThisTimeZone },
-      };
-
-      // Debugging: Log the payload before sending
-      console.log("Event Resource Payload (no notifications):", eventResource);
-
-      // Add the event to Google Calendar
-      if (gapiInited) {
-        gapi.client.calendar.events
-          .insert({
-            calendarId: "primary",
-            resource: eventResource,
-          })
-          .then(() => {
-            if (calendar) {
-              calendar.addEvent({
-                title: eventResource.summary,
-                start: eventResource.start.dateTime,
-                end: eventResource.end.dateTime,
-              });
-            }
-          })
-          .catch((error) => {
-            console.error("Error adding event to Google Calendar:", error);
-            openValidationModal(
-              "Failed to add event to Google Calendar. Check console for details."
-            );
-          });
-      }
-      closeSidebar();
-    });
-  }
+function handleDateClick(info) {
+  requireSignIn(() => {
+    clearEventForm();
+    openCreateEventSidebar(info.date);
+  });
+}
+function handleDateSelect(info) {
+  requireSignIn(() => {
+    clearEventForm();
+    openCreateEventSidebarForDateRange(info.start, info.end);
+  });
+}
+function handleEventClick(info) {
+  requireSignIn(() => {
+    clearEventForm();
+    openEditEventSidebar(info.event);
+  });
 }
 
 ////////
@@ -834,7 +702,7 @@ function initializeNotifications() {
     event.stopPropagation();
   });
 }
-function scheduleNotification(eventTitle, startDateTime, minutesBefore) {
+/* function scheduleNotification(eventTitle, startDateTime, minutesBefore) {
   const eventTime = new Date(startDateTime).getTime();
   const notificationTime = eventTime - minutesBefore * 60 * 1000;
   const currentTime = Date.now();
@@ -848,6 +716,89 @@ function scheduleNotification(eventTitle, startDateTime, minutesBefore) {
     }, notificationTime - currentTime);
   } else {
     console.log(`Skipped past notification for event "${eventTitle}"`);
+  }
+} */
+
+////////
+// Create Event Button
+////////
+function setupEventCreationButton() {
+  const createButton = document.getElementById("create-event");
+  if (createButton) {
+    createButton.addEventListener("click", () => {
+      if (!isUserSignedIn) {
+        openValidationModal("Please log in to create an event.");
+        return;
+      }
+
+      // Retrieve form values
+      const title = document.getElementById("event-title").value.trim();
+      const startDate = document.getElementById("event-start-date").value;
+      const startTime = document.getElementById("event-start-time").value;
+      const endDate = document.getElementById("event-end-date").value;
+      const endTime = document.getElementById("event-end-time").value;
+      const notificationsEnabled = document.getElementById(
+        "enable-notifications"
+      ).checked;
+
+      // Validate required fields
+      if (!title) {
+        openValidationModal("Please enter a title for the event.");
+        return;
+      }
+      if (!startDate || !startTime || !endDate || !endTime) {
+        openValidationModal(
+          "Please enter valid start and end dates and times."
+        );
+        return;
+      }
+
+      const start = `${startDate}T${startTime}:00`;
+      const end = `${endDate}T${endTime}:00`;
+      console.log("Start Date:", start);
+      console.log("End Date:", end);
+      if (new Date(start) >= new Date(end)) {
+        openValidationModal("End time must be after start time.");
+        return;
+      }
+
+      const useThisTimeZone = "PST"; // Set a default time zone or fetch dynamically
+
+      // Prepare the minimal event payload (no reminders)
+      const eventResource = {
+        summary: title,
+        start: { dateTime: start, timeZone: useThisTimeZone },
+        end: { dateTime: end, timeZone: useThisTimeZone },
+      };
+
+      // Debugging: Log the payload before sending
+      console.log("Event Resource Payload (no notifications):", eventResource);
+
+      // Add the event to Google Calendar
+      if (gapiInited) {
+        gapi.client.calendar.events
+          .insert({
+            calendarId: "primary",
+            resource: eventResource,
+          })
+          .then(() => {
+            if (calendar) {
+              calendar.addEvent({
+                title: eventResource.summary,
+                start: eventResource.start.dateTime,
+                end: eventResource.end.dateTime,
+              });
+            }
+          })
+          .catch((error) => {
+            console.error("Error adding event to Google Calendar:", error);
+            openValidationModal(
+              "Failed to add event to Google Calendar. Check console for details."
+            );
+          });
+      }
+      closeSidebar();
+    });
   }
 }
 
@@ -925,61 +876,30 @@ function setupDeleteEventButton() {
 ////////
 // Create Event Functionality
 ////////
+// Clear the event form
 function clearEventForm() {
-  const titleInput = document.getElementById("event-title");
-  const startDateInput = document.getElementById("event-start-date");
-  const startTimeInput = document.getElementById("event-start-time");
-  const endDateInput = document.getElementById("event-end-date");
-  const endTimeInput = document.getElementById("event-end-time");
-  const notificationCheckbox = document.getElementById("enable-notifications");
-  const notificationOptions = document.getElementById("notification-options");
-
-  if (titleInput) titleInput.value = "";
-  if (startDateInput) startDateInput.value = "";
-  if (startTimeInput) startTimeInput.value = "";
-  if (endDateInput) endDateInput.value = "";
-  if (endTimeInput) endTimeInput.value = "";
-
-  if (notificationCheckbox) notificationCheckbox.checked = false;
-  if (notificationOptions) notificationOptions.style.display = "none";
+  document.getElementById("event-title").value = "";
+  document.getElementById("event-start-date").value = "";
+  document.getElementById("event-start-time").value = "";
+  document.getElementById("event-end-date").value = "";
+  document.getElementById("event-end-time").value = "";
+  document.getElementById("enable-notifications").checked = false;
+  document.getElementById("notification-options").style.display = "none";
+}
+// Open the sidebar
+function openSidebar() {
+  const eventSidebar = document.getElementById("event-sidebar");
+  eventSidebar.classList.add("open");
+}
+// Close the sidebar
+function closeSidebar() {
+  const eventSidebar = document.getElementById("event-sidebar");
+  eventSidebar.classList.remove("open");
 }
 
 ////////
-// Event Fetching Functionality
+// Debugging
 ////////
-function fetchEvents() {
-  if (!isApiConnected) {
-    console.log("API not connected. Fetching mock events.");
-    return getMockEvents();
-  }
-}
-
-////////
-// Mock Event Data
-////////
-function getMockEvents() {
-  return [
-    {
-      id: "1",
-      title: "Math Study Group",
-      start: "2024-11-10T10:00:00",
-      end: "2024-11-10T12:00:00",
-    },
-    {
-      id: "2",
-      title: "History Review Session",
-      start: "2024-11-11T14:00:00",
-      end: "2024-11-11T15:30:00",
-    },
-    {
-      id: "3",
-      title: "Science Project",
-      start: "2024-11-12T09:00:00",
-      end: "2024-11-12T10:30:00",
-    },
-  ];
-}
-
 function setupDebugKey() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "d" || event.key === "D") {
@@ -990,6 +910,11 @@ function setupDebugKey() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  try {
+    setupEventCreationButton();
+  } catch (error) {
+    console.error("Error setting up event creation button:", error);
+  }
   try {
     setupDebugKey();
   } catch (error) {
@@ -1002,7 +927,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Error setting up auth buttons:", error);
   }
   try {
-    createEventFAB();
+    setupFAB();
   } catch (error) {
     console.error("Error setting up event FAB:", error);
   }
@@ -1025,11 +950,6 @@ document.addEventListener("DOMContentLoaded", () => {
     handleSignInClick();
   } catch (error) {
     console.error("Error setting up sign-in click handler:", error);
-  }
-  try {
-    setupEventCreation();
-  } catch (error) {
-    console.error("Error setting up event creation:", error);
   }
   try {
     setupEditEventButton();
@@ -1074,17 +994,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 module.exports = {
-  clearEventForm,
-  setupNotificationToggle,
-  populateSidebarWithDate,
-  populateSidebarForDateRange,
-  openSidebar,
-  closeSidebar,
-  setupDeleteEventButton,
-  handleSignInClick,
-  handleSignOutClick,
-  updateAuthButtons,
-  setupEditEventButton,
+  clearEventForm, // Clears the event form
+  setupNotificationToggle, // Sets up the notification toggle for enabling/disabling notifications
+  populateSidebarWithDate, // Populates the sidebar with a single date
+  populateSidebarForDateRange, // Populates the sidebar with a date range (for drag-to-select)
+  openSidebar, // Opens the event sidebar
+  closeSidebar, // Closes the event sidebar
+  setupDeleteEventButton, // Sets up the delete event functionality
+  handleSignInClick, // Handles user sign-in
+  handleSignOutClick, // Handles user sign-out
+  updateAuthButtons, // Updates sign-in/sign-out button visibility
+  setupEditEventButton, // Sets up the edit event button
+  initializeCalendar, // Initializes the FullCalendar instance
+  setupFAB, // Sets up the Floating Action Button (FAB)
+  handleFABClick, // Handles FAB click for creating an event
+  handleDateClick, // Handles single date clicks on the calendar
+  handleDateSelect, // Handles click-and-drag date selection on the calendar
+  handleEventClick, // Handles clicks on existing events for editing
+  requireSignIn, // Ensures the user is signed in before allowing actions
 };
 
 ////////
