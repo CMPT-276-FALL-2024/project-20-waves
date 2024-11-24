@@ -122,17 +122,17 @@ function updateAuthButtons() {
 }
 
 function handleSignInClick() {
-  console.log("Handle Sign In: Requesting access token");
+  console.log("gapiInited inside function:", gapiInited); // Debugging log
   if (!gapiInited) {
     console.error("GAPI client not initialized!");
     return;
   }
-  console.log("Logging in", isUserSignedIn);
+  console.log("handleSigniInClick executed"); // Debugging log
   tokenClient.requestAccessToken({
     prompt: "consent",
     callback: (response) => {
       if (response.error) {
-        console.error("Errror during token request:", response.error);
+        console.error("Errror during token request:", response);
         return;
       }
 
@@ -207,6 +207,9 @@ function fetchGoogleCalendarEvents() {
           });
         }
 
+        console.log("Event:", event); // Debugging log
+        console.log("Reminders:", reminders); // Debugging log
+
         return {
           title: summary,
           start: start.dateTime || start.date,
@@ -255,7 +258,7 @@ function initializeCalendar() {
       });
     },
     eventClick: function (info) {
-      openEditEventSidebar(info.event);
+      openCreateEventSidebar(info.event);
     },
     // Tooltop functions for hovering over events
     eventMouseEnter: function (info) {
@@ -690,13 +693,13 @@ function setupEventCreation() {
         return;
       }
 
-      const timeZone = "UTC"; // Set a default time zone or fetch dynamically
+      const useThisTimeZone = "PST"; // Set a default time zone or fetch dynamically
 
       // Prepare the minimal event payload (no reminders)
       const eventResource = {
         summary: title,
-        start: { dateTime: start, timeZone },
-        end: { dateTime: end, timeZone },
+        start: { dateTime: start, timeZone: useThisTimeZone },
+        end: { dateTime: end, timeZone: useThisTimeZone },
       };
 
       // Debugging: Log the payload before sending
