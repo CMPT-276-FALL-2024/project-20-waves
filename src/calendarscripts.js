@@ -1,9 +1,8 @@
 ////////
 // NOTE: this requires API KEY and CLIENT ID to be added within the code
 ////////
-const YOUR_API_KEY = "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M";
-const YOUR_CLIENT_ID =
-  "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com";
+const YOUR_API_KEY = "";
+const YOUR_CLIENT_ID = "";
 
 ////////
 // Global Variables
@@ -190,25 +189,26 @@ function fetchGoogleCalendarEvents() {
     })
     .then((response) => {
       const googleEvents = response.result.items;
-      // console.log("Raw Google Events:", googleEvents); // Debugging log
 
       const fullCalendarEvents = googleEvents.map((event) => {
-        // Map events for FullCalendar
         const { summary, start, end, id, reminders } = event;
 
-        // Process reminders
+        // Process reminders and schedule notifications
         if (reminders && reminders.overrides) {
           reminders.overrides.forEach((reminder) => {
-            scheduleNotification(
-              summary,
+            const notificationTime = calculateNotificationTime(
               start.dateTime || start.date,
               reminder.minutes
             );
+            if (notificationTime > Date.now()) {
+              // Add to notification queue
+              addNotification(
+                `Reminder: "${summary}" starts in ${reminder.minutes} minutes.`
+              );
+              console.log(`Notification scheduled for event "${summary}"`);
+            }
           });
         }
-
-        console.log("Event:", event); // Debugging log
-        console.log("Reminders:", reminders); // Debugging log
 
         return {
           title: summary,
@@ -226,6 +226,12 @@ function fetchGoogleCalendarEvents() {
     .catch((error) => {
       console.error("Error fetching calendar events:", error);
     });
+}
+
+// Helper Function
+function calculateNotificationTime(eventStartTime, minutesBefore) {
+  const eventTime = new Date(eventStartTime).getTime();
+  return eventTime - minutesBefore * 60 * 1000;
 }
 
 ////////
@@ -406,6 +412,22 @@ function enableSidebarDragging() {
     }
   });
 }
+
+/* function addToNotificationQueue(eventTitle, notiifcationTime, message) {
+  const newNotification = { eventTitle, notiifcationTime, message };
+  let inserted = false;
+  for (let i = 0; i < notificationQueue.length; i++) {
+    if (notificationQueue[i].notiifcationTime > notiifcationTime) {
+      notificationQueue.splice(i, 0, newNotification);
+      inserted = true;
+      break;
+    }
+  }
+  if (!inserted) {
+    notificationQueue.push(newNotification);
+  }
+  console.log("Updated Notification Queue:", notificationQueue);
+} */
 
 ////////
 // Populate Sidebar Functionality
@@ -737,6 +759,7 @@ function setupEventCreation() {
 // Notifications
 ////////
 function initializeNotifications() {
+  console.log("Initializing notifications");
   const notificationBell = document.getElementById("notification-bell");
   const notificationDropdown = document.getElementById("notification-dropdown");
   const clearNotificationsButton = document.getElementById(
@@ -788,6 +811,7 @@ function initializeNotifications() {
     updateNotificationBadge();
     renderNotifications();
     notificationDropdown.style.display = "none";
+    console.log("notification dropdown:", notificationDropdown.display);
     console.log("All notifications cleared");
   });
 
@@ -795,7 +819,9 @@ function initializeNotifications() {
   notificationBell.addEventListener("click", (event) => {
     event.stopPropagation();
     const isVisible = notificationDropdown.style.display === "block";
+    console.log("notification dropdown:", notificationDropdown.display);
     notificationDropdown.style.display = isVisible ? "none" : "block";
+    console.log("notification dropdown:", notificationDropdown.display);
   });
 
   // Hide the dropdown when clicking outside
@@ -1065,13 +1091,13 @@ module.exports = {
 // TO DO
 ////////
 // 1. Click to create and drag to create events check login status // DONE
-// 2. Getting notification events from Google Calendar //
+// 2. Getting notification events from Google Calendar // DONE
 // 3. Auto close notifications on clear // DONE
 // 4. Remove background colour on today square // DONE
 // 5. Study Buddy home link // DONE
 // 6. Top bar doesn't scroll // DONE
 // 7. Calendar doesn't need to scroll (fits height) // DONE
-// 8.
+// 8. Adding Notifications to StudyBuddy
 
 ////////
 // BUGS
@@ -1081,6 +1107,7 @@ module.exports = {
 // 3. Sign in, close window, considered signed in // FIXED
 // 4. Can't delete events // FIXED
 // 5. Can't edit notifications // FIXED
+// 6. UTC to PST time fixed // FIXED
 
 ////////
 // WISH LIST
