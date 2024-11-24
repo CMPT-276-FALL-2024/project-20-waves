@@ -1,6 +1,9 @@
 ////////
 // NOTE: this requires API KEY and CLIENT ID to be added within the code
 ////////
+const YOUR_API_KEY = "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M";
+const YOUR_CLIENT_ID =
+  "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com";
 
 ////////
 // Global Variables
@@ -20,8 +23,6 @@ let isApiConnected = true;
 
 // User variables
 let isUserSignedIn = false;
-let userNameElement;
-
 
 ////////
 // API
@@ -31,7 +32,7 @@ function initializeGapiClient() {
   console.log("Initializing GAPI client");
   gapi.load("client", async () => {
     await gapi.client.init({
-      apiKey: "", // Replace with your actual API key
+      apiKey: YOUR_API_KEY, // Replace with your actual API key
       discoveryDocs: [
         "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
       ],
@@ -43,18 +44,25 @@ function initializeGapiClient() {
 // Initialize the GIS client
 function initializeGISClient() {
   tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: "", // Replace with your actual Client ID
-    scope: "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile",
+    client_id: YOUR_CLIENT_ID, // Replace with your actual Client ID
+    scope:
+      "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile",
     callback: (response) => {
       if (response.error || !response.access_token) {
-        console.error("Error during token request or access token is missing:", response);
+        console.error(
+          "Error during token request or access token is missing:",
+          response
+        );
         isUserSignedIn = false;
         updateAuthButtons();
         openValidationModal("Failed to complete sign-in. Please try again.");
         return;
       }
       accessToken = response.access_token;
-      console.log("Access token received:", accessToken);
+      console.log(
+        "Access token received (initializeGISClient()):",
+        accessToken
+      );
 
       isUserSignedIn = true;
 
@@ -91,13 +99,13 @@ async function fetchUserName() {
   }
 }
 
-
 ////////
 // Sign In / Out
 ////////
 function updateAuthButtons() {
   const signInButton = document.getElementById("sign-in-button");
   const signOutButton = document.getElementById("sign-out-button");
+  const userNameElement = document.getElementById("user-name");
 
   if (isUserSignedIn) {
     signInButton.style.display = "none";
@@ -106,7 +114,10 @@ function updateAuthButtons() {
   } else {
     signInButton.style.display = "block";
     signOutButton.style.display = "none";
-    if (userNameElement) userNameElement.style.display = "none";
+    if (userNameElement) {
+      userNameElement.style.display = "none";
+      userNameElement.textContent = ""; // Clear the user name
+    }
   }
 }
 
@@ -116,30 +127,40 @@ function handleSignInClick() {
     console.error("GAPI client not initialized!");
     return;
   }
-  isUserSignedIn = false;
-  updateAuthButtons();
+  console.log("Logging in", isUserSignedIn);
+  tokenClient.requestAccessToken({
+    prompt: "consent",
+    callback: (response) => {
+      if (response.error) {
+        console.error("Errror during token request:", response.error);
+        return;
+      }
 
-  tokenClient.requestAccessToken();
-
-  setTimeout(() => {
-    if (!accessToken) {
-      console.warn("User did not complete sign-in process.");
-      isUserSignedIn = false;
-      updateAuthButtons();
-      openValidationModal("Sign in process was not completed.");
-    }
-  }, 5000);
+      if (response.access_token) {
+        console.log(
+          "Access token received (handleSignInClick()):",
+          response.access_token
+        );
+        accessToken = response.access_token;
+        isUserSignedIn = true;
+        updateAuthButtons();
+        fetchUserName();
+      } else {
+        console.warn("Access token not received:", response);
+      }
+    },
+  });
 }
 
 function handleSignOutClick() {
   accessToken = null; // Clear the access token
   console.log("User signed out");
-
   if (calendar) {
     calendar.removeAllEvents();
     console.log("All events removed from calendar");
   }
   isUserSignedIn = false;
+
   updateAuthButtons();
 
   const modal = document.getElementById("sign-out-modal");
@@ -155,23 +176,23 @@ function closeSignOutModal() {
 ////////
 function fetchGoogleCalendarEvents() {
   if (!accessToken) {
-      console.error("No access token available");
-      return;
+    console.error("No access token available");
+    return;
   }
 
   gapi.client.calendar.events
-      .list({
-          calendarId: "primary",
-          timeMin: new Date().toISOString(),
-          showDeleted: false,
-          singleEvents: true,
-          orderBy: "startTime",
-      })
-      .then((response) => {
-          const googleEvents = response.result.items;
-          console.log("Raw Google Events:", googleEvents); // Debug here
+    .list({
+      calendarId: "primary",
+      timeMin: new Date().toISOString(),
+      showDeleted: false,
+      singleEvents: true,
+      orderBy: "startTime",
+    })
+    .then((response) => {
+      const googleEvents = response.result.items;
+      // console.log("Raw Google Events:", googleEvents); // Debugging log
 
-          const fullCalendarEvents = googleEvents.map((event) => {
+      const fullCalendarEvents = googleEvents.map((event) => {
         // Map events for FullCalendar
         const { summary, start, end, id, reminders } = event;
 
@@ -229,7 +250,6 @@ function initializeCalendar() {
     },
     select: function (info) {
       requireSignIn(() => {
-        console.log("Date range selected from:", info.start, "to", info.end);
         populateSidebarForDateRange(info.start, info.end);
         openSidebar();
       });
@@ -264,7 +284,7 @@ function requireSignIn(actionCallback) {
 // Event Tooltip
 ////////
 function showEventTooltip(event) {
-  console.log("Showing event tooltip");
+  // console.log("Showing event tooltip"); // Debugging log
   const tooltip = document.createElement("div");
   tooltip.id = "event-tooltip";
   tooltip.className = "event-tooltip";
@@ -287,7 +307,7 @@ function showEventTooltip(event) {
   document.body.appendChild(tooltip);
 }
 function hideEventTooltip() {
-  console.log("Hiding event tooltip");
+  // console.log("Hiding event tooltip");  // Debugging log
   const tooltip = document.getElementById("event-tooltip");
   if (tooltip) {
     tooltip.remove();
@@ -315,7 +335,7 @@ function openCreateEventSidebar(date) {
   selectedEvent = null;
 }
 function openEditEventSidebar(event) {
-  console.log("Event data passed to sidebar:", event);
+  // console.log("Event data passed to sidebar:", event);  // Debugging log
   selectedEvent = event;
   populateSidebarWithEventDetails(event);
   document.getElementById("create-event").style.display = "none";
@@ -344,7 +364,7 @@ function closeSidebar() {
   const eventSidebar = document.getElementById("event-sidebar");
   if (eventSidebar.classList.contains("open")) {
     eventSidebar.classList.remove("open");
-    console.log("Sidebar closed."); // Debugging log
+    // console.log("Sidebar closed."); // Debugging log
   }
 }
 function enableSidebarDragging() {
@@ -384,7 +404,6 @@ function enableSidebarDragging() {
   });
 }
 
-
 ////////
 // Populate Sidebar Functionality
 ////////
@@ -394,20 +413,30 @@ function setupNotificationToggle() {
 
   if (notificationToggle && notificationOptions) {
     notificationToggle.addEventListener("change", (event) => {
-      notificationOptions.style.display = event.target.checked ? "block" : "none";
+      notificationOptions.style.display = event.target.checked
+        ? "block"
+        : "none";
     });
   }
 }
 // Click and drag event creation
 function populateSidebarForDateRange(start, end) {
-  document.getElementById("event-start-date").value = start.toISOString().split("T")[0];
-  document.getElementById("event-start-time").value = start.toTimeString().slice(0, 5);
-  document.getElementById("event-end-date").value = end.toISOString().split("T")[0];
-  document.getElementById("event-end-time").value = end.toTimeString().slice(0, 5);
+  document.getElementById("event-start-date").value = start
+    .toISOString()
+    .split("T")[0];
+  document.getElementById("event-start-time").value = start
+    .toTimeString()
+    .slice(0, 5);
+  document.getElementById("event-end-date").value = end
+    .toISOString()
+    .split("T")[0];
+  document.getElementById("event-end-time").value = end
+    .toTimeString()
+    .slice(0, 5);
 }
 // For editing an existing event
 function populateSidebarWithEventDetails(event) {
-  console.log("Event details for population:", event);
+  // console.log("Event details for population:", event);  // Debugging log
 
   // Extract details from _def
   const { title, extendedProps } = event._def;
@@ -420,17 +449,17 @@ function populateSidebarWithEventDetails(event) {
   const end = event._instance.range.end;
 
   if (start) {
-      const startDate = start.toISOString().split("T")[0];
-      const startTime = start.toISOString().split("T")[1].substring(0, 5); // HH:MM
-      document.getElementById("event-start-date").value = startDate;
-      document.getElementById("event-start-time").value = startTime;
+    const startDate = start.toISOString().split("T")[0];
+    const startTime = start.toISOString().split("T")[1].substring(0, 5); // HH:MM
+    document.getElementById("event-start-date").value = startDate;
+    document.getElementById("event-start-time").value = startTime;
   }
 
   if (end) {
-      const endDate = end.toISOString().split("T")[0];
-      const endTime = end.toISOString().split("T")[1].substring(0, 5); // HH:MM
-      document.getElementById("event-end-date").value = endDate;
-      document.getElementById("event-end-time").value = endTime;
+    const endDate = end.toISOString().split("T")[0];
+    const endTime = end.toISOString().split("T")[1].substring(0, 5); // HH:MM
+    document.getElementById("event-end-date").value = endDate;
+    document.getElementById("event-end-time").value = endTime;
   }
 
   // Notifications
@@ -440,31 +469,33 @@ function populateSidebarWithEventDetails(event) {
   console.log("Extended Props:", extendedProps);
 
   if (extendedProps && extendedProps.reminders) {
-      const reminders = extendedProps.reminders;
-      console.log("Reminders:", reminders);
+    const reminders = extendedProps.reminders;
+    console.log("Reminders:", reminders);
 
-      if (reminders.overrides && reminders.overrides.length > 0) {
-          const reminder = reminders.overrides[0]; // Assuming the first override
-          console.log("Reminder being used:", reminder);
+    if (reminders.overrides && reminders.overrides.length > 0) {
+      const reminder = reminders.overrides[0]; // Assuming the first override
+      console.log("Reminder being used:", reminder);
 
-          notificationCheckbox.checked = true;
-          notificationOptions.style.display = "block";
+      notificationCheckbox.checked = true;
+      notificationOptions.style.display = "block";
 
-          // Populate reminder fields
-          document.getElementById("notification-type").value = reminder.method || "popup"; // 'popup' or 'email'
-          document.getElementById("notification-time").value = reminder.minutes || 10; // Time in minutes
+      // Populate reminder fields
+      document.getElementById("notification-type").value =
+        reminder.method || "popup"; // 'popup' or 'email'
+      document.getElementById("notification-time").value =
+        reminder.minutes || 10; // Time in minutes
 
-          // Adjust time unit if needed (defaulting to minutes for simplicity)
-          document.getElementById("notification-time-unit").value = "minutes";
-      } else {
-          console.log("No valid overrides found for reminders.");
-          notificationCheckbox.checked = false;
-          notificationOptions.style.display = "none";
-      }
-  } else {
-      console.log("No reminders found in extendedProps.");
+      // Adjust time unit if needed (defaulting to minutes for simplicity)
+      document.getElementById("notification-time-unit").value = "minutes";
+    } else {
+      console.log("No valid overrides found for reminders.");
       notificationCheckbox.checked = false;
       notificationOptions.style.display = "none";
+    }
+  } else {
+    console.log("No reminders found in extendedProps.");
+    notificationCheckbox.checked = false;
+    notificationOptions.style.display = "none";
   }
 }
 // Click event creation
@@ -527,7 +558,13 @@ function setupEditEventButton() {
       const endDateInput = document.getElementById("event-end-date");
       const endTimeInput = document.getElementById("event-end-time");
 
-      if (!titleInput || !startDateInput || !startTimeInput || !endDateInput || !endTimeInput) {
+      if (
+        !titleInput ||
+        !startDateInput ||
+        !startTimeInput ||
+        !endDateInput ||
+        !endTimeInput
+      ) {
         openValidationModal("One or more required inputs are missing.");
         return;
       }
@@ -557,10 +594,14 @@ function setupEditEventButton() {
       }
 
       // Update event properties
-      if (typeof selectedEvent.setProp !== "function" ||
-          typeof selectedEvent.setStart !== "function" ||
-          typeof selectedEvent.setEnd !== "function") {
-        openValidationModal("Unable to update event. Selected event is invalid.");
+      if (
+        typeof selectedEvent.setProp !== "function" ||
+        typeof selectedEvent.setStart !== "function" ||
+        typeof selectedEvent.setEnd !== "function"
+      ) {
+        openValidationModal(
+          "Unable to update event. Selected event is invalid."
+        );
         return;
       }
 
@@ -624,7 +665,9 @@ function setupEventCreation() {
       const startTime = document.getElementById("event-start-time").value;
       const endDate = document.getElementById("event-end-date").value;
       const endTime = document.getElementById("event-end-time").value;
-      const notificationsEnabled = document.getElementById("enable-notifications").checked;
+      const notificationsEnabled = document.getElementById(
+        "enable-notifications"
+      ).checked;
 
       // Validate required fields
       if (!title) {
@@ -632,7 +675,9 @@ function setupEventCreation() {
         return;
       }
       if (!startDate || !startTime || !endDate || !endTime) {
-        openValidationModal("Please enter valid start and end dates and times.");
+        openValidationModal(
+          "Please enter valid start and end dates and times."
+        );
         return;
       }
 
@@ -675,7 +720,9 @@ function setupEventCreation() {
           })
           .catch((error) => {
             console.error("Error adding event to Google Calendar:", error);
-            openValidationModal("Failed to add event to Google Calendar. Check console for details.");
+            openValidationModal(
+              "Failed to add event to Google Calendar. Check console for details."
+            );
           });
       }
       closeSidebar();
@@ -689,7 +736,9 @@ function setupEventCreation() {
 function initializeNotifications() {
   const notificationBell = document.getElementById("notification-bell");
   const notificationDropdown = document.getElementById("notification-dropdown");
-  const clearNotificationsButton = document.getElementById("clear-notifications");
+  const clearNotificationsButton = document.getElementById(
+    "clear-notifications"
+  );
   const notificationList = document.getElementById("notification-list");
 
   let notifications = [];
@@ -764,7 +813,9 @@ function scheduleNotification(eventTitle, startDateTime, minutesBefore) {
   if (notificationTime > currentTime) {
     // Schedule the notification
     setTimeout(() => {
-      addNotification(`Reminder: "${eventTitle}" starts in ${minutesBefore} minutes.`);
+      addNotification(
+        `Reminder: "${eventTitle}" starts in ${minutesBefore} minutes.`
+      );
     }, notificationTime - currentTime);
   } else {
     console.log(`Skipped past notification for event "${eventTitle}"`);
@@ -776,8 +827,12 @@ function scheduleNotification(eventTitle, startDateTime, minutesBefore) {
 ////////
 function setupDeleteEventButton() {
   const deleteEventButton = document.getElementById("delete-event");
-  const deleteConfirmationModal = document.getElementById("delete-confirmation-modal");
-  const deleteConfirmationMessage = document.getElementById("delete-confirmation-message");
+  const deleteConfirmationModal = document.getElementById(
+    "delete-confirmation-modal"
+  );
+  const deleteConfirmationMessage = document.getElementById(
+    "delete-confirmation-message"
+  );
   const confirmDeleteButton = document.getElementById("confirm-delete-button");
   const cancelDeleteButton = document.getElementById("cancel-delete-button");
 
@@ -804,16 +859,23 @@ function setupDeleteEventButton() {
               calendarId: "primary",
               eventId: eventId,
             });
-            console.log("Event successfully deleted from Google Calendar:", response);
+            console.log(
+              "Event successfully deleted from Google Calendar:",
+              response
+            );
 
             // Remove the event locally
             selectedEvent.remove();
             selectedEvent = null;
             closeSidebar();
-            openValidationModal("Event successfully deleted from Google Calendar.");
+            openValidationModal(
+              "Event successfully deleted from Google Calendar."
+            );
           } catch (error) {
             console.error("Error deleting event from Google Calendar:", error);
-            openValidationModal("Failed to delete event from Google Calendar. Check console for details.");
+            openValidationModal(
+              "Failed to delete event from Google Calendar. Check console for details."
+            );
           }
         } else {
           openValidationModal("Event ID not found. Unable to delete event.");
@@ -899,7 +961,7 @@ function setupDebugKey() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  try{
+  try {
     setupDebugKey();
   } catch (error) {
     console.error("Error setting up debug");
@@ -981,7 +1043,6 @@ document.addEventListener("DOMContentLoaded", () => {
   } catch (error) {
     console.error("Error initializing notifications:", error);
   }
-
 });
 module.exports = {
   clearEventForm,
@@ -996,7 +1057,6 @@ module.exports = {
   updateAuthButtons,
   setupEditEventButton,
 };
-
 
 ////////
 // TO DO
