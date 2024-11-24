@@ -19,7 +19,10 @@ let gapiInited = false;
 
 // User variables
 let isUserSignedIn = false;
-let notificationQueue = [];
+
+// Polling variables
+let pollingIntervalId = null;
+const POLLING_INTERVAL = 60000; // 1 minute
 
 ////////
 // API
@@ -154,9 +157,8 @@ function handleSignOutClick() {
     console.log("All events removed from calendar");
   }
   isUserSignedIn = false;
-
   updateAuthButtons();
-
+  stopPollingCalendarUpdates();
   const modal = document.getElementById("sign-out-modal");
   modal.style.display = "flex";
 }
@@ -209,6 +211,57 @@ function fetchGoogleCalendarEvents() {
       });
 
       if (calendar) calendar.addEventSource(fullCalendarEvents);
+      startPollingCalendarUpdates();
+    })
+    .catch((error) => {
+      console.error("Error fetching calendar events:", error);
+    });
+}
+function startPollingCalendarUpdates() {
+  if (pollingIntervalId) {
+    console.warn("Polling already in progress");
+    return; // prevents polling from starting multiple times
+  }
+  console.log("Starting polling for calendar events");
+  fetchCalendarUpdates();
+  pollingIntervalId = setInterval(fetchCalendarUpdates, POLLING_INTERVAL);
+}
+function stopPollingCalendarUpdates() {
+  if (pollingIntervalId) {
+    console.log("Stopping polling for calendar events");
+    clearInterval(pollingIntervalId);
+    pollingIntervalId = null;
+  }
+}
+function fetchCalendarUpdates() {
+  console.log("Fetching calendar updates...");
+  if (!accessToken) {
+    console.error("No access token available");
+    return;
+  }
+  gapi.client.calendar.events
+    .list({
+      calendarId: "primary",
+      timeMin: new Date().toISOString(),
+      showDeleted: false,
+      singleEvents: true,
+      orderBy: "startTime",
+    })
+    .then((response) => {
+      const events = response.result.items;
+      console.log("Fetched calendar events:", events);
+
+      if (calendar) {
+        calendar.removeAllEvents();
+        const fullCalendarEvents = events.map((event) => ({
+          title: event.summary,
+          start: event.start.dateTime || event.start.date,
+          end: event.end.dateTime || event.end.date,
+          id: event.id,
+          extendedProps: { reminders: event.reminders },
+        }));
+        calendar.addEventSource(fullCalendarEvents);
+      }
     })
     .catch((error) => {
       console.error("Error fetching calendar events:", error);
@@ -252,7 +305,6 @@ function initializeCalendar() {
   });
   calendar.render();
 }
-
 // Floating Action Button (FAB) for creating a new event
 function setupFAB() {
   const createEventFab = document.getElementById("create-event-fab");
@@ -391,22 +443,6 @@ function enableSidebarDragging() {
     }
   });
 }
-
-/* function addToNotificationQueue(eventTitle, notiifcationTime, message) {
-  const newNotification = { eventTitle, notiifcationTime, message };
-  let inserted = false;
-  for (let i = 0; i < notificationQueue.length; i++) {
-    if (notificationQueue[i].notiifcationTime > notiifcationTime) {
-      notificationQueue.splice(i, 0, newNotification);
-      inserted = true;
-      break;
-    }
-  }
-  if (!inserted) {
-    notificationQueue.push(newNotification);
-  }
-  console.log("Updated Notification Queue:", notificationQueue);
-}  */
 
 ////////
 // Populate Sidebar Functionality
