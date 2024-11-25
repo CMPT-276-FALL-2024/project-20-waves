@@ -1,12 +1,8 @@
 ////////
 // NOTE: this requires API KEY and CLIENT ID to be added within the code
 ////////
-const YOUR_API_KEY = "",
-const YOUR_API_KEY = "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M";
-const YOUR_CLIENT_ID =
-  "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com";
-
-
+const YOUR_API_KEY = "";
+const YOUR_CLIENT_ID = "";
 
 ////////
 // Global Variables
