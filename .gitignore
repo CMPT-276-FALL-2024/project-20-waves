@@ -133,3 +133,5 @@ dist
 # Ignore sensitive config files
 config/credentials.json
 config/secretKeys.js
+
+.vscode/
