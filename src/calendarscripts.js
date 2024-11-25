@@ -1,9 +1,8 @@
 ////////
 // NOTE: this requires API KEY and CLIENT ID to be added within the code
 ////////
-const YOUR_API_KEY = "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M";
-const YOUR_CLIENT_ID =
-  "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com";
+const YOUR_API_KEY = "";
+const YOUR_CLIENT_ID = "";
 
 ////////
 // Global Variables
@@ -17,6 +16,7 @@ let selectedEvent = null;
 let tokenClient;
 let accessToken;
 let gapiInited = false;
+let isClientInitialized = false;
 
 // User variables
 let isUserSignedIn = false;
@@ -76,16 +76,7 @@ function initializeGISClient() {
             "Access token received (initializeGISClient()):",
             accessToken
           );
-
-          isUserSignedIn = true;
-          fetchUserName()
-            .then(() => {
-              updateAuthButtons(); // Update buttons after fetching user name
-            })
-            .catch((error) => {
-              console.error("Failed to fetch user name:", error);
-            });
-          fetchGoogleCalendarEvents(accessToken, gapi, calendar); // Fetch events after authentication
+          isClientInitialized = true;
         },
       });
     } catch (error) {
@@ -149,8 +140,11 @@ function updateAuthButtons() {
   }
 }
 function handleSignInClick() {
-  console.log("gapiInited inside function:", gapiInited); // Debugging log
+  // console.log("gapiInited inside function:", gapiInited); // Debugging log
   if (!gapiInited) {
+    if (!isClientInitialized) {
+      return;
+    }
     console.error("GAPI client not initialized!");
     return;
   }
@@ -554,7 +548,6 @@ function populateNotificationFields(reminder) {
   const notificationOptions = document.getElementById("notification-options");
   if (notificationOptions) notificationOptions.style.display = "block";
 }
-
 function clearNotificationFields() {
   const notificationTimeInput = document.getElementById("notification-time");
   const notificationTimeUnitSelect = document.getElementById(
@@ -571,11 +564,9 @@ function clearNotificationFields() {
   const notificationOptions = document.getElementById("notification-options");
   if (notificationOptions) notificationOptions.style.display = "none";
 }
-
 function setupNotificationToggle() {
   const notificationToggle = document.getElementById("enable-notifications");
   const notificationOptions = document.getElementById("notification-options");
-
   if (notificationToggle && notificationOptions) {
     notificationToggle.addEventListener("change", (event) => {
       notificationOptions.style.display = event.target.checked
@@ -937,13 +928,7 @@ function setupEventCreationButton() {
       }
 
       const useThisTimeZone = "PST"; // Set a default time zone or fetch dynamically
-
-      // Prepare the minimal event payload (no reminders)
-      const eventResource = {
-        summary: title,
-        start: { dateTime: start, timeZone: useThisTimeZone },
-        end: { dateTime: end, timeZone: useThisTimeZone },
-      };
+      let reminderMinutes = null;
 
       if (notificationsEnabled) {
         const notificationTime = parseInt(
@@ -960,8 +945,20 @@ function setupEventCreationButton() {
             : notificationTimeUnit === "days"
             ? 1440
             : 1);
+        reminders = {
+          useDefault: false,
+          overrides: [{ method: "popup", minutes: reminderMinutes }],
+        };
         scheduleNotification(title, start, reminderMinutes);
       }
+
+      // Prepare the minimal event payload (no reminders)
+      const eventResource = {
+        summary: title,
+        start: { dateTime: start, timeZone: useThisTimeZone },
+        end: { dateTime: end, timeZone: useThisTimeZone },
+        reminders: reminders || { useDefault: true },
+      };
 
       // Debugging: Log the payload before sending
       console.log("Event Resource Payload (no notifications):", eventResource);
