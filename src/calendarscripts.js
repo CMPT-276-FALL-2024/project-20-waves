@@ -1,8 +1,12 @@
 ////////
 // NOTE: this requires API KEY and CLIENT ID to be added within the code
 ////////
-const YOUR_API_KEY = "";
-const YOUR_CLIENT_ID = "";
+const YOUR_API_KEY = "",
+const YOUR_API_KEY = "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M";
+const YOUR_CLIENT_ID =
+  "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com";
+
+
 
 ////////
 // Global Variables
@@ -73,7 +77,7 @@ function initializeGISClient() {
         .catch((error) => {
           console.error("Failed to fetch user name:", error);
         });
-      fetchGoogleCalendarEvents(); // Fetch events after authentication
+      fetchGoogleCalendarEvents(accessToken, gapi, calendar); // Fetch events after authentication
     },
   });
 }
@@ -170,9 +174,14 @@ function closeSignOutModal() {
 ////////
 // Fetch Google Calendar Events to import to FullCalendar
 ////////
-function fetchGoogleCalendarEvents() {
+function fetchGoogleCalendarEvents(accessToken, gapi, calendar) {
   if (!accessToken) {
     console.error("No access token available");
+    return;
+  }
+
+  if (!gapi) {
+    console.error("GAPI not initialized");
     return;
   }
 
@@ -187,36 +196,25 @@ function fetchGoogleCalendarEvents() {
     .then((response) => {
       const googleEvents = response.result.items;
 
-      const fullCalendarEvents = googleEvents.map((event) => {
-        const { summary, start, end, id, reminders } = event;
+      const fullCalendarEvents = googleEvents.map((event) => ({
+        title: event.summary,
+        start: event.start.dateTime || event.start.date,
+        end: event.end.dateTime || event.end.date,
+        id: event.id,
+        extendedProps: { reminders: event.reminders },
+      }));
 
-        // Schedule notifications if reminders are defined
-        if (reminders && reminders.overrides) {
-          reminders.overrides.forEach((reminder) => {
-            const reminderMinutes = reminder.minutes;
-            const eventStartTime = start.dateTime || start.date;
-
-            scheduleNotification(summary, eventStartTime, reminderMinutes);
-          });
-        }
-        return {
-          title: summary,
-          start: start.dateTime || start.date,
-          end: end.dateTime || end.date,
-          id: id,
-          extendedProps: {
-            reminders,
-          },
-        };
-      });
-
-      if (calendar) calendar.addEventSource(fullCalendarEvents);
-      startPollingCalendarUpdates();
+      if (calendar) {
+        calendar.addEventSource(fullCalendarEvents);
+      }
     })
     .catch((error) => {
+      console.log("Error fetching calendar events:", error);
+      console.log("Console object in function:", console);
       console.error("Error fetching calendar events:", error);
     });
 }
+
 function startPollingCalendarUpdates() {
   if (pollingIntervalId) {
     console.warn("Polling already in progress");
@@ -233,12 +231,16 @@ function stopPollingCalendarUpdates() {
     pollingIntervalId = null;
   }
 }
+
+///////////////////////////////////////////////////////////////
 function fetchCalendarUpdates() {
   console.log("Fetching calendar updates...");
   if (!accessToken) {
     console.error("No access token available");
     return;
   }
+  console.log("AccessToken in fetchGoogleCalendarEvents:", accessToken);
+
   gapi.client.calendar.events
     .list({
       calendarId: "primary",
@@ -261,6 +263,8 @@ function fetchCalendarUpdates() {
           extendedProps: { reminders: event.reminders },
         }));
         calendar.addEventSource(fullCalendarEvents);
+      } else {
+        console.error("Calendar is not defined");
       }
     })
     .catch((error) => {
@@ -908,13 +912,21 @@ function setupDeleteEventButton() {
 ////////
 // Clear the event form
 function clearEventForm() {
-  document.getElementById("event-title").value = "";
-  document.getElementById("event-start-date").value = "";
-  document.getElementById("event-start-time").value = "";
-  document.getElementById("event-end-date").value = "";
-  document.getElementById("event-end-time").value = "";
-  document.getElementById("enable-notifications").checked = false;
-  document.getElementById("notification-options").style.display = "none";
+  const titleInput = document.getElementById("event-title");
+  const startDateInput = document.getElementById("event-start-date");
+  const startTimeInput = document.getElementById("event-start-time");
+  const endDateInput = document.getElementById("event-end-date");
+  const endTimeInput = document.getElementById("event-end-time");
+  const notificationsCheckbox = document.getElementById("enable-notifications");
+  const notificationOptions = document.getElementById("notification-options");
+
+  if (titleInput) titleInput.value = "";
+  if (startDateInput) startDateInput.value = "";
+  if (startTimeInput) startTimeInput.value = "";
+  if (endDateInput) endDateInput.value = "";
+  if (endTimeInput) endTimeInput.value = "";
+  if (notificationsCheckbox) notificationsCheckbox.checked = false;
+  if (notificationOptions) notificationOptions.style.display = "none";
 }
 // Open the sidebar
 function openSidebar() {
@@ -1028,6 +1040,8 @@ module.exports = {
   setupNotificationToggle, // Sets up the notification toggle for enabling/disabling notifications
   populateSidebarWithDate, // Populates the sidebar with a single date
   populateSidebarForDateRange, // Populates the sidebar with a date range (for drag-to-select)
+  populateSidebarWithEventDetails, // Populates the sidebar with existing event details
+  fetchGoogleCalendarEvents, // Fetches events from Google Calendar
   openSidebar, // Opens the event sidebar
   closeSidebar, // Closes the event sidebar
   setupDeleteEventButton, // Sets up the delete event functionality
@@ -1054,7 +1068,7 @@ module.exports = {
 // 5. Study Buddy home link // DONE
 // 6. Top bar doesn't scroll // DONE
 // 7. Calendar doesn't need to scroll (fits height) // DONE
-// 8. Adding Notifications to StudyBuddy
+// 8. Adding Notifications to StudyBuddy // DONE
 
 ////////
 // BUGS
@@ -1070,5 +1084,5 @@ module.exports = {
 // WISH LIST
 ////////
 // 1. Colour coded events
-// 2. Notifications bell at top left
-// 3. Event Reminders
+// 2. Notifications bell at top left // DONE
+// 3. Event Reminders // DONE
