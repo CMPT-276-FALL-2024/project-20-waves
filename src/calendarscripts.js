@@ -1,8 +1,9 @@
 ////////
 // NOTE: this requires API KEY and CLIENT ID to be added within the code
 ////////
-const YOUR_API_KEY = "";
-const YOUR_CLIENT_ID = "";
+const YOUR_API_KEY = "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M";
+const YOUR_CLIENT_ID =
+  "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com";
 
 ////////
 // Global Variables
@@ -175,12 +176,10 @@ function fetchGoogleCalendarEvents(accessToken, gapi, calendar) {
     console.error("No access token available");
     return;
   }
-
   if (!gapi) {
     console.error("GAPI not initialized");
     return;
   }
-
   gapi.client.calendar.events
     .list({
       calendarId: "primary",
@@ -192,25 +191,48 @@ function fetchGoogleCalendarEvents(accessToken, gapi, calendar) {
     .then((response) => {
       const googleEvents = response.result.items;
 
-      const fullCalendarEvents = googleEvents.map((event) => ({
-        title: event.summary,
-        start: event.start.dateTime || event.start.date,
-        end: event.end.dateTime || event.end.date,
-        id: event.id,
-        extendedProps: { reminders: event.reminders },
-      }));
+      const fullCalendarEvents = googleEvents.map((event) => {
+        // Map event into FullCalendar format
+        const calendarEvent = {
+          title: event.summary,
+          start: event.start.dateTime || event.start.date,
+          end: event.end.dateTime || event.end.date,
+          id: event.id,
+          extendedProps: { reminders: event.reminders },
+        };
+
+        // Schedule notifications if reminders are present
+        const startDateTime = event.start.dateTime || event.start.date;
+        if (event.reminders && event.reminders.overrides) {
+          event.reminders.overrides.forEach((reminder) => {
+            if (startDateTime) {
+              scheduleNotification(
+                event.summary,
+                startDateTime,
+                reminder.minutes
+              );
+            } else {
+              console.warn(
+                `Unable to schedule notification for event "${event.summary}" - missing start time.`
+              );
+            }
+          });
+        } else {
+          console.warn(`Event "${event.summary}" has no reminders.`);
+        }
+
+        return calendarEvent;
+      });
 
       if (calendar) {
         calendar.addEventSource(fullCalendarEvents);
+        startPollingCalendarUpdates();
       }
     })
     .catch((error) => {
-      console.log("Error fetching calendar events:", error);
-      console.log("Console object in function:", console);
       console.error("Error fetching calendar events:", error);
     });
 }
-
 function startPollingCalendarUpdates() {
   if (pollingIntervalId) {
     console.warn("Polling already in progress");
@@ -227,15 +249,12 @@ function stopPollingCalendarUpdates() {
     pollingIntervalId = null;
   }
 }
-
-///////////////////////////////////////////////////////////////
 function fetchCalendarUpdates() {
   console.log("Fetching calendar updates...");
   if (!accessToken) {
     console.error("No access token available");
     return;
   }
-  console.log("AccessToken in fetchGoogleCalendarEvents:", accessToken);
 
   gapi.client.calendar.events
     .list({
@@ -250,14 +269,43 @@ function fetchCalendarUpdates() {
       console.log("Fetched calendar events:", events);
 
       if (calendar) {
+        // Remove all existing events in the calendar
         calendar.removeAllEvents();
-        const fullCalendarEvents = events.map((event) => ({
-          title: event.summary,
-          start: event.start.dateTime || event.start.date,
-          end: event.end.dateTime || event.end.date,
-          id: event.id,
-          extendedProps: { reminders: event.reminders },
-        }));
+
+        // Map fetched events into FullCalendar format
+        const fullCalendarEvents = events.map((event) => {
+          const calendarEvent = {
+            title: event.summary,
+            start: event.start.dateTime || event.start.date,
+            end: event.end.dateTime || event.end.date,
+            id: event.id,
+            extendedProps: { reminders: event.reminders },
+          };
+
+          // Handle reminders and notifications
+          const startDateTime = event.start.dateTime || event.start.date;
+          if (event.reminders && event.reminders.overrides) {
+            event.reminders.overrides.forEach((reminder) => {
+              if (startDateTime) {
+                scheduleNotification(
+                  event.summary,
+                  startDateTime,
+                  reminder.minutes
+                );
+              } else {
+                console.warn(
+                  `Unable to schedule notification for event "${event.summary}" - missing start time.`
+                );
+              }
+            });
+          } else {
+            console.warn(`Event "${event.summary}" has no reminders.`);
+          }
+
+          return calendarEvent;
+        });
+
+        // Add the processed events to FullCalendar
         calendar.addEventSource(fullCalendarEvents);
       } else {
         console.error("Calendar is not defined");
@@ -267,7 +315,6 @@ function fetchCalendarUpdates() {
       console.error("Error fetching calendar events:", error);
     });
 }
-
 ////////
 // Initialize the FullCalendar instance
 // includes event handling functions
@@ -574,6 +621,24 @@ function setupEditEventButton() {
         return;
       }
 
+      if (notificationsEnabled) {
+        const notificationTime = parseInt(
+          document.getElementById("notification-time").value,
+          10
+        );
+        const notificationTimeUnit = document.getElementById(
+          "notification-time-unit"
+        ).value;
+        const reminderMinutes =
+          notificationTime *
+          (notificationTimeUnit === "hours"
+            ? 60
+            : notificationTimeUnit === "days"
+            ? 1440
+            : 1);
+        scheduleNotification(title, newStart, reminderMinutes);
+      }
+
       // Update event properties
       if (
         typeof selectedEvent.setProp !== "function" ||
@@ -643,6 +708,7 @@ function handleEventClick(info) {
   requireSignIn(() => {
     clearEventForm();
     openEditEventSidebar(info.event);
+    selectedEvent = info.event;
   });
 }
 
@@ -801,6 +867,24 @@ function setupEventCreationButton() {
         end: { dateTime: end, timeZone: useThisTimeZone },
       };
 
+      if (notificationsEnabled) {
+        const notificationTime = parseInt(
+          document.getElementById("notification-time").value,
+          10
+        );
+        const notificationTimeUnit = document.getElementById(
+          "notification-time-unit"
+        ).value;
+        const reminderMinutes =
+          notificationTime *
+          (notificationTimeUnit === "hours"
+            ? 60
+            : notificationTimeUnit === "days"
+            ? 1440
+            : 1);
+        scheduleNotification(title, start, reminderMinutes);
+      }
+
       // Debugging: Log the payload before sending
       console.log("Event Resource Payload (no notifications):", eventResource);
 
@@ -846,60 +930,55 @@ function setupDeleteEventButton() {
   const confirmDeleteButton = document.getElementById("confirm-delete-button");
   const cancelDeleteButton = document.getElementById("cancel-delete-button");
 
-  if (deleteEventButton) {
-    deleteEventButton.addEventListener("click", () => {
-      if (!selectedEvent) {
-        openValidationModal("No event selected to delete.");
-        return;
-      }
+  if (!deleteEventButton || !deleteConfirmationModal) {
+    console.error("Required elements for delete functionality are missing.");
+    return;
+  }
 
-      const eventTitle = selectedEvent.title || "this event";
-      deleteConfirmationMessage.textContent = `Are you sure you want to delete "${eventTitle}" from Google Calendar?`;
-      deleteConfirmationModal.style.display = "flex";
+  deleteEventButton.addEventListener("click", () => {
+    if (!selectedEvent) {
+      openValidationModal("No event selected for deletion.");
+      return;
+    }
 
-      // Handle "Yes" button click
-      confirmDeleteButton.onclick = async () => {
-        deleteConfirmationModal.style.display = "none"; // Hide modal
-        const eventId = selectedEvent.id; // Assuming `selectedEvent.id` holds the Google Calendar event ID
+    const eventTitle = selectedEvent.title || "this event";
+    deleteConfirmationMessage.textContent = `Are you sure you want to delete "${eventTitle}"?`;
+    deleteConfirmationModal.style.display = "flex";
 
-        if (eventId) {
-          try {
-            // Call Google Calendar API to delete the event
-            const response = await gapi.client.calendar.events.delete({
-              calendarId: "primary",
-              eventId: eventId,
-            });
-            console.log(
-              "Event successfully deleted from Google Calendar:",
-              response
-            );
+    confirmDeleteButton.onclick = async () => {
+      deleteConfirmationModal.style.display = "none";
 
-            // Remove the event locally
-            selectedEvent.remove();
-            selectedEvent = null;
-            closeSidebar();
-            openValidationModal(
-              "Event successfully deleted from Google Calendar."
-            );
-          } catch (error) {
-            console.error("Error deleting event from Google Calendar:", error);
-            openValidationModal(
-              "Failed to delete event from Google Calendar. Check console for details."
-            );
-          }
+      try {
+        if (selectedEvent.id) {
+          await gapi.client.calendar.events.delete({
+            calendarId: "primary",
+            eventId: selectedEvent.id,
+          });
+          selectedEvent.remove(); // Remove from calendar UI
+          selectedEvent = null; // Clear selectedEvent
+          closeSidebar();
+          openValidationModal("Event successfully deleted.");
         } else {
-          openValidationModal("Event ID not found. Unable to delete event.");
+          openValidationModal("Event ID is missing; unable to delete.");
         }
-      };
-
-      // Handle "No" button click
-      cancelDeleteButton.onclick = () => {
-        deleteConfirmationModal.style.display = "none"; // Hide modal
-      };
-      if (!response.ok) {
-        openValidationModal("Failed to delete the event from Google Calendar.");
+      } catch (error) {
+        console.error("Error deleting event:", error);
+        openValidationModal(
+          "Failed to delete event. Check the console for details."
+        );
       }
-    });
+    };
+
+    cancelDeleteButton.onclick = () => {
+      deleteConfirmationModal.style.display = "none";
+    };
+  });
+}
+function clearNotification(eventTitle) {
+  if (scheduledReminders.has(eventTitle)) {
+    clearTimeout(scheduledReminders.get(eventTitle));
+    scheduledReminders.delete(eventTitle);
+    console.log(`Notification for "${eventTitle}" cleared.`);
   }
 }
 
@@ -1052,6 +1131,8 @@ module.exports = {
   handleDateSelect, // Handles click-and-drag date selection on the calendar
   handleEventClick, // Handles clicks on existing events for editing
   requireSignIn, // Ensures the user is signed in before allowing actions
+  openValidationModal, // Opens the validation modal with a message
+  closeValidationModal, // Closes the validation modal
 };
 
 ////////
@@ -1082,3 +1163,7 @@ module.exports = {
 // 1. Colour coded events
 // 2. Notifications bell at top left // DONE
 // 3. Event Reminders // DONE
+
+/////////////////////////////
+//
+// Schedule notifications error when deleting events if past event date
