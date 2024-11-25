@@ -1,8 +1,9 @@
 ////////
 // NOTE: this requires API KEY and CLIENT ID to be added within the code
 ////////
-const YOUR_API_KEY = "";
-const YOUR_CLIENT_ID = "";
+const YOUR_API_KEY = "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M";
+const YOUR_CLIENT_ID =
+  "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com";
 
 ////////
 // Global Variables
@@ -30,53 +31,81 @@ const POLLING_INTERVAL = 60000; // 1 minute
 // Initialize the GIS client
 function initializeGapiClient() {
   console.log("Initializing GAPI client");
-  gapi.load("client", async () => {
-    await gapi.client.init({
-      apiKey: YOUR_API_KEY, // Replace with your actual API key
-      discoveryDocs: [
-        "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
-      ],
+  return new Promise((resolve, reject) => {
+    gapi.load("client", async () => {
+      try {
+        await gapi.client.init({
+          apiKey: YOUR_API_KEY, // Replace with your actual API key
+          discoveryDocs: [
+            "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
+          ],
+        });
+        gapiInited = true;
+        console.log("GAPI client initialized");
+        resolve();
+      } catch (error) {
+        console.error("Error initializing GAPI client:", error);
+        reject(error);
+      }
     });
-    gapiInited = true;
-    console.log("GAPI client initialized");
   });
 }
 // Initialize the GIS client
 function initializeGISClient() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: YOUR_CLIENT_ID, // Replace with your actual Client ID
-    scope:
-      "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile",
-    callback: (response) => {
-      if (response.error || !response.access_token) {
-        console.error(
-          "Error during token request or access token is missing:",
-          response
-        );
-        isUserSignedIn = false;
-        updateAuthButtons();
-        openValidationModal("Failed to complete sign-in. Please try again.");
-        return;
-      }
-      accessToken = response.access_token;
-      console.log(
-        "Access token received (initializeGISClient()):",
-        accessToken
-      );
+  return new Promise((resolve, reject) => {
+    try {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: YOUR_CLIENT_ID, // Replace with your actual Client ID
+        scope:
+          "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile",
+        callback: (response) => {
+          if (response.error || !response.access_token) {
+            console.error(
+              "Error during token request or access token is missing:",
+              response
+            );
+            isUserSignedIn = false;
+            updateAuthButtons();
+            openValidationModal(
+              "Failed to complete sign-in. Please try again."
+            );
+            return;
+          }
+          accessToken = response.access_token;
+          console.log(
+            "Access token received (initializeGISClient()):",
+            accessToken
+          );
 
-      isUserSignedIn = true;
-
-      fetchUserName()
-        .then(() => {
-          updateAuthButtons(); // Update buttons after fetching user name
-        })
-        .catch((error) => {
-          console.error("Failed to fetch user name:", error);
-        });
-      fetchGoogleCalendarEvents(accessToken, gapi, calendar); // Fetch events after authentication
-    },
+          isUserSignedIn = true;
+          fetchUserName()
+            .then(() => {
+              updateAuthButtons(); // Update buttons after fetching user name
+            })
+            .catch((error) => {
+              console.error("Failed to fetch user name:", error);
+            });
+          fetchGoogleCalendarEvents(accessToken, gapi, calendar); // Fetch events after authentication
+        },
+      });
+    } catch (error) {
+      console.error("Error initializing GIS client:", error);
+      reject(error);
+    }
   });
 }
+
+async function initializeClients() {
+  try {
+    await initializeGapiClient();
+    console.log("GAPI client initialized successfully");
+    await initializeGISClient();
+    console.log("GIS client initialized successfully");
+  } catch (error) {
+    console.error("Error initializing clients:", error);
+  }
+}
+
 async function fetchUserName() {
   console.log("Fetching user name...");
   try {
@@ -429,6 +458,12 @@ function openCreateEventSidebar(date) {
 function openEditEventSidebar(event) {
   selectedEvent = event;
   populateSidebarWithEventDetails(event); // Fill in event details
+  const reminder = getReminderFromEvent(event);
+  if (reminder) {
+    populateNotificationFields(reminder);
+  } else {
+    clearNotificationFields();
+  }
   document.getElementById("create-event").style.display = "none";
   document.getElementById("edit-event").style.display = "block";
   document.getElementById("delete-event").style.display = "block";
@@ -493,6 +528,50 @@ function enableSidebarDragging() {
 ////////
 // Populate Sidebar Functionality
 ////////
+function populateNotificationFields(reminder) {
+  if (!reminder || typeof reminder.minutes !== "number") {
+    console.warn("Invalid reminder data:", reminder);
+    clearNotificationFields(); // Clear fields if data is invalid
+    return;
+  }
+
+  const { value, unit } = convertMinutesToFriendlyFormat(reminder.minutes);
+
+  // Update notification fields in the sidebar
+  const notificationTimeInput = document.getElementById("notification-time");
+  const notificationTimeUnitSelect = document.getElementById(
+    "notification-time-unit"
+  );
+  const enableNotificationsCheckbox = document.getElementById(
+    "enable-notifications"
+  );
+
+  if (notificationTimeInput) notificationTimeInput.value = value;
+  if (notificationTimeUnitSelect) notificationTimeUnitSelect.value = unit;
+  if (enableNotificationsCheckbox) enableNotificationsCheckbox.checked = true;
+
+  // Show notification options
+  const notificationOptions = document.getElementById("notification-options");
+  if (notificationOptions) notificationOptions.style.display = "block";
+}
+
+function clearNotificationFields() {
+  const notificationTimeInput = document.getElementById("notification-time");
+  const notificationTimeUnitSelect = document.getElementById(
+    "notification-time-unit"
+  );
+  const enableNotificationsCheckbox = document.getElementById(
+    "enable-notifications"
+  );
+
+  if (notificationTimeInput) notificationTimeInput.value = "";
+  if (notificationTimeUnitSelect) notificationTimeUnitSelect.value = "minutes";
+  if (enableNotificationsCheckbox) enableNotificationsCheckbox.checked = false;
+
+  const notificationOptions = document.getElementById("notification-options");
+  if (notificationOptions) notificationOptions.style.display = "none";
+}
+
 function setupNotificationToggle() {
   const notificationToggle = document.getElementById("enable-notifications");
   const notificationOptions = document.getElementById("notification-options");
@@ -1016,6 +1095,32 @@ function closeSidebar() {
 }
 
 ////////
+// Helper Functions
+////////
+function getReminderFromEvent(event) {
+  if (
+    event.extendedProps &&
+    event.extendedProps.reminders &&
+    event.extendedProps.reminders.overrides
+  ) {
+    return event.extendedProps.reminders.overrides[0]; // Assume single reminder for now
+  }
+  return null; // No reminder found
+}
+function convertMinutesToFriendlyFormat(minutes) {
+  if (minutes >= 1440) {
+    return { value: Math.floor(minutes / 1440), unit: "days" };
+  } else if (minutes >= 60) {
+    return { value: Math.floor(minutes / 60), unit: "hours" };
+  } else if (minutes > 0) {
+    return { value: minutes, unit: "minutes" };
+  } else {
+    console.warn("Invalid reminder time:", minutes);
+    return { value: 0, unit: "minutes" }; // Fallback
+  }
+}
+
+////////
 // Debugging
 ////////
 function setupDebugKey() {
@@ -1055,14 +1160,9 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Error initializing calendar:", error);
   }
   try {
-    initializeGapiClient();
+    initializeClients();
   } catch (error) {
-    console.error("Error initializing GAPI client:", error);
-  }
-  try {
-    initializeGISClient();
-  } catch (error) {
-    console.error("Error initializing GIS client:", error);
+    console.error("Error initializing clients (from DOM):", error);
   }
   try {
     handleSignInClick();
