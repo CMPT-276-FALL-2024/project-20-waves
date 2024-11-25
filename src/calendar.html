@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,101 +10,136 @@
   <body>
     <header class="header">
       <div class="header-left">
-        <div id="notification-container" style="position: relative;">
+        <div id="notification-container" style="position: relative">
           <button id="notification-bell" class="notification-bell">
             <img
               src="https://cdn-icons-png.flaticon.com/512/1827/1827392.png"
               alt="Bell Icon"
-              style="width: 24px; height: 24px;"
+              style="width: 24px; height: 24px"
             />
-            <span id="notification-badge" class="notification-badge" style="display: none;">0</span>
+            <span
+              id="notification-badge"
+              class="notification-badge"
+              style="display: none"
+              >0</span
+            >
           </button>
-          <div id="notification-dropdown" class="notification-dropdown" style="display: none;">
+          <div
+            id="notification-dropdown"
+            class="notification-dropdown"
+            style="display: none"
+          >
             <ul id="notification-list" class="notification-list"></ul>
-            <button id="clear-notifications" class="clear-notifications">Clear All</button>
+            <button id="clear-notifications" class="clear-notifications">
+              Clear All
+            </button>
           </div>
         </div>
       </div>
 
       <!-- Center: Title -->
       <div class="header-center">
-          <a href="./index" class="logo-link">
-            <h1 class="logo">Study Buddy</h1>
-          </a>
+        <a href="./index" class="logo-link">
+          <h1 class="logo">Study Buddy</h1>
+        </a>
       </div>
 
       <!-- Right: Google Sign-In/Out -->
-<div class="header-right">
-  <div id="auth-controls" style="text-align: right;">
-    <!-- Sign In Button -->
-    <button
-        id="sign-in-button"
-        class="google-button sign-in"
-        onclick="handleSignInClick()"
-        style="display: block; padding: 8px 16px; font-size: 14px; border-radius: 6px;"
-    >
-        <img
-            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-            alt="Google Logo"
-            style="vertical-align: middle; margin-right: 8px;"
-        />
-        Sign in with Google
-    </button>
+      <div class="header-right">
+        <div id="auth-controls" style="text-align: right">
+          <!-- Sign In Button -->
+          <button
+            id="sign-in-button"
+            class="google-button sign-in"
+            onclick="handleSignInClick()"
+            style="
+              display: block;
+              padding: 8px 16px;
+              font-size: 14px;
+              border-radius: 6px;
+            "
+          >
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="Google Logo"
+              style="vertical-align: middle; margin-right: 8px"
+            />
+            Sign in with Google
+          </button>
 
-    <!-- User Name (Appears after signing in) -->
-    <span
-        id="user-name"
-        style="display: none; font-weight: bold; font-size: 14px; color: #333; margin-bottom: 5px; display: block;">
-    </span>
+          <!-- User Name (Appears after signing in) -->
+          <span
+            id="user-name"
+            style="
+              display: none;
+              font-weight: bold;
+              font-size: 14px;
+              color: #333;
+              margin-bottom: 5px;
+              display: block;
+            "
+          >
+          </span>
 
-    <!-- Sign Out Button (Appears after signing in) -->
-    <button
-        id="sign-out-button"
-        class="google-button sign-out"
-        onclick="handleSignOutClick()"
-        style="display: none; padding: 8px 16px; font-size: 14px; border-radius: 6px;"
-    >
-        Sign Out
-    </button>
-  </div>
-</div>
-  </header>
+          <!-- Sign Out Button (Appears after signing in) -->
+          <button
+            id="sign-out-button"
+            class="google-button sign-out"
+            onclick="handleSignOutClick()"
+            style="
+              display: none;
+              padding: 8px 16px;
+              font-size: 14px;
+              border-radius: 6px;
+            "
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </header>
 
-  <div id="calendar-container">
-    <div id="calendar"></div>
-  </div>
-
-  <!-- Modals -->
-  <!-- Modals -->
-  <!-- Modals -->
-
-  <!-- Sign-In Modal -->
-  <div id="sign-out-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <p>You have successfully signed out.</p>
-      <button onclick="closeSignOutModal()">Close</button>
+    <div id="calendar-container">
+      <div id="calendar"></div>
     </div>
-  </div>
-  <!-- Validation Error Modal -->
-<div id="validation-modal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <p id="validation-message"></p>
-    <button onclick="closeValidationModal()">Close</button>
-  </div>
-</div>
-<div id="delete-confirmation-modal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <p id="delete-confirmation-message"></p>
-    <button id="confirm-delete-button">Yes</button>
-    <button id="cancel-delete-button">No</button>
-  </div>
-</div>
+
+    <!-- Modals -->
+    <!-- Modals -->
+    <!-- Modals -->
+
+    <!-- Sign-In Modal -->
+    <div id="sign-out-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <p>You have successfully signed out.</p>
+        <button onclick="closeSignOutModal()">Close</button>
+      </div>
+    </div>
+    <!-- Validation Error Modal -->
+    <div id="validation-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <p id="validation-message"></p>
+        <button onclick="closeValidationModal()">Close</button>
+      </div>
+    </div>
+    <div id="delete-confirmation-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <p id="delete-confirmation-message"></p>
+        <button id="confirm-delete-button">Yes</button>
+        <button id="cancel-delete-button">No</button>
+      </div>
+    </div>
 
     <!-- Sidebar for Event Creation and Editing -->
     <div id="event-sidebar" class="event-sidebar">
       <div class="drag-handle">
         <span class="drag-text">☰ Drag</span>
-        <button id="close-sidebar-button" class="close-button" title="Close Sidebar">✖</button>
+        <button
+          id="close-sidebar-button"
+          class="close-button"
+          title="Close Sidebar"
+        >
+          ✖
+        </button>
       </div>
       <h2>Create Event</h2>
 
@@ -147,15 +181,14 @@
       <label for="event-end-time">End Time:</label>
       <input type="time" id="event-end-time" name="event-end-time" required />
 
-
-
       <div id="notification-toggle">
         <label>
-          <input type="checkbox" id="enable-notifications" /> Notify before event
+          <input type="checkbox" id="enable-notifications" /> Notify before
+          event
         </label>
       </div>
 
-      <div id="notification-options" style="display: none;">
+      <div id="notification-options" style="display: none">
         <h3>Notification Options</h3>
 
         <!-- Notification Type -->
@@ -197,10 +230,9 @@
 
     <button id="create-event-fab" class="fab">+</button>
 
-
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js"></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="calendarscripts.js"></script>
   </body>
 </html>
