@@ -1,8 +1,9 @@
 ////////
 // NOTE: this requires API KEY and CLIENT ID to be added within the code
 ////////
-const YOUR_API_KEY = "";
-const YOUR_CLIENT_ID = "";
+const YOUR_API_KEY = "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M";
+const YOUR_CLIENT_ID =
+  "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com";
 
 ////////
 // Global Variables
@@ -11,6 +12,10 @@ const YOUR_CLIENT_ID = "";
 // Calendar variables
 let calendar;
 let selectedEvent = null;
+let calendarData = {
+  lectures: [],
+  tests: [],
+};
 
 // API variables
 let tokenClient;
@@ -55,7 +60,7 @@ function initializeGISClient() {
   return new Promise((resolve, reject) => {
     try {
       tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: YOUR_CLIENT_ID, // Replace with your actual Client ID
+        client_id: YOUR_CLIENT_ID, // REPLACE with your CLIENT ID
         scope:
           "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile",
         callback: (response) => {
@@ -77,6 +82,11 @@ function initializeGISClient() {
             accessToken
           );
           isClientInitialized = true;
+          isUserSignedIn = true;
+          fetchGoogleCalendarEvents(accessToken, gapi, calendar);
+          updateAuthButtons();
+          fetchUserName();
+          fetchUserCalendars();
         },
       });
     } catch (error) {
@@ -85,7 +95,6 @@ function initializeGISClient() {
     }
   });
 }
-
 async function initializeClients() {
   try {
     await initializeGapiClient();
@@ -96,7 +105,6 @@ async function initializeClients() {
     console.error("Error initializing clients:", error);
   }
 }
-
 async function fetchUserName() {
   console.log("Fetching user name...");
   try {
@@ -140,38 +148,36 @@ function updateAuthButtons() {
   }
 }
 function handleSignInClick() {
-  // console.log("gapiInited inside function:", gapiInited); // Debugging log
+  console.log("Sign-In button clicked");
+
   if (!gapiInited) {
-    if (!isClientInitialized) {
-      return;
-    }
     console.error("GAPI client not initialized!");
     return;
   }
-  console.log("handleSigniInClick executed"); // Debugging log
+
+  console.log("Requesting access token...");
   tokenClient.requestAccessToken({
     prompt: "consent",
     callback: (response) => {
+      console.log("Access token callback executed:", response);
+
       if (response.error) {
-        console.error("Errror during token request:", response);
+        console.error("Error during token request:", response.error);
+        openValidationModal("Sign-in failed. Please try again.");
         return;
       }
 
       if (response.access_token) {
-        console.log(
-          "Access token received (handleSignInClick()):",
-          response.access_token
-        );
         accessToken = response.access_token;
         isUserSignedIn = true;
-        updateAuthButtons();
-        fetchUserName();
+        console.log("Access token received:", accessToken);
       } else {
-        console.warn("Access token not received:", response);
+        console.warn("Access token not received.");
       }
     },
   });
 }
+
 function handleSignOutClick() {
   accessToken = null; // Clear the access token
   console.log("User signed out");
@@ -193,6 +199,31 @@ function closeSignOutModal() {
 ////////
 // Fetch Google Calendar Events to import to FullCalendar
 ////////
+// Get User's Calendars
+async function fetchUserCalendars() {
+  if (!accessToken) {
+    console.error("No access token available");
+    return [];
+  }
+  try {
+    const response = await gapi.client.calendar.calendarList.list();
+    const calendars = response.result.items;
+
+    // Log or process the calendars
+    console.log("User's calendars:", calendars);
+
+    // Return a simplified list for further use
+    return calendars.map((cal) => ({
+      id: cal.id,
+      name: cal.summary.toLowerCase(),
+      primary: cal.primary || false,
+    }));
+  } catch (error) {
+    console.error("Error fetching user's calendars:", error);
+    return [];
+  }
+}
+// Fetch events for calendars
 function fetchGoogleCalendarEvents(accessToken, gapi, calendar) {
   if (!accessToken) {
     console.error("No access token available");
@@ -202,6 +233,7 @@ function fetchGoogleCalendarEvents(accessToken, gapi, calendar) {
     console.error("GAPI not initialized");
     return;
   }
+
   gapi.client.calendar.events
     .list({
       calendarId: "primary",
@@ -255,6 +287,117 @@ function fetchGoogleCalendarEvents(accessToken, gapi, calendar) {
       console.error("Error fetching calendar events:", error);
     });
 }
+async function fetchEventsForCalendar(calendarId, listId) {
+  try {
+    const response = await gapi.client.calendar.events.list({
+      calendarId: calendarId,
+      timeMin: new Date().toISOString(),
+      showDeleted: false,
+      singleEvents: true,
+      orderBy: "startTime",
+    });
+
+    const events = response.result.items || [];
+    const listElement = document.getElementById(listId);
+
+    // Update the UI directly
+    if (listElement) {
+      listElement.innerHTML = "";
+
+      if (events.length === 0) {
+        const emptyMessage = document.createElement("li");
+        emptyMessage.textContent = "No events found.";
+        emptyMessage.classList.add("empty-message");
+        listElement.appendChild(emptyMessage);
+      } else {
+        events.forEach((event) => {
+          const listItem = document.createElement("li");
+          const startTime = new Date(event.start.dateTime || event.start.date);
+          listItem.textContent = `${
+            event.summary
+          } - ${startTime.toLocaleString()}`;
+          listElement.appendChild(listItem);
+        });
+      }
+    } else {
+      console.warn(`List element with id "${listId}" not found.`);
+    }
+
+    return events; // Return the events for further use if needed
+  } catch (error) {
+    console.error(`Error fetching events for calendar ${calendarId}:`, error);
+
+    const listElement = document.getElementById(listId);
+    if (listElement) {
+      listElement.innerHTML =
+        "<li>Error fetching events. Please try again.</li>";
+    }
+  }
+}
+// Fetch updates for Tabs
+async function fetchCalendarUpdates() {
+  console.log("Fetching calendar updates...");
+  if (!accessToken) {
+    console.error("No access token available");
+    return;
+  }
+
+  try {
+    const calendars = await fetchUserCalendars();
+
+    // Find the calendars for Lectures and Tests
+    const lecturesCalendar = calendars.find((cal) => cal.name === "lectures");
+    const testsCalendar = calendars.find((cal) => cal.name === "tests");
+
+    if (!lecturesCalendar) {
+      console.warn("Lectures calendar not found.");
+      document.getElementById("lectures-list").innerHTML =
+        "<li>No Lectures calendar found. Please ensure the calendar exists in your account.</li>";
+    } else {
+      await fetchEventsForCalendar(lecturesCalendar.id, "lectures-list");
+    }
+
+    if (!testsCalendar) {
+      console.warn("Tests calendar not found.");
+      document.getElementById("tests-list").innerHTML =
+        "<li>No Tests calendar found. Please ensure the calendar exists in your account.</li>";
+    } else {
+      await fetchEventsForCalendar(testsCalendar.id, "tests-list");
+    }
+  } catch (error) {
+    console.error("Error fetching calendar updates:", error);
+  }
+}
+// Fetch updates to tabs
+async function fetchCalendarUpdates() {
+  console.log("Fetching calendar updates...");
+  if (!accessToken) {
+    console.error("No access token available");
+    return;
+  }
+
+  try {
+    const calendars = await fetchUserCalendars();
+
+    // Find the calendars for Lectures and Tests
+    const lecturesCalendar = calendars.find((cal) => cal.name === "lectures");
+    const testsCalendar = calendars.find((cal) => cal.name === "tests");
+
+    if (lecturesCalendar) {
+      await fetchEventsForCalendar(lecturesCalendar.id, "lectures-list");
+    } else {
+      console.warn("No Lectures calendar found.");
+    }
+
+    if (testsCalendar) {
+      await fetchEventsForCalendar(testsCalendar.id, "tests-list");
+    } else {
+      console.warn("No Tests calendar found.");
+    }
+  } catch (error) {
+    console.error("Error fetching calendar updates:", error);
+  }
+}
 function startPollingCalendarUpdates() {
   if (pollingIntervalId) {
     console.warn("Polling already in progress");
@@ -271,13 +414,39 @@ function stopPollingCalendarUpdates() {
     pollingIntervalId = null;
   }
 }
-function fetchCalendarUpdates() {
+async function fetchCalendarUpdates() {
   console.log("Fetching calendar updates...");
   if (!accessToken) {
     console.error("No access token available");
     return;
   }
+  try {
+    const calendars = await fetchUserCalendars();
+    const lecturesCalendars = calendars.find(
+      (cal) => cal.name.toLowerCase() === "lectures"
+    );
+    if (lecturesCalendars) {
+      calendarData.lectures = await fetchEventsForCalendar(
+        lecturesCalendars.id
+      );
+    } else {
+      console.warn("No lectures calendar found.");
+      calendarData.lectures = [];
+    }
 
+    const testsCalendars = calendars.find(
+      (cal) => cal.name.toLowerCase() === "tests"
+    );
+    if (testsCalendars) {
+      calendarData.tests = await fetchEventsForCalendar(testsCalendars.id);
+    } else {
+      console.warn("No tests calendar found.");
+      calendarData.tests = [];
+    }
+    console.log("Calendar data updated:", calendarData);
+  } catch (error) {
+    console.error("Error fetching calendar updates:", error);
+  }
   gapi.client.calendar.events
     .list({
       calendarId: "primary",
@@ -337,6 +506,7 @@ function fetchCalendarUpdates() {
       console.error("Error fetching calendar events:", error);
     });
 }
+
 ////////
 // Initialize the FullCalendar instance
 // includes event handling functions
@@ -430,10 +600,40 @@ function hideEventTooltip() {
 }
 function positionTooltip(event) {
   const tooltip = document.getElementById("event-tooltip");
-  if (tooltip) {
-    tooltip.style.left = `${event.pageX + 15}px`;
-    tooltip.style.top = `${event.pageY + 15}px`;
+  if (!tooltip) return;
+
+  const tooltipWidth = tooltip.offsetWidth;
+  const tooltipHeight = tooltip.offsetHeight;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  // Calculate default tooltip position
+  let left = event.pageX + 15;
+  let top = event.pageY + 15;
+
+  // Adjust if the tooltip overflows the right edge
+  if (left + tooltipWidth > viewportWidth) {
+    left = viewportWidth - tooltipWidth - 10; // Pad 10px from the right edge
   }
+
+  // Adjust if the tooltip overflows the bottom edge
+  if (top + tooltipHeight > viewportHeight) {
+    top = viewportHeight - tooltipHeight - 10; // Pad 10px from the bottom edge
+  }
+
+  // Adjust if the tooltip overflows the left edge
+  if (left < 0) {
+    left = 10; // Pad 10px from the left edge
+  }
+
+  // Adjust if the tooltip overflows the top edge
+  if (top < 0) {
+    top = 10; // Pad 10px from the top edge
+  }
+
+  // Apply the adjusted position
+  tooltip.style.left = `${left}px`;
+  tooltip.style.top = `${top}px`;
 }
 
 ////////
@@ -1092,6 +1292,172 @@ function closeSidebar() {
 }
 
 ////////
+// Agenda Tabs
+////////
+// Toggle between tabs
+async function togglePanel(panelId, calendarName, listId) {
+  const tabsContainer = document.getElementById("tabs-container");
+  const panel = document.getElementById(panelId);
+
+  if (tabsContainer && panel) {
+    if (panel.classList.contains("active")) {
+      panel.classList.remove("active"); // Close if already open
+      return;
+    }
+
+    // Close all other panels
+    document
+      .querySelectorAll(".tab-panel")
+      .forEach((p) => p.classList.remove("active"));
+
+    // Align the panel with the tabs-container's position
+    panel.style.top = `${tabsContainer.offsetTop}px`;
+
+    try {
+      const calendars = await fetchUserCalendars();
+      const targetCalendar = calendars.find(
+        (cal) => cal.name.toLowerCase() === calendarName.toLowerCase()
+      );
+
+      if (targetCalendar) {
+        await fetchEventsForCalendar(targetCalendar.id, listId);
+      } else {
+        document.getElementById(
+          listId
+        ).innerHTML = `<li>No "${calendarName}" calendar found.</li>`;
+      }
+    } catch (error) {
+      console.error(`Error toggling panel for ${calendarName}:`, error);
+      document.getElementById(
+        listId
+      ).innerHTML = `<li>Error fetching events. Please try again.</li>`;
+    }
+
+    panel.classList.add("active"); // Open the panel
+  }
+}
+// Set up the agenda tabs for lectures and tests
+async function handleTabClick(calendarName, listId, panelId) {
+  const panels = document.querySelectorAll(".tab-panel");
+  panels.forEach((panel) => panel.classList.remove("active")); // Close other panels
+
+  await fetchAndUpdateTab(calendarName, listId);
+
+  const panel = document.getElementById(panelId);
+  if (panel) panel.classList.add("active");
+}
+// Tab dragging functionality
+function enableTabDragging() {
+  const tabsContainer = document.getElementById("tabs-container");
+  const handle = document.getElementById("tabs-handle");
+
+  let isDragging = false;
+  let startY = 0; // Initial mouse position
+  let startTop = 0; // Initial top position of the container
+
+  handle.addEventListener("mousedown", (event) => {
+    event.preventDefault(); // Prevent text selection and default behavior
+    isDragging = true;
+    startY = event.clientY;
+    startTop = tabsContainer.offsetTop; // Current top position of the container
+    document.body.style.cursor = "grabbing";
+  });
+
+  document.addEventListener("mousemove", (event) => {
+    if (!isDragging) return;
+
+    // Calculate new top position
+    const deltaY = event.clientY - startY;
+    let newTop = startTop + deltaY;
+
+    // Clamp the position to keep within screen bounds
+    const maxTop = window.innerHeight - tabsContainer.offsetHeight;
+    newTop = Math.max(0, Math.min(newTop, maxTop));
+
+    tabsContainer.style.top = `${newTop}px`;
+  });
+
+  document.addEventListener("mouseup", () => {
+    if (isDragging) {
+      isDragging = false;
+      document.body.style.cursor = "";
+    }
+  });
+}
+// Ensure tabs remain functional
+function setupAgendaTabs() {
+  document
+    .getElementById("lectures-tab")
+    .addEventListener("click", async () => {
+      await openPanel("lectures-panel", "Lectures", "lectures-list");
+    });
+
+  document.getElementById("tests-tab").addEventListener("click", async () => {
+    await openPanel("tests-panel", "Tests", "tests-list");
+  });
+}
+// Open panel at tab height
+function openPanel(panelId, calendarName, listId) {
+  const tabsContainer = document.getElementById("tabs-container");
+  const panel = document.getElementById(panelId);
+
+  if (tabsContainer && panel) {
+    // Close the panel if it's already open
+    if (panel.classList.contains("active")) {
+      panel.classList.remove("active");
+      return;
+    }
+
+    // Close other panels before opening the new one
+    document
+      .querySelectorAll(".tab-panel")
+      .forEach((p) => p.classList.remove("active"));
+
+    // Align the panel's top position with the tabs-container
+    if (!panel.style.top) {
+      panel.style.top = `${tabsContainer.offsetTop}px`;
+    }
+
+    // Use pre-fetched data to populate the panel
+    const events =
+      calendarName.toLowerCase() === "lectures"
+        ? calendarData.lectures
+        : calendarData.tests;
+
+    const listElement = document.getElementById(listId);
+    if (listElement) {
+      listElement.innerHTML = ""; // Clear existing list
+
+      if (events.length > 0) {
+        events.forEach((event) => {
+          const listItem = document.createElement("li");
+          const startTime = new Date(event.start.dateTime || event.start.date);
+          listItem.textContent = `${
+            event.summary
+          } - ${startTime.toLocaleString()}`;
+          listElement.appendChild(listItem);
+        });
+      } else {
+        listElement.innerHTML = `<li>No "${calendarName}" events found.</li>`;
+      }
+    } else {
+      console.warn(`List element with id "${listId}" not found.`);
+    }
+
+    panel.classList.add("active"); // Open the panel
+  } else {
+    console.warn("Tabs container or panel not found.");
+  }
+}
+
+function closePanel(panelId) {
+  const panel = document.getElementById(panelId);
+  if (panel) {
+    panel.classList.remove("active");
+  }
+}
+
+////////
 // Helper Functions
 ////////
 function getReminderFromEvent(event) {
@@ -1128,8 +1494,33 @@ function setupDebugKey() {
     }
   });
 }
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    await initializeClients();
+    console.log("Clients initialized successfully");
+
+    const userCalendars = await fetchUserCalendars();
+    if (userCalendars.length > 0) {
+      console.log("Available calendars:", userCalendars);
+    } else {
+      console.warn("No calendars found for the user.");
+    }
+  } catch (error) {
+    console.error("Error during initialization:", error);
+  }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
+  try {
+    enableTabDragging();
+  } catch (error) {
+    console.error("Error enabling tab dragging:", error);
+  }
+  try {
+    setupAgendaTabs();
+  } catch {
+    console.error("Error setting up agenda tabs");
+  }
   try {
     setupEventCreationButton();
   } catch (error) {
@@ -1155,11 +1546,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeCalendar();
   } catch (error) {
     console.error("Error initializing calendar:", error);
-  }
-  try {
-    initializeClients();
-  } catch (error) {
-    console.error("Error initializing clients (from DOM):", error);
   }
   try {
     handleSignInClick();
@@ -1216,6 +1602,7 @@ module.exports = {
   populateSidebarWithEventDetails, // Populates the sidebar with existing event details
   fetchGoogleCalendarEvents, // Fetches events from Google Calendar
   openSidebar, // Opens the event sidebar
+  setupAgendaTabs, // Sets up the agenda tabs for lectures and tests
   closeSidebar, // Closes the event sidebar
   setupDeleteEventButton, // Sets up the delete event functionality
   handleSignInClick, // Handles user sign-in

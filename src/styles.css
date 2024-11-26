@@ -1,4 +1,3 @@
-
 /****************************************************
                   Header Styling
  ****************************************************/
@@ -27,7 +26,7 @@
 .header-center {
   text-align: center;
   justify-content: center;
-  color: #44576D;
+  color: #44576d;
 }
 .header-left {
   justify-content: flex-start;
@@ -42,7 +41,7 @@
   background-color: transparent;
 }
 .logo {
-  color: #44576D; /* Starting color: muted navy */
+  color: #44576d; /* Starting color: muted navy */
   font-size: 24px;
   font-weight: bold;
   transition: color 0.3s ease; /* Smooth color change */
@@ -50,80 +49,80 @@
 }
 .logo:hover {
   color: #002855; /* Hover color: deep navy */
-  background-color: transparent;;
+  background-color: transparent;
   cursor: pointer; /* Indicate it's clickable */
 }
 body {
-    padding: 70px 0 0 0;
-    background-color: #e6e6e6; /* Light gray */
-    background-image: linear-gradient(135deg, #E6E6E6 50%, #DFEBF6 100%);
-    margin: 0;
-    font-family: 'Roboto', sans-serif;
-    height: calc(100vh - 70px);
+  padding: 70px 0 0 0;
+  background-color: #e6e6e6; /* Light gray */
+  background-image: linear-gradient(135deg, #e6e6e6 50%, #dfebf6 100%);
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  height: calc(100vh - 70px);
 }
 /****************************************************
                   Main Button Styling
  ****************************************************/
 button {
   background-color: rgba(255, 255, 255, 0.9); /* Frosted white */
-  color: #44576D; /* Navy text */
-  border: 2px solid #AAC7D8; /* Light blue border */
+  color: #44576d; /* Navy text */
+  border: 2px solid #aac7d8; /* Light blue border */
   border-radius: 6px; /* Rounded corners */
   padding: 6px 12px;
   font-size: 14px;
   transition: background-color 0.2s, box-shadow 0.2s;
 }
 button:hover {
-  background-color: #AAC7D8; /* Light blue hover */
+  background-color: #aac7d8; /* Light blue hover */
   color: white; /* Contrast white text */
 }
 button:focus {
-    outline: none; /* Remove default focus outline */
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.75); /* Add custom focus glow */
-  }
-  /****************************************************************
+  outline: none; /* Remove default focus outline */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.75); /* Add custom focus glow */
+}
+/****************************************************************
                   Google Button Styling
   ****************************************************************/
 .google-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 15px;
-    background-color: white;
-    color: #757575;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  background-color: white;
+  color: #757575;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
 .google-button:hover {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
 .google-button img {
-    width: 14px;
-    height: 14px;
-    margin-right: 8px; /* Space between logo and text */
-  }
-  /****************************************************************
+  width: 14px;
+  height: 14px;
+  margin-right: 8px; /* Space between logo and text */
+}
+/****************************************************************
                   Google Sign-In/Sign-Out Button Styling
   ****************************************************************/
 .google-button.sign-in {
-    border: 1px solid #4285f4; /* Google's blue border */
-  }
+  border: 1px solid #4285f4; /* Google's blue border */
+}
 .google-button.sign-out {
-    border: 1px solid #757575; /* Subtle gray border for contrast */
-    background-color: white; /* Keep the white background */
-    color: #757575; /* Use the same gray text color */
-  }
+  border: 1px solid #757575; /* Subtle gray border for contrast */
+  background-color: white; /* Keep the white background */
+  color: #757575; /* Use the same gray text color */
+}
 .google-button.sign-out:hover {
-    background-color: #f5f5f5; /* Slightly darker background on hover */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Consistent shadow effect */
-  }
+  background-color: #f5f5f5; /* Slightly darker background on hover */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Consistent shadow effect */
+}
 .google-button.sign-out {
-    border: 1px solid #757575; /* Subtle gray border */
-  }
+  border: 1px solid #757575; /* Subtle gray border */
+}
 /****************************************************
                   Notification Styling
  ****************************************************/
@@ -203,7 +202,7 @@ button:focus {
 #calendar {
   background-color: rgba(255, 255, 255, 0.85); /* Frosted glass effect */
   backdrop-filter: blur(10px);
-  border: 1px solid #AAC7D8;
+  border: 1px solid #aac7d8;
   border-radius: 15px;
   width: 100%;
   max-height: 600px;
@@ -215,7 +214,7 @@ button:focus {
                   Calendar Toolbar Styling
  ****************************************************/
 .fc-toolbar {
-  background-color: #44576D; /* Navy background */
+  background-color: #44576d; /* Navy background */
   color: white; /* White text */
   border-radius: 15px 15px 0 0;
   padding: 10px;
@@ -235,7 +234,8 @@ button:focus {
   font-weight: bold;
   color: white;
 }
-.fr-toolbar-left, .fr-toolbar-right {
+.fr-toolbar-left,
+.fr-toolbar-right {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -244,13 +244,13 @@ button:focus {
                   Calendar Day/Header Styling
  ****************************************************/
 .fc-daygrid-day {
-  border: 1px dotted #E6E6E6; /* Subtle dotted grid lines */
+  border: 1px dotted #e6e6e6; /* Subtle dotted grid lines */
   background-color: transparent; /* Keep base transparent */
 }
 .fc-daygrid-day-header {
   background-color: rgba(255, 255, 255, 0.8); /* Frosted white */
-  border-top: 1px solid #AAC7D8;
-  border-bottom: 1px solid #AAC7D8;
+  border-top: 1px solid #aac7d8;
+  border-bottom: 1px solid #aac7d8;
   border-radius: 10px 10px 0 0;
   padding: 10px 0;
 }
@@ -258,7 +258,7 @@ button:focus {
   background-color: rgba(170, 199, 216, 0.15); /* Light blue on hover */
 }
 .fc-daygrid-day-number {
-  color:#29353C;
+  color: #29353c;
   font-size: 18px;
   font-weight: bold; /* Bold text for emphasis */
 }
@@ -266,39 +266,45 @@ button:focus {
 .fc-daygrid-day.fc-day-sun {
   background-color: rgba(170, 199, 216, 0.2); /* Slightly shaded weekends */
 }
-.fc-day-today{
-  background-color: rgba(170, 199, 216, 0.6) !important; /* Light blue background */
+.fc-day-today {
+  background-color: rgba(
+    170,
+    199,
+    216,
+    0.6
+  ) !important; /* Light blue background */
   padding: 5px;
 }
 .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
   font-size: 18px; /* Slightly larger for emphasis */
-  color: #44576D; /* Navy text */
+  color: #44576d; /* Navy text */
 }
 /****************************************************
                   Calendar Toolbar Button Styling
  ****************************************************/
 .fc-toolbar .fc-button {
   background-color: rgba(255, 255, 255, 0.9); /* Frosted white */
-  color: #44576D; /* Navy text */
-  border: 2px solid #AAC7D8; /* Light blue border */
+  color: #44576d; /* Navy text */
+  border: 2px solid #aac7d8; /* Light blue border */
   border-radius: 6px; /* Rounded corners */
   padding: 6px 12px;
   font-size: 14px;
   transition: background-color 0.2s, box-shadow 0.2s;
 }
 .fc-toolbar .fc-button:hover {
-  background-color: #AAC7D8; /* Light blue hover */
+  background-color: #aac7d8; /* Light blue hover */
   color: white; /* Contrast white text */
 }
 .fc-toolbar .fc-button-active {
-  background-color: #44576D; /* Navy active state */
+  background-color: #44576d; /* Navy active state */
   color: white;
-  border-color: #29353C; /* Darker navy for active */
+  border-color: #29353c; /* Darker navy for active */
 }
 .fc-view {
-font-size: 1.25em;
+  font-size: 1.25em;
 }
-.fc-prev-button, .fc-next-button {
+.fc-prev-button,
+.fc-next-button {
   width: 40px;
   height: 40px;
   align-items: center;
@@ -309,10 +315,10 @@ font-size: 1.25em;
 /****************************************************
                   Event Styling
  ****************************************************/
- .fc-event {
-  background-color: #44576D;
+.fc-event {
+  background-color: #44576d;
   color: white; /* White text */
-  border-color: #44576D;
+  border-color: #44576d;
   padding: 2px 5px;
   border-radius: 4px;
   border: 1px solid transparent;
@@ -325,8 +331,8 @@ font-size: 1.25em;
 .fc-event:hover {
   transform: scale(1.1);
   cursor: pointer;
-  color: #44576D;
-  background-color: #E6E6E6;
+  color: #44576d;
+  background-color: #e6e6e6;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
 }
 .fc-event .fc-event-title {
@@ -339,32 +345,32 @@ font-size: 1.25em;
                   Event Sidebar Styling
  ****************************************************/
 .event-sidebar {
-    display: none; /* Start hidden */
-    background-color: rgba(255, 255, 255, 0.9); /* Frosted white */
-    backdrop-filter: blur(10px);
-    border: 1px solid #AAC7D8; /* Light blue border */
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Softer shadow */
-    position: absolute;
-    top: 50px;
-    left: 50px;
-    width: 250px;
-    height: auto;
-    padding: 10px;
-    z-index: 1000;
-    transition: opacity 0.3s ease;
+  display: none; /* Start hidden */
+  background-color: rgba(255, 255, 255, 0.9); /* Frosted white */
+  backdrop-filter: blur(10px);
+  border: 1px solid #aac7d8; /* Light blue border */
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Softer shadow */
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  width: 250px;
+  height: auto;
+  padding: 10px;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
 }
 .event-sidebar.open {
   left: 0;
 }
 .event-sidebar h2 {
-color: #44576D; /* Navy */
-font-size: 1.5em;
-margin-bottom: 10px;
-border-bottom: 2px solid #AAC7D8;
+  color: #44576d; /* Navy */
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #aac7d8;
 }
 .event-sidebar button {
-  background-color: #AAC7D8; /* Light blue */
+  background-color: #aac7d8; /* Light blue */
   color: white;
   border: none;
   border-radius: 6px;
@@ -374,14 +380,14 @@ border-bottom: 2px solid #AAC7D8;
   transition: background-color 0.3s, box-shadow 0.3s;
 }
 .event-sidebar button:hover {
-  background-color: #44576D; /* Navy */
+  background-color: #44576d; /* Navy */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .event-sidebar.open {
-    display: block;
+  display: block;
 }
 .drag-handle {
-  background: linear-gradient(90deg, #AAC7D8, #44576D);
+  background: linear-gradient(90deg, #aac7d8, #44576d);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -395,80 +401,80 @@ border-bottom: 2px solid #AAC7D8;
   margin: 0;
 }
 .drag-handle:hover {
-  background: linear-gradient(90deg, #44576D, #637489);
+  background: linear-gradient(90deg, #44576d, #637489);
 }
 .drag-handle .drag-text {
-    margin: 0;
+  margin: 0;
 }
 .close-button {
-    background: transparent;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: #333;
-    transition: color 0.3s ease;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s ease;
 }
 .close-button:hover {
-    color: #AAC7D8;
+  color: #aac7d8;
 }
 .event-sidebar label {
-  color: #44576D; /* Navy */
+  color: #44576d; /* Navy */
   font-weight: bold;
 }
 .event-sidebar input[type="text"],
 .event-sidebar input[type="date"],
 .event-sidebar input[type="time"] {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin: 5px 0;
-    font-size: 1em;
-    border: 1px solid #AAC7D8; /* Light blue border */
-    border-radius: 8px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: border-color 0.3s, box-shadow 0.3s;
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin: 5px 0;
+  font-size: 1em;
+  border: 1px solid #aac7d8; /* Light blue border */
+  border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 .event-sidebar input:focus {
-    border-color: #44576D; /* Navy */
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  border-color: #44576d; /* Navy */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 .time-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 .time-input {
-    width: 40%; /* Each input container takes 40% of the width */
+  width: 40%; /* Each input container takes 40% of the width */
 }
 .time-input label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 0.9em;
-    color: #333;
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+  color: #333;
 }
 .time-input input[type="time"] {
-    width: 90%;
-    padding: 8px;
-    font-size: 1em;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+  width: 90%;
+  padding: 8px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 #notification-options h3 {
   font-size: 1.2em;
-  color: #44576D; /* Navy */
+  color: #44576d; /* Navy */
   margin-bottom: 10px;
 }
 #notification-options label {
   display: block;
   margin-top: 10px;
   font-weight: bold;
-  color: #44576D;
+  color: #44576d;
 }
 #notification-options select,
 #notification-options input[type="number"] {
   width: calc(100% - 20px);
   margin-top: 5px;
   padding: 8px;
-  border: 1px solid #AAC7D8; /* Light blue border */
+  border: 1px solid #aac7d8; /* Light blue border */
   border-radius: 5px;
   font-size: 1em;
 }
@@ -478,7 +484,7 @@ border-bottom: 2px solid #AAC7D8;
 #notification-options {
   margin-top: 10px;
   padding: 10px;
-  border: 1px solid #AAC7D8;
+  border: 1px solid #aac7d8;
   border-radius: 5px;
   background-color: #f9f9f9;
   display: none; /* Start hidden */
@@ -488,17 +494,16 @@ border-bottom: 2px solid #AAC7D8;
                   Event Tooltip Styling
  ****************************************************/
 .event-tooltip {
-    position: absolute;
-    background-color: #333;
-    color: #fff;
-    padding: 8px;
-    border-radius: 5px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    font-size: 0.9em;
-    z-index: 1000;
-    pointer-events: none; /* Makes the tooltip ignore mouse events */
+  position: absolute;
+  background-color: #333;
+  color: #fff;
+  padding: 8px;
+  border-radius: 5px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  font-size: 0.9em;
+  z-index: 1000;
+  pointer-events: none; /* Makes the tooltip ignore mouse events */
 }
-
 
 /****************************************************
                   Modal Styling
@@ -527,10 +532,10 @@ border-bottom: 2px solid #AAC7D8;
 .modal-content p {
   margin-bottom: 20px;
   font-size: 1.2em;
-  color: #44576D;
+  color: #44576d;
 }
 .modal-content button {
-  background-color: #44576D; /* Navy */
+  background-color: #44576d; /* Navy */
   color: white;
   border: none;
   padding: 10px 20px;
@@ -539,20 +544,20 @@ border-bottom: 2px solid #AAC7D8;
   margin: 10px;
 }
 .modal-content button:hover {
-  background-color: #29353C; /* Darker shade */
+  background-color: #29353c; /* Darker shade */
 }
 
 /****************************************************
             Floating Action Button Styling
  ****************************************************/
- /* Floating Action Button (FAB) Styling */
+/* Floating Action Button (FAB) Styling */
 .fab {
   position: fixed;
   bottom: 20px; /* Distance from the bottom */
   right: 20px; /* Distance from the left */
   width: 60px;
   height: 60px;
-  background-color: #44576D; /* Navy blue */
+  background-color: #44576d; /* Navy blue */
   color: white;
   border: none;
   border-radius: 50%; /* Make it circular */
@@ -575,7 +580,6 @@ border-bottom: 2px solid #AAC7D8;
   transform: scale(0.95); /* Slightly shrink on click */
 }
 
-
 /****************************************************
                   Auth Controls Styling
  ****************************************************/
@@ -591,8 +595,103 @@ border-bottom: 2px solid #AAC7D8;
   display: block;
 }
 
+/****************************************************
+                  Agenda Tabs Styling
+ ****************************************************/
+/* Tabs container */
+.tabs-container {
+  position: fixed;
+  top: 20%; /* Starting position */
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #44576d;
+  border-radius: 10px 0 0 10px;
+  z-index: 1000;
+}
 
+.tabs-handle {
+  background-color: #44576d;
+  color: white;
+  text-align: center;
+  cursor: grab;
+  padding: 5px;
+  font-size: 16px;
+  font-weight: bold;
+}
 
+.tabs-handle:hover {
+  background-color: #aac7d8;
+}
+
+.tabs-handle:active {
+  cursor: grabbing;
+}
+
+/* Individual tab */
+.tab {
+  writing-mode: vertical-rl; /* Rotate text vertically */
+  transform: rotate(180deg); /* Flip text direction */
+  padding: 10px;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  background-color: #44576d;
+  transition: transform 0.5s ease, background-color 0.2s ease-in-out;
+}
+
+.tab:hover {
+  background-color: #aac7d8;
+}
+
+/* Sliding panels */
+/* Tab Panel Styling */
+.tab-panel {
+  position: fixed;
+  right: -400px; /* Initially off-screen */
+  width: 300px;
+  height: 60%;
+  background-color: #ffffff;
+  border: 1px solid #aac7d8;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  padding: 20px;
+  z-index: 999;
+  transition: right 0.5s ease, top 0.5s ease; /* Smooth slide and reposition */
+  opacity: 0; /* Initially hidden */
+  list-style: none;
+  color: #333;
+  font-size: 14px;
+  margin: 10px 0;
+}
+.tab-panel li.empty-message {
+  color: #ff0000; /* Highlight missing calendar messages in red */
+  font-weight: bold;
+}
+
+/* Active Panel */
+.tab-panel.active {
+  right: 50px; /* Slide into view */
+  opacity: 1;
+}
+
+/* Close button */
+.close-panel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.close-panel:hover {
+  color: #aac7d8;
+}
 
 a {
   text-decoration: none;
@@ -619,4 +718,3 @@ a:visited {
 #practice-button {
   float: right;
 }
-
