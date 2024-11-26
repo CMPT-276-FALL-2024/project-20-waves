@@ -179,16 +179,24 @@ describe("calendarscripts.js Tests", () => {
       document.getElementById.mockRestore();
     });
   });
+
+  //////////////////////////////////////////////////////////////
+  jest.spyOn(console, "error").mockImplementation(() => {});
+
   // Test fetchGoogleCalendarEvents
-  /* describe("fetchGoogleCalendarEvents", () => {
+  describe("fetchGoogleCalendarEvents", () => {
+    let mockAccessToken, mockGapi, mockCalendar;
+
     beforeEach(() => {
-      mockAccessToken = "mockAccessToken"; // Valid token
-      mockGapiInited = true; // Ensure GAPI is initialized
+      // Mock global variables
+      mockAccessToken = "mockAccessToken";
+      global.accessToken = mockAccessToken;
+
       mockGapi = {
         client: {
           calendar: {
             events: {
-              list: jest.fn().mockResolvedValue({ result: { items: [] } }), // Mock API response
+              list: jest.fn(),
             },
           },
         },
@@ -199,28 +207,15 @@ describe("calendarscripts.js Tests", () => {
         removeAllEvents: jest.fn(),
       };
 
-      //      jest.spyOn(console, "error").mockImplementation(() => {});
+      jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console errors in test output
     });
 
     afterEach(() => {
-      jest.clearAllMocks();
       jest.restoreAllMocks();
+      global.accessToken = null;
     });
 
-    it("should call gapi.client.calendar.events.list", async () => {
-      // Call the function
-      await fetchGoogleCalendarEvents(mockAccessToken, mockGapi, mockCalendar);
-      // Verify API call
-      expect(mockGapi.client.calendar.events.list).toHaveBeenCalledWith({
-        calendarId: "primary",
-        timeMin: expect.any(String), // Valid ISO date
-        showDeleted: false,
-        singleEvents: true,
-        orderBy: "startTime",
-      });
-    });
-
-    it("should fetch events and add them to FullCalendar", async () => {
+    it("should fetch events and add them to the calendar", async () => {
       const mockApiResponse = {
         result: {
           items: [
@@ -234,16 +229,21 @@ describe("calendarscripts.js Tests", () => {
         },
       };
 
-      // Mock API response
       mockGapi.client.calendar.events.list.mockResolvedValue(mockApiResponse);
 
       // Call the function
       await fetchGoogleCalendarEvents(mockAccessToken, mockGapi, mockCalendar);
 
       // Verify the API call was made
-      expect(mockGapi.client.calendar.events.list).toHaveBeenCalled();
+      expect(mockGapi.client.calendar.events.list).toHaveBeenCalledWith({
+        calendarId: "primary",
+        timeMin: expect.any(String),
+        showDeleted: false,
+        singleEvents: true,
+        orderBy: "startTime",
+      });
 
-      // Verify that events were added to the calendar
+      // Verify the events are added to the calendar
       expect(mockCalendar.addEventSource).toHaveBeenCalledWith([
         {
           title: "Test Event",
@@ -255,202 +255,47 @@ describe("calendarscripts.js Tests", () => {
       ]);
     });
 
-    it("should handle missing access tokens gracefully", async () => {
-      mockAccessToken = null; // Missing token
-      // Mock console.error
-      jest.spyOn(console, "error").mockImplementation(() => {});
+    it("should handle missing access token gracefully", async () => {
+      global.accessToken = null;
 
-      await fetchGoogleCalendarEvents(mockAccessToken, mockGapi, mockCalendar);
+      await fetchGoogleCalendarEvents(
+        global.accessToken,
+        mockGapi,
+        mockCalendar
+      );
 
       expect(mockGapi.client.calendar.events.list).not.toHaveBeenCalled();
       expect(console.error).toHaveBeenCalledWith("No access token available");
     });
- */
-  /* it("should handle API errors gracefully", async () => {
+
+    /* it.only("should handle API errors gracefully", async () => {
+      jest.clearAllMocks(); // Clear any previous mocks
+      jest.spyOn(console, "error").mockImplementation(() => {}); // Mock console.error
+
       const apiError = new Error("API Error");
 
-      // Apply mock for console.error
-      jest.spyOn(console, "error").mockImplementation(() => {});
-
-      // Mock GAPI rejected response
+      // Mock API rejection
       mockGapi.client.calendar.events.list.mockRejectedValue(apiError);
 
       // Call the function
       await fetchGoogleCalendarEvents(mockAccessToken, mockGapi, mockCalendar);
 
-      // Debugging: Check console.error calls
-      console.log("console.error Mock Calls:", console.error.mock.calls);
+      // Debugging: Verify console.error was called
+      console.log(
+        "console.error calls after function call:",
+        console.error.mock.calls
+      );
 
-      // Ensure addEventSource was not called
-      expect(mockCalendar.addEventSource).not.toHaveBeenCalled();
-
-      // Ensure console.error was called
+      // Verify the error was logged
       expect(console.error).toHaveBeenCalledWith(
         "Error fetching calendar events:",
-        expect.any(Error) // Matches any error object
+        expect.any(Error)
       );
-    }); 
-  // });
-  describe("fetchCalendarUpdates", () => {
-    let mockAccessToken;
 
-    beforeEach(() => {
-      mockAccessToken = "mockAccessToken"; // Set a valid token
-      global.accessToken = mockAccessToken;
-
-      jest.spyOn(document, "getElementById").mockImplementation((id) => {
-        const elements = {
-          "lectures-list": { innerHTML: "" },
-          "tests-list": { innerHTML: "" },
-        };
-        return elements[id];
-      });
-    });
-
-    afterEach(() => {
-      jest.restoreAllMocks();
-      global.accessToken = null; // Clear global token
-    });
-
-    it("should fetch and update events for Lectures and Tests calendars", async () => {
-      // Mock fetchUserCalendars to return lectures and tests calendars
-      require("./calendarscripts").fetchUserCalendars.mockResolvedValue([
-        { id: "lecturesCalendarId", name: "lectures" },
-        { id: "testsCalendarId", name: "tests" },
-      ]);
-
-      // Mock fetchEventsForCalendar to return mock events
-      require("./calendarscripts").fetchEventsForCalendar.mockResolvedValue([
-        { summary: "Lecture 1", start: { dateTime: "2024-11-25T10:00:00Z" } },
-      ]);
-
-      await fetchCalendarUpdates();
-
-      // Assert fetchUserCalendars was called
-      expect(
-        require("./calendarscripts").fetchUserCalendars
-      ).toHaveBeenCalled();
-
-      // Assert fetchEventsForCalendar was called for lectures and tests
-      expect(
-        require("./calendarscripts").fetchEventsForCalendar
-      ).toHaveBeenCalledWith("lecturesCalendarId", "lectures-list");
-      expect(
-        require("./calendarscripts").fetchEventsForCalendar
-      ).toHaveBeenCalledWith("testsCalendarId", "tests-list");
-
-      // Assert DOM updates
-      expect(document.getElementById("lectures-list").innerHTML).not.toBe("");
-      expect(document.getElementById("tests-list").innerHTML).not.toBe("");
-    });
+      // Restore the mock
+      console.error.mockRestore();
+    }); */
   });
-
-  describe("fetchCalendarUpdates", () => {
-    let mockGetElementById;
-    beforeEach(() => {
-      // Mock document.getElementById
-      mockGetElementById = jest
-        .spyOn(document, "getElementById")
-        .mockImplementation((id) => {
-          const elements = {
-            "lectures-list": { innerHTML: "" },
-            "tests-list": { innerHTML: "" },
-          };
-          return elements[id];
-        });
-      jest.mock("./calendarscripts", () => ({
-        fetchUserCalendars: jest.fn(),
-        fetchEventsForCalendar: jest.fn(),
-      }));
-    });
-
-    afterEach(() => {
-      jest.restoreAllMocks(); // Restore all mocks after each test
-    });
-
-    it("should fetch and update events for both Lectures and Tests calendars", async () => {
-      // Mock fetchUserCalendars to return both lectures and tests calendars
-      fetchUserCalendars.mockResolvedValue([
-        { id: "lecturesCalendarId", name: "lectures" },
-        { id: "testsCalendarId", name: "tests" },
-      ]);
-
-      // Mock fetchEventsForCalendar to return mock events
-      fetchEventsForCalendar.mockImplementation(async (calendarId) => {
-        if (calendarId === "lecturesCalendarId") {
-          return [
-            {
-              summary: "Lecture 1",
-              start: { dateTime: "2024-11-25T10:00:00Z" },
-            },
-          ];
-        }
-        if (calendarId === "testsCalendarId") {
-          return [
-            { summary: "Test 1", start: { dateTime: "2024-11-26T14:00:00Z" } },
-          ];
-        }
-        return [];
-      });
-
-      // Call the function
-      await fetchCalendarUpdates();
-
-      // Assert fetchUserCalendars was called
-      expect(fetchUserCalendars).toHaveBeenCalled();
-
-      // Assert fetchEventsForCalendar was called for lectures and tests
-      expect(fetchEventsForCalendar).toHaveBeenCalledWith(
-        "lecturesCalendarId",
-        "lectures-list"
-      );
-      expect(fetchEventsForCalendar).toHaveBeenCalledWith(
-        "testsCalendarId",
-        "tests-list"
-      );
-
-      // Assert DOM updates
-      expect(document.getElementById("lectures-list").innerHTML).not.toBe("");
-      expect(document.getElementById("tests-list").innerHTML).not.toBe("");
-    });
-
-    it("should handle missing lectures or tests calendars gracefully", async () => {
-      fetchUserCalendars.mockResolvedValue([
-        { id: "lecturesCalendarId", name: "lectures" },
-      ]); // Only lectures present
-
-      await fetchCalendarUpdates();
-
-      // Assert fetchEventsForCalendar was called only for lectures
-      expect(fetchEventsForCalendar).toHaveBeenCalledWith(
-        "lecturesCalendarId",
-        "lectures-list"
-      );
-      expect(fetchEventsForCalendar).not.toHaveBeenCalledWith(
-        expect.any(String),
-        "tests-list"
-      );
-
-      // Assert DOM update for missing tests calendar
-      expect(document.getElementById("tests-list").innerHTML).toContain(
-        "No Tests calendar found."
-      );
-    });
-
-    it("should handle API errors gracefully", async () => {
-      fetchUserCalendars.mockRejectedValue(new Error("API Error"));
-
-      await fetchCalendarUpdates();
-
-      // Assert error handling
-      expect(document.getElementById("lectures-list").innerHTML).toContain(
-        "Error fetching events. Please try again."
-      );
-      expect(document.getElementById("tests-list").innerHTML).toContain(
-        "Error fetching events. Please try again."
-      );
-    });
-  }); */
 });
 
 ////////////////////////

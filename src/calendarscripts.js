@@ -1,9 +1,8 @@
 ////////
-// NOTE: this requires API KEY and CLIENT ID to be added within the code
+// NOTE: this requires API KEY and CLIENT ID to be added below
 ////////
-const YOUR_API_KEY = "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M";
-const YOUR_CLIENT_ID =
-  "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com";
+const YOUR_API_KEY = "";
+const YOUR_CLIENT_ID = "";
 
 ////////
 // Global Variables
@@ -33,14 +32,25 @@ const POLLING_INTERVAL = 60000; // 1 minute
 ////////
 // API
 ////////
-// Initialize the GIS client
+// Sequentially initialize the GAPI and GIS clients
+// This function is called on page load
+async function initializeClients() {
+  try {
+    await initializeGapiClient();
+    console.log("GAPI client initialized successfully");
+    await initializeGISClient();
+    console.log("GIS client initialized successfully");
+  } catch (error) {
+    console.error("Error initializing clients:", error);
+  }
+}
 function initializeGapiClient() {
   console.log("Initializing GAPI client");
   return new Promise((resolve, reject) => {
     gapi.load("client", async () => {
       try {
         await gapi.client.init({
-          apiKey: YOUR_API_KEY, // Replace with your actual API key
+          apiKey: YOUR_API_KEY, // USER: Replace with your API key
           discoveryDocs: [
             "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
           ],
@@ -55,12 +65,11 @@ function initializeGapiClient() {
     });
   });
 }
-// Initialize the GIS client
 function initializeGISClient() {
   return new Promise((resolve, reject) => {
     try {
       tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: YOUR_CLIENT_ID, // REPLACE with your CLIENT ID
+        client_id: YOUR_CLIENT_ID, // USER: Replace with your client ID
         scope:
           "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile",
         callback: (response) => {
@@ -83,6 +92,7 @@ function initializeGISClient() {
           );
           isClientInitialized = true;
           isUserSignedIn = true;
+          // Fetch user data and calendars
           fetchGoogleCalendarEvents(accessToken, gapi, calendar);
           updateAuthButtons();
           fetchUserName();
@@ -95,16 +105,7 @@ function initializeGISClient() {
     }
   });
 }
-async function initializeClients() {
-  try {
-    await initializeGapiClient();
-    console.log("GAPI client initialized successfully");
-    await initializeGISClient();
-    console.log("GIS client initialized successfully");
-  } catch (error) {
-    console.error("Error initializing clients:", error);
-  }
-}
+// Once user is signed in, fetch the user's name for the top right corner
 async function fetchUserName() {
   console.log("Fetching user name...");
   try {
@@ -129,6 +130,7 @@ async function fetchUserName() {
 ////////
 // Sign In / Out
 ////////
+// Update the sign-in and sign-out buttons
 function updateAuthButtons() {
   const signInButton = document.getElementById("sign-in-button");
   const signOutButton = document.getElementById("sign-out-button");
@@ -147,26 +149,23 @@ function updateAuthButtons() {
     }
   }
 }
+// Sign-in and sign-out button click handlers
 function handleSignInClick() {
   console.log("Sign-In button clicked");
-
   if (!gapiInited) {
     console.error("GAPI client not initialized!");
     return;
   }
-
   console.log("Requesting access token...");
   tokenClient.requestAccessToken({
     prompt: "consent",
     callback: (response) => {
       console.log("Access token callback executed:", response);
-
       if (response.error) {
         console.error("Error during token request:", response.error);
         openValidationModal("Sign-in failed. Please try again.");
         return;
       }
-
       if (response.access_token) {
         accessToken = response.access_token;
         isUserSignedIn = true;
@@ -177,7 +176,7 @@ function handleSignInClick() {
     },
   });
 }
-
+// Sign out and clear the access token / user name
 function handleSignOutClick() {
   accessToken = null; // Clear the access token
   console.log("User signed out");
@@ -208,10 +207,8 @@ async function fetchUserCalendars() {
   try {
     const response = await gapi.client.calendar.calendarList.list();
     const calendars = response.result.items;
-
     // Log or process the calendars
     console.log("User's calendars:", calendars);
-
     // Return a simplified list for further use
     return calendars.map((cal) => ({
       id: cal.id,
@@ -233,7 +230,7 @@ function fetchGoogleCalendarEvents(accessToken, gapi, calendar) {
     console.error("GAPI not initialized");
     return;
   }
-
+  // Fetch events for the primary calendar
   gapi.client.calendar.events
     .list({
       calendarId: "primary",
@@ -244,7 +241,6 @@ function fetchGoogleCalendarEvents(accessToken, gapi, calendar) {
     })
     .then((response) => {
       const googleEvents = response.result.items;
-
       const fullCalendarEvents = googleEvents.map((event) => {
         // Map event into FullCalendar format
         const calendarEvent = {
@@ -254,7 +250,6 @@ function fetchGoogleCalendarEvents(accessToken, gapi, calendar) {
           id: event.id,
           extendedProps: { reminders: event.reminders },
         };
-
         // Schedule notifications if reminders are present
         const startDateTime = event.start.dateTime || event.start.date;
         if (event.reminders && event.reminders.overrides) {
@@ -272,22 +267,23 @@ function fetchGoogleCalendarEvents(accessToken, gapi, calendar) {
             }
           });
         } else {
-          console.warn(`Event "${event.summary}" has no reminders.`);
+          console.log(`Event "${event.summary}" has no reminders.`);
         }
-
         return calendarEvent;
       });
-
       if (calendar) {
         calendar.addEventSource(fullCalendarEvents);
         startPollingCalendarUpdates();
       }
     })
     .catch((error) => {
+      // console.log("Inside catch block - about to call console.error"); // Debugging log for unit test
       console.error("Error fetching calendar events:", error);
+      // console.log("Inside catch block - console.error call completed"); // Debugging log for unit test
     });
 }
-async function fetchEventsForCalendar(calendarId, listId) {
+// Fetch events for secondary(+) calendars
+async function fetchSecondaryGoogleCalendarEvents(gapi, calendarId, listId) {
   try {
     const response = await gapi.client.calendar.events.list({
       calendarId: calendarId,
@@ -334,15 +330,20 @@ async function fetchEventsForCalendar(calendarId, listId) {
     }
   }
 }
-// Fetch updates for Tabs
+////////
+// Polling Events for Fetching Updates
+////////
 function startPollingCalendarUpdates() {
   if (pollingIntervalId) {
     console.warn("Polling already in progress");
     return; // prevents polling from starting multiple times
   }
   console.log("Starting polling for calendar events");
-  fetchCalendarUpdates();
-  pollingIntervalId = setInterval(fetchCalendarUpdates, POLLING_INTERVAL);
+  fetchCalendarUpdates(accessToken, gapi);
+  pollingIntervalId = setInterval(
+    fetchCalendarUpdates(accessToken, gapi),
+    POLLING_INTERVAL
+  );
 }
 function stopPollingCalendarUpdates() {
   if (pollingIntervalId) {
@@ -351,7 +352,7 @@ function stopPollingCalendarUpdates() {
     pollingIntervalId = null;
   }
 }
-async function fetchCalendarUpdates() {
+async function fetchCalendarUpdates(accessToken, gapi) {
   console.log("Fetching calendar updates...");
   if (!accessToken) {
     console.error("No access token available");
@@ -363,19 +364,22 @@ async function fetchCalendarUpdates() {
       (cal) => cal.name.toLowerCase() === "lectures"
     );
     if (lecturesCalendars) {
-      calendarData.lectures = await fetchEventsForCalendar(
+      calendarData.lectures = await fetchSecondaryGoogleCalendarEvents(
+        gapi,
         lecturesCalendars.id
       );
     } else {
       console.warn("No lectures calendar found.");
       calendarData.lectures = [];
     }
-
     const testsCalendars = calendars.find(
       (cal) => cal.name.toLowerCase() === "tests"
     );
     if (testsCalendars) {
-      calendarData.tests = await fetchEventsForCalendar(testsCalendars.id);
+      calendarData.tests = await fetchSecondaryGoogleCalendarEvents(
+        gapi,
+        testsCalendars.id
+      );
     } else {
       console.warn("No tests calendar found.");
       calendarData.tests = [];
@@ -395,11 +399,9 @@ async function fetchCalendarUpdates() {
     .then((response) => {
       const events = response.result.items;
       console.log("Fetched calendar events:", events);
-
       if (calendar) {
         // Remove all existing events in the calendar
         calendar.removeAllEvents();
-
         // Map fetched events into FullCalendar format
         const fullCalendarEvents = events.map((event) => {
           const calendarEvent = {
@@ -429,10 +431,8 @@ async function fetchCalendarUpdates() {
           } else {
             console.warn(`Event "${event.summary}" has no reminders.`);
           }
-
           return calendarEvent;
         });
-
         // Add the processed events to FullCalendar
         calendar.addEventSource(fullCalendarEvents);
       } else {
@@ -505,11 +505,9 @@ function requireSignIn(actionCallback) {
 // Event Tooltip
 ////////
 function showEventTooltip(event) {
-  // console.log("Showing event tooltip"); // Debugging log
   const tooltip = document.createElement("div");
   tooltip.id = "event-tooltip";
   tooltip.className = "event-tooltip";
-
   const startTime = event.start.toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
@@ -600,6 +598,7 @@ function openEditEventSidebar(event) {
   document.getElementById("delete-event").style.display = "block";
   openSidebar();
 }
+// click and drag event creation
 function openCreateEventSidebarForDateRange(start, end) {
   clearEventForm();
   populateSidebarForDateRange(start, end);
@@ -608,6 +607,7 @@ function openCreateEventSidebarForDateRange(start, end) {
   document.getElementById("delete-event").style.display = "none";
   openSidebar();
 }
+// set up sidebar listeners
 function setupCloseSidebarListeners() {
   const closeSidebarButton = document.getElementById("close-sidebar-button");
   if (closeSidebarButton) {
@@ -619,6 +619,7 @@ function setupCloseSidebarListeners() {
     }
   });
 }
+// draggable sidebar
 function enableSidebarDragging() {
   const sidebar = document.getElementById("event-sidebar");
   const dragHandle = sidebar.querySelector(".drag-handle");
@@ -659,6 +660,7 @@ function enableSidebarDragging() {
 ////////
 // Populate Sidebar Functionality
 ////////
+// populate notification fields
 function populateNotificationFields(reminder) {
   if (!reminder || typeof reminder.minutes !== "number") {
     console.warn("Invalid reminder data:", reminder);
@@ -685,6 +687,7 @@ function populateNotificationFields(reminder) {
   const notificationOptions = document.getElementById("notification-options");
   if (notificationOptions) notificationOptions.style.display = "block";
 }
+// clear notification fields
 function clearNotificationFields() {
   const notificationTimeInput = document.getElementById("notification-time");
   const notificationTimeUnitSelect = document.getElementById(
@@ -701,6 +704,7 @@ function clearNotificationFields() {
   const notificationOptions = document.getElementById("notification-options");
   if (notificationOptions) notificationOptions.style.display = "none";
 }
+// set up toggle notification
 function setupNotificationToggle() {
   const notificationToggle = document.getElementById("enable-notifications");
   const notificationOptions = document.getElementById("notification-options");
@@ -974,7 +978,6 @@ function initializeNotifications() {
     updateNotificationBadge();
     renderNotifications();
     notificationDropdown.style.display = "none";
-    console.log("notification dropdown:", notificationDropdown.display);
     console.log("All notifications cleared");
   });
 
@@ -1032,7 +1035,6 @@ function setupEventCreationButton() {
         openValidationModal("Please log in to create an event.");
         return;
       }
-
       // Retrieve form values
       const title = document.getElementById("event-title").value.trim();
       const startDate = document.getElementById("event-start-date").value;
@@ -1042,7 +1044,6 @@ function setupEventCreationButton() {
       const notificationsEnabled = document.getElementById(
         "enable-notifications"
       ).checked;
-
       // Validate required fields
       if (!title) {
         openValidationModal("Please enter a title for the event.");
@@ -1054,7 +1055,6 @@ function setupEventCreationButton() {
         );
         return;
       }
-
       const start = `${startDate}T${startTime}:00`;
       const end = `${endDate}T${endTime}:00`;
       console.log("Start Date:", start);
@@ -1063,10 +1063,8 @@ function setupEventCreationButton() {
         openValidationModal("End time must be after start time.");
         return;
       }
-
       const useThisTimeZone = "PST"; // Set a default time zone or fetch dynamically
       let reminderMinutes = null;
-
       if (notificationsEnabled) {
         const notificationTime = parseInt(
           document.getElementById("notification-time").value,
@@ -1088,7 +1086,6 @@ function setupEventCreationButton() {
         };
         scheduleNotification(title, start, reminderMinutes);
       }
-
       // Prepare the minimal event payload (no reminders)
       const eventResource = {
         summary: title,
@@ -1096,10 +1093,8 @@ function setupEventCreationButton() {
         end: { dateTime: end, timeZone: useThisTimeZone },
         reminders: reminders || { useDefault: true },
       };
-
       // Debugging: Log the payload before sending
       console.log("Event Resource Payload (no notifications):", eventResource);
-
       // Add the event to Google Calendar
       if (gapiInited) {
         gapi.client.calendar.events
@@ -1115,7 +1110,7 @@ function setupEventCreationButton() {
                 end: eventResource.end.dateTime,
               });
             }
-            fetchCalendarUpdates(); // Fetch updates after adding event
+            fetchCalendarUpdates(accessToken, gapi); // Fetch updates after adding event
             // openValidationModal("Event successfully added to Google Calendar.");
           })
           .catch((error) => {
@@ -1257,7 +1252,11 @@ async function togglePanel(panelId, calendarName, listId) {
       );
 
       if (targetCalendar) {
-        await fetchEventsForCalendar(targetCalendar.id, listId);
+        await fetchSecondaryGoogleCalendarEvents(
+          gapi,
+          targetCalendar.id,
+          listId
+        );
       } else {
         document.getElementById(
           listId
@@ -1386,7 +1385,7 @@ function openPanel(panelId, calendarName, listId) {
     console.warn("Tabs container or panel not found.");
   }
 }
-
+// close panel
 function closePanel(panelId) {
   const panel = document.getElementById(panelId);
   if (panel) {
@@ -1431,6 +1430,10 @@ function setupDebugKey() {
     }
   });
 }
+
+////////
+// DOM Content Loaded
+////////
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     await initializeClients();
@@ -1573,7 +1576,7 @@ module.exports = {
   openValidationModal, // Opens the validation modal with a message
   closeValidationModal, // Closes the validation modal
   fetchCalendarUpdates, // Fetches updates from Google Calendar
-  fetchEventsForCalendar, // Fetches events for a specific calendar
+  fetchSecondaryGoogleCalendarEvents, // Fetches events for a specific calendar
 };
 
 ////////
