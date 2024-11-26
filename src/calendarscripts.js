@@ -335,69 +335,6 @@ async function fetchEventsForCalendar(calendarId, listId) {
   }
 }
 // Fetch updates for Tabs
-async function fetchCalendarUpdates() {
-  console.log("Fetching calendar updates...");
-  if (!accessToken) {
-    console.error("No access token available");
-    return;
-  }
-
-  try {
-    const calendars = await fetchUserCalendars();
-
-    // Find the calendars for Lectures and Tests
-    const lecturesCalendar = calendars.find((cal) => cal.name === "lectures");
-    const testsCalendar = calendars.find((cal) => cal.name === "tests");
-
-    if (!lecturesCalendar) {
-      console.warn("Lectures calendar not found.");
-      document.getElementById("lectures-list").innerHTML =
-        "<li>No Lectures calendar found. Please ensure the calendar exists in your account.</li>";
-    } else {
-      await fetchEventsForCalendar(lecturesCalendar.id, "lectures-list");
-    }
-
-    if (!testsCalendar) {
-      console.warn("Tests calendar not found.");
-      document.getElementById("tests-list").innerHTML =
-        "<li>No Tests calendar found. Please ensure the calendar exists in your account.</li>";
-    } else {
-      await fetchEventsForCalendar(testsCalendar.id, "tests-list");
-    }
-  } catch (error) {
-    console.error("Error fetching calendar updates:", error);
-  }
-}
-// Fetch updates to tabs
-async function fetchCalendarUpdates() {
-  console.log("Fetching calendar updates...");
-  if (!accessToken) {
-    console.error("No access token available");
-    return;
-  }
-
-  try {
-    const calendars = await fetchUserCalendars();
-
-    // Find the calendars for Lectures and Tests
-    const lecturesCalendar = calendars.find((cal) => cal.name === "lectures");
-    const testsCalendar = calendars.find((cal) => cal.name === "tests");
-
-    if (lecturesCalendar) {
-      await fetchEventsForCalendar(lecturesCalendar.id, "lectures-list");
-    } else {
-      console.warn("No Lectures calendar found.");
-    }
-
-    if (testsCalendar) {
-      await fetchEventsForCalendar(testsCalendar.id, "tests-list");
-    } else {
-      console.warn("No Tests calendar found.");
-    }
-  } catch (error) {
-    console.error("Error fetching calendar updates:", error);
-  }
-}
 function startPollingCalendarUpdates() {
   if (pollingIntervalId) {
     console.warn("Polling already in progress");
@@ -1508,6 +1445,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (error) {
     console.error("Error during initialization:", error);
   }
+  document.querySelectorAll(".close-panel-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const panel = button.closest(".tab-panel");
+      panel.classList.remove("active");
+    });
+  });
+
+  // Outside click listener
+  document.addEventListener("click", (event) => {
+    const isClickInside =
+      event.target.closest(".tab-panel") || event.target.closest(".tab");
+    if (!isClickInside) {
+      document.querySelectorAll(".tab-panel").forEach((panel) => {
+        panel.classList.remove("active");
+      });
+    }
+  });
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1618,6 +1572,8 @@ module.exports = {
   requireSignIn, // Ensures the user is signed in before allowing actions
   openValidationModal, // Opens the validation modal with a message
   closeValidationModal, // Closes the validation modal
+  fetchCalendarUpdates, // Fetches updates from Google Calendar
+  fetchEventsForCalendar, // Fetches events for a specific calendar
 };
 
 ////////
