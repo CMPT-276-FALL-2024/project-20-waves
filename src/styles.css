@@ -370,7 +370,7 @@ button:focus {
   border-bottom: 2px solid #aac7d8;
 }
 .event-sidebar button {
-  background-color: #aac7d8; /* Light blue */
+  background-color: #44576d; /* Light blue */
   color: white;
   border: none;
   border-radius: 6px;
@@ -380,7 +380,7 @@ button:focus {
   transition: background-color 0.3s, box-shadow 0.3s;
 }
 .event-sidebar button:hover {
-  background-color: #44576d; /* Navy */
+  background-color: #aac7d8; /* Navy */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .event-sidebar.open {
@@ -415,7 +415,7 @@ button:focus {
   transition: color 0.3s ease;
 }
 .close-button:hover {
-  color: #aac7d8;
+  color: #aac7d881;
 }
 .event-sidebar label {
   color: #44576d; /* Navy */
