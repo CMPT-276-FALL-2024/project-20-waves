@@ -66,24 +66,32 @@ a:visited {
  .todo-add{
     background-color: rgb(49, 96, 112);
     width: 50%;
-    height: 5%;
     position:absolute;
     text-align:center;
-    align-items: center;
     overflow: hidden;
     bottom: 0%;
     right: 0%;
 } 
 .todo-remove-button{
-
+    background-color: brown;
+    color: rgb(0, 0, 0);
+    width: 20px;
+    height: 20px;
+    position:absolute;
+    text-align:center;
+    font-weight: bold;
+    border-radius: 50%;
+    left:10px;
 }
 .todo-input-box{
     position: relative;
-
+    float:left;
 
 }
 .todo-list-done{
+    text-align:center;
     position:relative;
+    float:left;
 
 }
 /* todolist elements end */
