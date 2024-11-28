@@ -144,7 +144,7 @@ const optionCinputs = document.body.querySelectorAll('#option-c');
 const optionDinputs = document.body.querySelectorAll('#option-d');
 
 //Select quiz score
-const quizScore = document.body.querySelector('.quiz-score')
+const quizScore = document.body.querySelector('.quiz-score');
 
 //Select quiz submit button
 const quizSubmitButton = document.body.querySelector('.quiz-submit-button');
