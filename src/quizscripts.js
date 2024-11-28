@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI("");
+const genAI = new GoogleGenerativeAI("AIzaSyD59cvRLGTGbqq-oQRidggkpYzrNrw1K_I");
 
 //Questions object to hold data for each question returned by the APi
 let questions = [
@@ -170,7 +170,7 @@ async function geminiAPI() {
 
     const model = genAI.getGenerativeModel({ model: "gemini-pro"});
 
-    const prompt = "give a 10 question multiple choice quiz about " + userTopic;
+    const prompt = "give a 10 question multiple choice quiz, with no code output questions, about " + userTopic;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
