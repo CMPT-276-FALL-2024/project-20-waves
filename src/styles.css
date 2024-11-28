@@ -193,6 +193,13 @@ button:focus {
 /****************************************************
                   Calendar Styling
  ****************************************************/
+.moving-cursor {
+  cursor: move; /* Show "move" icon when dragging */
+}
+.calendar-grid {
+  cursor: move; /* Default cursor for the grid */
+}
+
 #calendar-container {
   width: 90%;
   max-width: 1200px;

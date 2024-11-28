@@ -1,8 +1,9 @@
 ////////
 // NOTE: this requires API KEY and CLIENT ID to be added below
 ////////
-const YOUR_API_KEY = "";
-const YOUR_CLIENT_ID = "";
+const YOUR_API_KEY = "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M";
+const YOUR_CLIENT_ID =
+  "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com";
 
 ////////
 // Global Variables
@@ -452,6 +453,9 @@ async function fetchCalendarUpdates(accessToken, gapi) {
 function initializeCalendar() {
   console.log("Initializing calendar");
   const calendarEl = document.getElementById("calendar");
+  if (calendarEl) {
+    calendarEl.classList.add("calendar-grid");
+  }
   calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     selectable: true,
@@ -504,6 +508,30 @@ function requireSignIn(actionCallback) {
 ////////
 // Event Tooltip
 ////////
+// Enable crosshair cursor on the calendar grid
+function setupMoveCursor() {
+  const calendarGrid = document.querySelector(".calendar-grid");
+  if (!calendarGrid) {
+    console.error("Calendar grid not found!");
+    return;
+  }
+
+  // Add "moving-cursor" class on mousedown
+  calendarGrid.addEventListener("mousedown", () => {
+    console.log("mousedown event triggered");
+    calendarGrid.classList.add("moving-cursor");
+  });
+
+  // Remove "moving-cursor" class on mouseup and mouseleave
+  const removeMoveCursor = () => {
+    console.log("mouseup or mouseleave event triggered");
+    calendarGrid.classList.remove("moving-cursor");
+  };
+
+  calendarGrid.addEventListener("mouseup", removeMoveCursor);
+  calendarGrid.addEventListener("mouseleave", removeMoveCursor);
+}
+
 function showEventTooltip(event) {
   const tooltip = document.createElement("div");
   tooltip.id = "event-tooltip";
@@ -1468,6 +1496,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  try {
+    console.log("Setting up move cursor");
+    setupMoveCursor();
+  } catch (error) {
+    console.error("Error setting up crosshair cursor:", error);
+  }
   try {
     enableTabDragging();
   } catch (error) {
