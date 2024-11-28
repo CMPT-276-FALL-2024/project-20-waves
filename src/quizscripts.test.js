@@ -419,10 +419,9 @@ test('Hide error message, quiz section, quiz submit button, and quiz score if to
 
 });
 
+/*
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai";
 const genAI = new GoogleGenerativeAI("AIzaSyD59cvRLGTGbqq-oQRidggkpYzrNrw1K_I");
-
-/*
 
 test('Check if API data is returned based on topic and if quiz displays with quiz data', () => {
 
