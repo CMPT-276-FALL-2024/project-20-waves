@@ -270,7 +270,7 @@ quizSubmitButton.addEventListener("click", () => {
         
         //If selected answer is incorrect make the button red
         else {
-            selectedButtons[i].style.backgroundColor = 'red';
+            selectedButtons[i].style.backgroundColor = 'rgb(245, 69, 69)';
         }
     }
 

@@ -230,21 +230,21 @@ button {
 .quiz-position {
     display: flex;
     justify-content: center;
-    margin-top: 50px;
+    margin-top: 30px;
 }
 
 .quiz {
     display: none;
-    grid-template-columns: repeat(2, 600px);
+    grid-template-columns: repeat(2, 545px);
     grid-template-rows: repeat(5, auto);
-    gap: 50px;
+    gap: 30px;
     animation: fadeIn 0.3s;
 }
 
 .quiz-question-card {
-    background-color: lightgray;
+    background-color: rgb(228, 228, 228);
     width: 500px;
-    border-radius: 25px;
+    border-radius: 20px;
     padding: 20px;
 }
 
@@ -280,7 +280,7 @@ button {
 }
 
 .multiple-choice-options input[type="radio"]:checked + label {
-    background-color: gray;
+    background-color: rgb(153, 153, 153);
 }
 
 .question {
@@ -289,7 +289,7 @@ button {
 }
 
 .quiz-submit-button {
-    background-color: lightgreen;
+    background-color: rgb(177, 247, 177);
     font-size: 30px;
     width: 150px;
     height: 45px;
@@ -297,6 +297,10 @@ button {
     margin-top: 40px;
     margin-bottom: 50px;
     display: none;
+}
+
+.quiz-submit-button:hover {
+    background-color: rgb(100, 194, 100);
 }
 
 .submit-button-go-to-part {
