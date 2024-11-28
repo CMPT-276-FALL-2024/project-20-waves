@@ -7,8 +7,8 @@ test("add function", () => {
             </button>`
             const input = "hii";
             let addClick = document.querySelector('.todo-list-done');
-            let inputbox = document.querySelector('todo-input');
-            let item1 = document.querySelector('item1');
+            let inputbox = document.querySelector('#todo-input');
+            let item1 = document.querySelector('#item1');
             inputbox.change(input, {target: {value: input}});
             addClick.click();
 
@@ -23,8 +23,8 @@ test("add function", () => {
                     </button>`
                     const input = "hii";
                     let addClick = document.querySelector('.todo-list-done');
-                    let inputbox = document.querySelector('todo-input');
-                    let item1 = document.querySelector('item1');
+                    let inputbox = document.querySelector('#todo-input');
+                    let item1 = document.querySelector('#item1');
                     let removeClick = document.querySelector('.remove1')
                     inputbox.change(input, {target: {value: input}});
                     addClick.click();
