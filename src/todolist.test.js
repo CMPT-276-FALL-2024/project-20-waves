@@ -9,7 +9,7 @@ test("add function", () => {
             let addClick = document.querySelector('.todo-list-done');
             let inputbox = document.querySelector('#todo-input');
             let item1 = document.querySelector('#item1');
-            inputbox.change(input, {target: {value: input}});
+            inputbox.value = input;
             addClick.click();
 
             expect(item1.innerHTML).toBe(input);
@@ -26,7 +26,7 @@ test("add function", () => {
                     let inputbox = document.querySelector('#todo-input');
                     let item1 = document.querySelector('#item1');
                     let removeClick = document.querySelector('.remove1')
-                    inputbox.change(input, {target: {value: input}});
+                    inputbox.value = input;
                     addClick.click();
                     removeClick.click();
                     expect(item1.innerHTML).toBe("");
