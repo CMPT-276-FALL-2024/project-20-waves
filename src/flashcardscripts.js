@@ -65,12 +65,14 @@ const doneEditButton = document.querySelector("#done-edit-button");
 
 //For quiz
 const quiz = document.querySelector(".quiz");
+const quizScore = document.querySelector(".quiz-score");
 
 //Flash card option button
 flashcardsButton.addEventListener("click", () => {
    flashCards.style.display = 'inline';
    quiz.style.display = 'none';
    quizSubmitButton.style.display = 'none';
+   quizScore.style.display = 'none';
 });
 
 //Update the front of the flash card
