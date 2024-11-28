@@ -31,33 +31,44 @@ let input = document.querySelector("#todo-input");
 let items = 0;
 
 function checkWhitespace(str) {
-    let whitespace = new Set([" ", "\t", "\n"]);
-    for (let i = 0; i < str.length; i++) {
-        if (whitespace.has(str[i])) {
+    let whitespace = new Set([" ", "\t", "\n", ""]);
+        let j = 0;
+        for (let i =0; i<str.length; i++){
+            if (str[i] == " "){
+                
+                j++;
+            }
+        }
+        if (str == ""||j == str.length ) {
             return true;
         }
-    }
     return false;
 }
 
 donebutton.addEventListener("click", () => {
-    if (!checkWhitespace(input.value)){
-        itemarray[items].innerHTML = input.value;
-        if (items <maxitems-1){
-            items++;
-        }
+    if (!checkWhitespace(input.value) ){
+                if (items <=maxitems-1){
+                    itemarray[items].innerHTML = input.value;
+                    items++;
+                }  
     }   
+    console.log(items);
  })
 
 for(let i =0;i<maxitems; i++){
     removearray[i].addEventListener("click", () => {
-        if(itemarray[i].innerHTML !== ""){
+        if( items == maxitems){   
+            itemarray[items-1].innerHTML = "";
+            items--;
+        }
+        else if(itemarray[i].innerHTML !== ""){
             let j= i;  
-            if( items >= maxitems-1){
-                itemarray[items].innerHTML = "";
+            if( items == maxitems){    
+                j = items;
+                
             }
         
-            while(itemarray[j+1].innerHTML != ""){
+            while(itemarray[j+1].innerHTML != "" ){
                 itemarray[j].innerHTML =itemarray[j+1].innerHTML;
                 j++;
             }
@@ -66,6 +77,6 @@ for(let i =0;i<maxitems; i++){
             
         }
         
-
+        console.log(items);
     })
 }
