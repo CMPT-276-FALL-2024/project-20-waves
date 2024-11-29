@@ -124,9 +124,9 @@ let allButtons =[];
 let userTopic;
 let userScore = 0;
 
-//Select quiz and flashcards sections
+//quiz section
 const quizSection = document.body.querySelector(".quiz");
-const flashCardsSection = document.body.querySelector(".flashcard-section");
+
 
 //Select all question headers
 const questionHeaders = document.body.querySelectorAll('.question');
@@ -316,9 +316,6 @@ quizSubmitButton.addEventListener("click", () => {
 
 //When generate quiz button is clicked, get the topic entered by the user and then call API
 generateQuizButton.addEventListener("click", () => {
-
-    //Hide flash cards section
-    flashCardsSection.style.display = 'none';
 
     //Get textbox value
     userTopic = quizTopicTextBox.value;
