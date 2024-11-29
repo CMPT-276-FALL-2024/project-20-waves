@@ -4,121 +4,121 @@ const genAI = new GoogleGenerativeAI("AIzaSyD59cvRLGTGbqq-oQRidggkpYzrNrw1K_I");
 
 //Questions object to hold data for each question returned by the APi
 let questions = [
-    {
-        data : {
-            question : "",
-            option1 : "",
-            option2 : "",
-            option3 : "",
-            option4 : "",
-            answer : ""
-        }  
+  {
+    data: {
+      question: "",
+      option1: "",
+      option2: "",
+      option3: "",
+      option4: "",
+      answer: "",
     },
+  },
 
-    {
-        data : {
-            question : "",
-            option1 : "",
-            option2 : "",
-            option3 : "",
-            option4 : "",
-            answer : ""
-        }  
+  {
+    data: {
+      question: "",
+      option1: "",
+      option2: "",
+      option3: "",
+      option4: "",
+      answer: "",
     },
+  },
 
-    {
-        data : {
-            question : "",
-            option1 : "",
-            option2 : "",
-            option3 : "",
-            option4 : "",
-            answer : ""
-        }  
-    }, 
-    
-    {
-        data : {
-            question : "",
-            option1 : "",
-            option2 : "",
-            option3 : "",
-            option4 : "",
-            answer : ""
-        }  
+  {
+    data: {
+      question: "",
+      option1: "",
+      option2: "",
+      option3: "",
+      option4: "",
+      answer: "",
     },
+  },
 
-    {
-        data : {
-            question : "",
-            option1 : "",
-            option2 : "",
-            option3 : "",
-            option4 : "",
-            answer : ""
-        }  
+  {
+    data: {
+      question: "",
+      option1: "",
+      option2: "",
+      option3: "",
+      option4: "",
+      answer: "",
     },
+  },
 
-    {
-        data : {
-            question : "",
-            option1 : "",
-            option2 : "",
-            option3 : "",
-            option4 : "",
-            answer : ""
-        }  
-    }, 
-    
-    {
-        data : {
-            question : "",
-            option1 : "",
-            option2 : "",
-            option3 : "",
-            option4 : "",
-            answer : ""
-        }  
+  {
+    data: {
+      question: "",
+      option1: "",
+      option2: "",
+      option3: "",
+      option4: "",
+      answer: "",
     },
+  },
 
-    {
-        data : {
-            question : "",
-            option1 : "",
-            option2 : "",
-            option3 : "",
-            option4 : "",
-            answer : ""
-        }  
+  {
+    data: {
+      question: "",
+      option1: "",
+      option2: "",
+      option3: "",
+      option4: "",
+      answer: "",
     },
+  },
 
-    {
-        data : {
-            question : "",
-            option1 : "",
-            option2 : "",
-            option3 : "",
-            option4 : "",
-            answer : ""
-        }  
-    }, 
-    
-    {
-        data : {
-            question : "",
-            option1 : "",
-            option2 : "",
-            option3 : "",
-            option4 : "",
-            answer : ""
-        }  
-    }
+  {
+    data: {
+      question: "",
+      option1: "",
+      option2: "",
+      option3: "",
+      option4: "",
+      answer: "",
+    },
+  },
+
+  {
+    data: {
+      question: "",
+      option1: "",
+      option2: "",
+      option3: "",
+      option4: "",
+      answer: "",
+    },
+  },
+
+  {
+    data: {
+      question: "",
+      option1: "",
+      option2: "",
+      option3: "",
+      option4: "",
+      answer: "",
+    },
+  },
+
+  {
+    data: {
+      question: "",
+      option1: "",
+      option2: "",
+      option3: "",
+      option4: "",
+      answer: "",
+    },
+  },
 ];
 
 //Arrays for users answers, user selected buttons for question options, and all buttons for question options
 let userAnswers = [];
 let selectedButtons = [];
-let allButtons =[];
+let allButtons = [];
 
 //Variables for user topic and user quiz score
 let userTopic;
@@ -127,27 +127,26 @@ let userScore = 0;
 //quiz section
 const quizSection = document.body.querySelector(".quiz");
 
-
 //Select all question headers
-const questionHeaders = document.body.querySelectorAll('.question');
+const questionHeaders = document.body.querySelectorAll(".question");
 
 //Select quiz topic textbox
 const quizTopicTextBox = document.body.querySelector("#quiz-topic-textbox");
 
 //Select generate quiz button
-const generateQuizButton = document.body.querySelector('.generate-quiz-button');
+const generateQuizButton = document.body.querySelector(".generate-quiz-button");
 
 //Select all option input buttons
-const optionAinputs = document.body.querySelectorAll('#option-a');
-const optionBinputs = document.body.querySelectorAll('#option-b');
-const optionCinputs = document.body.querySelectorAll('#option-c');
-const optionDinputs = document.body.querySelectorAll('#option-d');
+const optionAinputs = document.body.querySelectorAll("#option-a");
+const optionBinputs = document.body.querySelectorAll("#option-b");
+const optionCinputs = document.body.querySelectorAll("#option-c");
+const optionDinputs = document.body.querySelectorAll("#option-d");
 
 //Select quiz score
-const quizScore = document.body.querySelector('.quiz-score');
+const quizScore = document.body.querySelector(".quiz-score");
 
 //Select quiz submit button
-const quizSubmitButton = document.body.querySelector('.quiz-submit-button');
+const quizSubmitButton = document.body.querySelector(".quiz-submit-button");
 
 //Select loading spinner
 const loader = document.body.querySelector(".loader");
@@ -155,193 +154,184 @@ const loader = document.body.querySelector(".loader");
 //Select error message
 const errorMessage = document.body.querySelector(".error-msg");
 
-
-
-
-
 //API function
 async function geminiAPI() {
+  //Display loading spinner
+  loader.style.display = "inline";
 
-    //Display loading spinner
-    loader.style.display = 'inline';
+  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+  const prompt =
+    "give a 10 question multiple choice quiz, with no code output questions, about " +
+    userTopic;
 
-    const prompt = "give a 10 question multiple choice quiz, with no code output questions, about " + userTopic;
+  const result = await model.generateContent(prompt);
+  const response = await result.response;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
+  const text = response.text();
 
-    const text = response.text();
+  //Parse the API results into seperate question arrays
+  const textArray = text.split("\n\n");
 
-    //Parse the API results into seperate question arrays
-    const textArray = text.split("\n\n");
+  //Parse each array within the outer array to get each part of each question into seperate elements
+  for (let i = 0; i < 11; i++) {
+    textArray[i] = textArray[i].split("\n");
+  }
 
-    //Parse each array within the outer array to get each part of each question into seperate elements
-    for (let i = 0; i < 11; i++) {
-        textArray[i] = textArray[i].split("\n");
+  //Parse the last element of the array (last element has all the answers as one element) into seperate elements and assign to array
+
+  if (typeof textArray[textArray.length - 1] === "object") {
+    geminiAPI();
+  } else {
+    const answerArray = textArray[textArray.length - 1].split("\n");
+
+    //Assign the question, options, and answer for each question into each question object in the questions array
+    for (let i = 0; i < 10; i++) {
+      questions[i].data.question = textArray[i + 1][0];
+      questions[i].data.option1 = textArray[i + 1][1];
+      questions[i].data.option2 = textArray[i + 1][2];
+      questions[i].data.option3 = textArray[i + 1][3];
+      questions[i].data.option4 = textArray[i + 1][4];
+      questions[i].data.answer = answerArray[i + 1];
     }
 
-    //Parse the last element of the array (last element has all the answers as one element) into seperate elements and assign to array
+    //Hide loading spinner
+    loader.style.display = "none";
 
-    if (typeof textArray[textArray.length - 1] === 'object') {
-        geminiAPI();
-    } else {
-        const answerArray = textArray[textArray.length - 1].split("\n");
-        
-        //Assign the question, options, and answer for each question into each question object in the questions array
-        for (let i = 0; i < 10; i++) {
-            questions[i].data.question = textArray[i + 1][0];
-            questions[i].data.option1 = textArray[i + 1][1];
-            questions[i].data.option2 = textArray[i + 1][2];
-            questions[i].data.option3 = textArray[i + 1][3];
-            questions[i].data.option4 = textArray[i + 1][4];
-            questions[i].data.answer = answerArray[i + 1];
-        }
+    //For each question header, set the text to the question from the questions object
+    let i = 0;
+    questionHeaders.forEach((questionHeader) => {
+      questionHeader.innerHTML = questions[i].data.question;
+      i++;
+    });
 
-        //Hide loading spinner
-        loader.style.display = 'none';
+    //For each option a, set the text to option 1 from the questions object
+    i = 0;
+    optionAinputs.forEach((optionAinput) => {
+      optionAinput.innerHTML = questions[i].data.option1;
+      i++;
+    });
 
-        //For each question header, set the text to the question from the questions object
-        let i = 0;
-        questionHeaders.forEach(questionHeader => {
-            questionHeader.innerHTML = questions[i].data.question;
-            i++;
-        });
+    //For each option b, set the text to option 2 from the questions object
+    i = 0;
+    optionBinputs.forEach((optionBinput) => {
+      optionBinput.innerHTML = questions[i].data.option2;
+      i++;
+    });
 
-        //For each option a, set the text to option 1 from the questions object
-        i = 0;
-        optionAinputs.forEach(optionAinput => {
-            optionAinput.innerHTML = questions[i].data.option1;
-            i++;
-        });
+    //For each option c, set the text to option 3 from the questions object
+    i = 0;
+    optionCinputs.forEach((optionCinput) => {
+      optionCinput.innerHTML = questions[i].data.option3;
+      i++;
+    });
 
-        //For each option b, set the text to option 2 from the questions object
-        i = 0;
-        optionBinputs.forEach(optionBinput => {
-            optionBinput.innerHTML = questions[i].data.option2;
-            i++;
-        });
+    //For each option d, set the text to option 4 from the questions object
+    i = 0;
+    optionDinputs.forEach((optionDinput) => {
+      optionDinput.innerHTML = questions[i].data.option4;
+      i++;
+    });
 
-        //For each option c, set the text to option 3 from the questions object
-        i = 0;
-        optionCinputs.forEach(optionCinput => {
-            optionCinput.innerHTML = questions[i].data.option3;
-            i++;
-        });
-
-        //For each option d, set the text to option 4 from the questions object
-        i = 0;
-        optionDinputs.forEach(optionDinput => {
-            optionDinput.innerHTML = questions[i].data.option4;
-            i++;
-        });
-
-        //Display quiz
-        quizSection.style.display = 'grid';
-        quizSubmitButton.style.display = 'inline';
-    }
-
+    //Display quiz
+    quizSection.style.display = "grid";
+    quizSubmitButton.style.display = "inline";
+  }
 }
 
 //When quiz submit button is clicked check answers and return results
 quizSubmitButton.addEventListener("click", () => {
+  //Select all labels
+  const labels = document.querySelectorAll("label");
 
-    //Select all labels
-    const labels = document.querySelectorAll('label');
+  //Select all radio buttons
+  const radioButtons = document.body.querySelectorAll(".option");
 
-    //Select all radio buttons
-    const radioButtons = document.body.querySelectorAll(".option");
+  //Reset variables
+  selectedButtons = [];
+  allButtons = [];
+  let userScore = 0;
 
-    //Reset variables
-    selectedButtons = [];
-    allButtons =[];
-    let userScore = 0;
-
-    //If the radio button is checked, add the label of that radio button to the selected buttons array
-    for (let i = 0; i < 40; i++) {
-        if (radioButtons[i].checked) {
-            selectedButtons.push(labels[i]);
-        }
-
-        //Add the label to the all buttons array
-        allButtons.push(labels[i]);
-
+  //If the radio button is checked, add the label of that radio button to the selected buttons array
+  for (let i = 0; i < 40; i++) {
+    if (radioButtons[i].checked) {
+      selectedButtons.push(labels[i]);
     }
 
-    //Compare the user answer and actual answers
-    for (let i = 0; i < 10; i++) {
-        //If selected answer is correct make the button green and increment user score
-        if (questions[i].data.answer.includes(userAnswers[i])) {
-            selectedButtons[i].style.backgroundColor = 'lightgreen';
-            userScore++;
-        } 
-        
-        //If selected answer is incorrect make the button red
-        else {
-            selectedButtons[i].style.backgroundColor = 'rgb(245, 69, 69)';
-        }
+    //Add the label to the all buttons array
+    allButtons.push(labels[i]);
+  }
+
+  //Compare the user answer and actual answers
+  for (let i = 0; i < 10; i++) {
+    //If selected answer is correct make the button green and increment user score
+    if (questions[i].data.answer.includes(userAnswers[i])) {
+      selectedButtons[i].style.backgroundColor = "lightgreen";
+      userScore++;
     }
 
-    //Make correct buttons green by going through each questions answer and by going thorugh the labels
-    // 4 at a time (for each question) setting the correct label in the array to green
-    // After its set to green go to the next 4 labels for the next 4 options in the next question
+    //If selected answer is incorrect make the button red
+    else {
+      selectedButtons[i].style.backgroundColor = "rgb(245, 69, 69)";
+    }
+  }
 
-    let j = 0;
+  //Make correct buttons green by going through each questions answer and by going thorugh the labels
+  // 4 at a time (for each question) setting the correct label in the array to green
+  // After its set to green go to the next 4 labels for the next 4 options in the next question
 
-    for (let i = 0; i < 10; i++) {
-        if (questions[i].data.answer.includes('a')) {
-            allButtons[j].style.backgroundColor = 'lightgreen';
-        }
+  let j = 0;
 
-        else if (questions[i].data.answer.includes('b')) {
-            allButtons[j + 1].style.backgroundColor = 'lightgreen';
-        }
-        
-        else if (questions[i].data.answer.includes('c')) {
-            allButtons[j + 2].style.backgroundColor = 'lightgreen';
-        }
-        
-        else if (questions[i].data.answer.includes('d')) {
-            allButtons[j + 3].style.backgroundColor = 'lightgreen';
-        }
+  for (let i = 0; i < 10; i++) {
+    if (questions[i].data.answer.includes("a")) {
+      allButtons[j].style.backgroundColor = "lightgreen";
+    } else if (questions[i].data.answer.includes("b")) {
+      allButtons[j + 1].style.backgroundColor = "lightgreen";
+    } else if (questions[i].data.answer.includes("c")) {
+      allButtons[j + 2].style.backgroundColor = "lightgreen";
+    } else if (questions[i].data.answer.includes("d")) {
+      allButtons[j + 3].style.backgroundColor = "lightgreen";
+    }
 
-        j+=4;
-     }
+    j += 4;
+  }
 
-    //Display user score
-    quizScore.innerHTML = 'Score: ' + userScore.toString() + '/10'; 
-    quizScore.style.display = 'inline'
+  //Display user score
+  quizScore.innerHTML = "Score: " + userScore.toString() + "/10";
+  quizScore.style.display = "inline";
 });
 
 //When generate quiz button is clicked, get the topic entered by the user and then call API
 generateQuizButton.addEventListener("click", () => {
+  //Get textbox value
+  userTopic = quizTopicTextBox.value;
 
-    //Get textbox value
-    userTopic = quizTopicTextBox.value;
+  //Uncheck all radio buttons
+  document
+    .querySelectorAll('input[type="radio"]')
+    .forEach((radio) => (radio.checked = false));
 
-    //Uncheck all radio buttons
-    document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+  //Reset all background colours of labels
+  document
+    .querySelectorAll("label")
+    .forEach((label) => (label.style.backgroundColor = ""));
 
-    //Reset all background colours of labels
-    document.querySelectorAll('label').forEach(label => label.style.backgroundColor = '');
-    
-    //If user topic is blank, display error message and dont call API
-    if (!userTopic) {
-        errorMessage.style.display = 'inline';
-    } 
-    
-    //If user topic is entered hide all quiz components and call API
-    else {
-        errorMessage.style.display = 'none';
-        quizSection.style.display = 'none';
-        quizSubmitButton.style.display = 'none';
-        quizScore.style.display = 'none';
-        geminiAPI();
-    } 
+  //If user topic is blank, display error message and dont call API
+  if (!userTopic) {
+    errorMessage.style.display = "inline";
+  }
+
+  //If user topic is entered hide all quiz components and call API
+  else {
+    errorMessage.style.display = "none";
+    quizSection.style.display = "none";
+    quizSubmitButton.style.display = "none";
+    quizScore.style.display = "none";
+    geminiAPI();
+  }
 });
 
 //Function to get the users input from the HTML file's radio buttons
-window.setUserAnswer =  function(questionNumber, choice) {
-    userAnswers[questionNumber] = choice;
-}
+window.setUserAnswer = function (questionNumber, choice) {
+  userAnswers[questionNumber] = choice;
+};
