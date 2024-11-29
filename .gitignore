@@ -129,9 +129,4 @@ dist
 .yarn/install-state.gz
 .pnp.*
 .DS_Store
-
-# Ignore sensitive config files
-config/credentials.json
-config/secretKeys.js
-
 .vscode/

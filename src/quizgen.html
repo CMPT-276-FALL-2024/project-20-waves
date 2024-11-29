@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Quiz Generation</title>
+  </head>
+  <body>
+    <header>
+      <a href="./index.html">
+        <div id="top-of-page"></div>
+        <h1>Study Buddy</h1>
+      </a>
+    </header>
+
+    <div class="options">
+      <div class="quiz-option">
+        <input
+          id="quiz-topic-textbox"
+          type="text"
+          placeholder="Type topic to create quiz about here"
+        />
+      </div>
+      <button class="generate-quiz-button">Generate Quiz</button>
+    </div>
+
+    <div class="error-msg-position">
+      <div class="error-msg">Error: Please enter a topic</div>
+    </div>
+
+    <section class="quiz-section">
+      <div class="quiz-score-position">
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="loader-position">
+        <div class="loader"></div>
+      </div>
+
+      <div class="quiz-position">
+        <div class="quiz">
+          <div class="quiz-question-card">
+            <div class="question"></div>
+
+            <div class="multiple-choice-options">
+              <input
+                type="radio"
+                class="option"
+                id="a1"
+                name="q1"
+                onclick="setUserAnswer(0, 'a')"
+              />
+              <label id="option-a" for="a1"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="b1"
+                name="q1"
+                onclick="setUserAnswer(0, 'b')"
+              />
+              <label id="option-b" for="b1"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="c1"
+                name="q1"
+                onclick="setUserAnswer(0, 'c')"
+              />
+              <label id="option-c" for="c1"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="d1"
+                name="q1"
+                onclick="setUserAnswer(0, 'd')"
+              />
+              <label id="option-d" for="d1"></label>
+            </div>
+          </div>
+
+          <div class="quiz-question-card">
+            <div class="question"></div>
+
+            <div class="multiple-choice-options">
+              <input
+                type="radio"
+                class="option"
+                id="a2"
+                name="q2"
+                onclick="setUserAnswer(1, 'a')"
+              />
+              <label id="option-a" for="a2"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="b2"
+                name="q2"
+                onclick="setUserAnswer(1, 'b')"
+              />
+              <label id="option-b" for="b2"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="c2"
+                name="q2"
+                onclick="setUserAnswer(1, 'c')"
+              />
+              <label id="option-c" for="c2"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="d2"
+                name="q2"
+                onclick="setUserAnswer(1, 'd')"
+              />
+              <label id="option-d" for="d2"></label>
+            </div>
+          </div>
+
+          <div class="quiz-question-card">
+            <div class="question"></div>
+
+            <div class="multiple-choice-options">
+              <input
+                type="radio"
+                class="option"
+                id="a3"
+                name="q3"
+                onclick="setUserAnswer(2, 'a')"
+              />
+              <label id="option-a" for="a3"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="b3"
+                name="q3"
+                onclick="setUserAnswer(2, 'b')"
+              />
+              <label id="option-b" for="b3"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="c3"
+                name="q3"
+                onclick="setUserAnswer(2, 'c')"
+              />
+              <label id="option-c" for="c3"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="d3"
+                name="q3"
+                onclick="setUserAnswer(2, 'd')"
+              />
+              <label id="option-d" for="d3"></label>
+            </div>
+          </div>
+
+          <div class="quiz-question-card">
+            <div class="question"></div>
+
+            <div class="multiple-choice-options">
+              <input
+                type="radio"
+                class="option"
+                id="a4"
+                name="q4"
+                onclick="setUserAnswer(3, 'a')"
+              />
+              <label id="option-a" for="a4"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="b4"
+                name="q4"
+                onclick="setUserAnswer(3, 'b')"
+              />
+              <label id="option-b" for="b4"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="c4"
+                name="q4"
+                onclick="setUserAnswer(3, 'c')"
+              />
+              <label id="option-c" for="c4"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="d4"
+                name="q4"
+                onclick="setUserAnswer(3, 'd')"
+              />
+              <label id="option-d" for="d4"></label>
+            </div>
+          </div>
+
+          <div class="quiz-question-card">
+            <div class="question"></div>
+
+            <div class="multiple-choice-options">
+              <input
+                type="radio"
+                class="option"
+                id="a5"
+                name="q5"
+                onclick="setUserAnswer(4, 'a')"
+              />
+              <label id="option-a" for="a5"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="b5"
+                name="q5"
+                onclick="setUserAnswer(4, 'b')"
+              />
+              <label id="option-b" for="b5"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="c5"
+                name="q5"
+                onclick="setUserAnswer(4, 'c')"
+              />
+              <label id="option-c" for="c5"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="d5"
+                name="q5"
+                onclick="setUserAnswer(4, 'd')"
+              />
+              <label id="option-d" for="d5"></label>
+            </div>
+          </div>
+
+          <div class="quiz-question-card">
+            <div class="question"></div>
+
+            <div class="multiple-choice-options">
+              <input
+                type="radio"
+                class="option"
+                id="a6"
+                name="q6"
+                onclick="setUserAnswer(5, 'a')"
+              />
+              <label id="option-a" for="a6"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="b6"
+                name="q6"
+                onclick="setUserAnswer(5, 'b')"
+              />
+              <label id="option-b" for="b6"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="c6"
+                name="q6"
+                onclick="setUserAnswer(5, 'c')"
+              />
+              <label id="option-c" for="c6"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="d6"
+                name="q6"
+                onclick="setUserAnswer(5, 'd')"
+              />
+              <label id="option-d" for="d6"></label>
+            </div>
+          </div>
+
+          <div class="quiz-question-card">
+            <div class="question"></div>
+
+            <div class="multiple-choice-options">
+              <input
+                type="radio"
+                class="option"
+                id="a7"
+                name="q7"
+                onclick="setUserAnswer(6, 'a')"
+              />
+              <label id="option-a" for="a7"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="b7"
+                name="q7"
+                onclick="setUserAnswer(6, 'b')"
+              />
+              <label id="option-b" for="b7"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="c7"
+                name="q7"
+                onclick="setUserAnswer(6, 'c')"
+              />
+              <label id="option-c" for="c7"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="d7"
+                name="q7"
+                onclick="setUserAnswer(6, 'd')"
+              />
+              <label id="option-d" for="d7"></label>
+            </div>
+          </div>
+
+          <div class="quiz-question-card">
+            <div class="question"></div>
+
+            <div class="multiple-choice-options">
+              <input
+                type="radio"
+                class="option"
+                id="a8"
+                name="q8"
+                onclick="setUserAnswer(7, 'a')"
+              />
+              <label id="option-a" for="a8"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="b8"
+                name="q8"
+                onclick="setUserAnswer(7, 'b')"
+              />
+              <label id="option-b" for="b8"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="c8"
+                name="q8"
+                onclick="setUserAnswer(7, 'c')"
+              />
+              <label id="option-c" for="c8"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="d8"
+                name="q8"
+                onclick="setUserAnswer(7, 'd')"
+              />
+              <label id="option-d" for="d8"></label>
+            </div>
+          </div>
+
+          <div class="quiz-question-card">
+            <div class="question"></div>
+
+            <div class="multiple-choice-options">
+              <input
+                type="radio"
+                class="option"
+                id="a9"
+                name="q9"
+                onclick="setUserAnswer(8, 'a')"
+              />
+              <label id="option-a" for="a9"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="b9"
+                name="q9"
+                onclick="setUserAnswer(8, 'b')"
+              />
+              <label id="option-b" for="b9"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="c9"
+                name="q9"
+                onclick="setUserAnswer(8, 'c')"
+              />
+              <label id="option-c" for="c9"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="d9"
+                name="q9"
+                onclick="setUserAnswer(8, 'd')"
+              />
+              <label id="option-d" for="d9"></label>
+            </div>
+          </div>
+
+          <div class="quiz-question-card">
+            <div class="question"></div>
+
+            <div class="multiple-choice-options">
+              <input
+                type="radio"
+                class="option"
+                id="a10"
+                name="q10"
+                onclick="setUserAnswer(9, 'a')"
+              />
+              <label id="option-a" for="a10"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="b10"
+                name="q10"
+                onclick="setUserAnswer(9, 'b')"
+              />
+              <label id="option-b" for="b10"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="c10"
+                name="q10"
+                onclick="setUserAnswer(9, 'c')"
+              />
+              <label id="option-c" for="c10"></label>
+
+              <input
+                type="radio"
+                class="option"
+                id="d10"
+                name="q10"
+                onclick="setUserAnswer(9, 'd')"
+              />
+              <label id="option-d" for="d10"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <a href="#top-of-page" class="submit-button-go-to-part">
+        <button class="quiz-submit-button">Submit</button>
+      </a>
+    </section>
+
+    <script type="module" src="quizscripts.js"></script>
+  </body>
+</html>
