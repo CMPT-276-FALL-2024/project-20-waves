@@ -304,19 +304,14 @@ test('Check if topic is being read and flash cards section is hidden when quiz t
     document.body.innerHTML = `
         <input id="quiz-topic-textbox" type="text" placeholder="Type topic to create quiz about here" value="topic">
         <button class="generate-quiz-button">Generate Quiz</button>
-        <section class="flashcard-section"></section>
     `
 
     const generateQuizButton = document.body.querySelector('.generate-quiz-button');
-    const flashCardsSection = document.body.querySelector('.flashcard-section');
     const quizTopicTextBox = document.body.querySelector("#quiz-topic-textbox");
 
 
     //When generate quiz button is clicked, get the topic entered by the user and then call API
     generateQuizButton.addEventListener("click", () => {
-
-        //Hide flash cards section
-        flashCardsSection.style.display = 'none';
 
         //Get textbox value
         userTopic = quizTopicTextBox.value;
@@ -325,7 +320,6 @@ test('Check if topic is being read and flash cards section is hidden when quiz t
 
     generateQuizButton.click();
 
-    expect(flashCardsSection.style.display).toBe('none');
     expect(userTopic).toBe('topic');
 });
 

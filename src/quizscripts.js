@@ -124,9 +124,9 @@ let allButtons =[];
 let userTopic;
 let userScore = 0;
 
-//Select quiz and flashcards sections
+//quiz section
 const quizSection = document.body.querySelector(".quiz");
-const flashCardsSection = document.body.querySelector(".flashcard-section");
+
 
 //Select all question headers
 const questionHeaders = document.body.querySelectorAll('.question');
@@ -155,11 +155,8 @@ const loader = document.body.querySelector(".loader");
 //Select error message
 const errorMessage = document.body.querySelector(".error-msg");
 
-//Select all radio buttons
-const radioButtons = document.body.querySelectorAll(".option");
 
-//Select all labels
-const labels = document.querySelectorAll('label');
+
 
 
 //API function
@@ -186,64 +183,75 @@ async function geminiAPI() {
     }
 
     //Parse the last element of the array (last element has all the answers as one element) into seperate elements and assign to array
-    const answerArray = textArray[textArray.length - 1].split("\n");
-    
-    //Assign the question, options, and answer for each question into each question object in the questions array
-    for (let i = 0; i < 10; i++) {
-        questions[i].data.question = textArray[i + 1][0];
-        questions[i].data.option1 = textArray[i + 1][1];
-        questions[i].data.option2 = textArray[i + 1][2];
-        questions[i].data.option3 = textArray[i + 1][3];
-        questions[i].data.option4 = textArray[i + 1][4];
-        questions[i].data.answer = answerArray[i + 1];
+
+    if (typeof textArray[textArray.length - 1] === 'object') {
+        geminiAPI();
+    } else {
+        const answerArray = textArray[textArray.length - 1].split("\n");
+        
+        //Assign the question, options, and answer for each question into each question object in the questions array
+        for (let i = 0; i < 10; i++) {
+            questions[i].data.question = textArray[i + 1][0];
+            questions[i].data.option1 = textArray[i + 1][1];
+            questions[i].data.option2 = textArray[i + 1][2];
+            questions[i].data.option3 = textArray[i + 1][3];
+            questions[i].data.option4 = textArray[i + 1][4];
+            questions[i].data.answer = answerArray[i + 1];
+        }
+
+        //Hide loading spinner
+        loader.style.display = 'none';
+
+        //For each question header, set the text to the question from the questions object
+        let i = 0;
+        questionHeaders.forEach(questionHeader => {
+            questionHeader.innerHTML = questions[i].data.question;
+            i++;
+        });
+
+        //For each option a, set the text to option 1 from the questions object
+        i = 0;
+        optionAinputs.forEach(optionAinput => {
+            optionAinput.innerHTML = questions[i].data.option1;
+            i++;
+        });
+
+        //For each option b, set the text to option 2 from the questions object
+        i = 0;
+        optionBinputs.forEach(optionBinput => {
+            optionBinput.innerHTML = questions[i].data.option2;
+            i++;
+        });
+
+        //For each option c, set the text to option 3 from the questions object
+        i = 0;
+        optionCinputs.forEach(optionCinput => {
+            optionCinput.innerHTML = questions[i].data.option3;
+            i++;
+        });
+
+        //For each option d, set the text to option 4 from the questions object
+        i = 0;
+        optionDinputs.forEach(optionDinput => {
+            optionDinput.innerHTML = questions[i].data.option4;
+            i++;
+        });
+
+        //Display quiz
+        quizSection.style.display = 'grid';
+        quizSubmitButton.style.display = 'inline';
     }
-
-    //Hide loading spinner
-    loader.style.display = 'none';
-
-    //For each question header, set the text to the question from the questions object
-    let i = 0;
-    questionHeaders.forEach(questionHeader => {
-        questionHeader.innerHTML = questions[i].data.question;
-        i++;
-    });
-
-    //For each option a, set the text to option 1 from the questions object
-    i = 0;
-    optionAinputs.forEach(optionAinput => {
-        optionAinput.innerHTML = questions[i].data.option1;
-        i++;
-    });
-
-    //For each option b, set the text to option 2 from the questions object
-    i = 0;
-    optionBinputs.forEach(optionBinput => {
-        optionBinput.innerHTML = questions[i].data.option2;
-        i++;
-    });
-
-    //For each option c, set the text to option 3 from the questions object
-    i = 0;
-    optionCinputs.forEach(optionCinput => {
-        optionCinput.innerHTML = questions[i].data.option3;
-        i++;
-    });
-
-    //For each option d, set the text to option 4 from the questions object
-    i = 0;
-    optionDinputs.forEach(optionDinput => {
-        optionDinput.innerHTML = questions[i].data.option4;
-        i++;
-    });
-
-    //Display quiz
-    quizSection.style.display = 'grid';
-    quizSubmitButton.style.display = 'inline';
 
 }
 
 //When quiz submit button is clicked check answers and return results
 quizSubmitButton.addEventListener("click", () => {
+
+    //Select all labels
+    const labels = document.querySelectorAll('label');
+
+    //Select all radio buttons
+    const radioButtons = document.body.querySelectorAll(".option");
 
     //Reset variables
     selectedButtons = [];
@@ -258,6 +266,7 @@ quizSubmitButton.addEventListener("click", () => {
 
         //Add the label to the all buttons array
         allButtons.push(labels[i]);
+
     }
 
     //Compare the user answer and actual answers
@@ -270,7 +279,7 @@ quizSubmitButton.addEventListener("click", () => {
         
         //If selected answer is incorrect make the button red
         else {
-            selectedButtons[i].style.backgroundColor = 'red';
+            selectedButtons[i].style.backgroundColor = 'rgb(245, 69, 69)';
         }
     }
 
@@ -307,9 +316,6 @@ quizSubmitButton.addEventListener("click", () => {
 
 //When generate quiz button is clicked, get the topic entered by the user and then call API
 generateQuizButton.addEventListener("click", () => {
-
-    //Hide flash cards section
-    flashCardsSection.style.display = 'none';
 
     //Get textbox value
     userTopic = quizTopicTextBox.value;
