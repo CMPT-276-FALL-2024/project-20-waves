@@ -1,2 +1,1 @@
-
 // Initialize environment variables
