@@ -45,17 +45,6 @@ enterbutton.addEventListener("click", () => {
             input.value = "";
         }
  })
- MathJax.typesetPromise().then(() => {
-    // modify the DOM here
-    MathJax.typesetPromise();
-  }).catch((err) => console.log(err.message));
-let promise = Promise.resolve();  // Used to hold chain of typesetting calls
-
-function typeset(code) {
-  promise = promise.then(() => MathJax.typesetPromise(code()))
-                   .catch((err) => console.log('Typeset failed: ' + err.message));
-  return promise;
-}
 
 //gemini prompt fucntion
 async function geminiAPI() {
@@ -68,9 +57,5 @@ async function geminiAPI() {
     const response = await result.response;
 
     const text = response.text();
-    typeset(() => {
-        responsebox.innerHTML = text;
-        return [text];
-      });
-    
+    responsebox.innerHTML = text;
 }
