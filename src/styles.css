@@ -108,6 +108,7 @@ a:visited {
     right: 0;
     bottom: 50%;
 }
+/* chatbot elements start */
 .chatbot{
     background-color: rgb(89, 89, 95);
     width: 25%;
@@ -115,7 +116,29 @@ a:visited {
     position:absolute;
     right: 0;
     bottom: 0;
+    justify-content: center;
+    text-align: center;
+    margin:auto;
 }
+.chatbot-input{
+    background-color: rgb(89, 89, 95);
+    width: 100%;
+    border: 2px solid black;
+    padding: 5px;
+    justify-content: center;
+    position:absolute;
+    bottom:0;
+    left:auto;
+    text-align: center;
+}
+.response-box{
+    background-color: aliceblue;
+    color: black;
+    width: 90%;
+    height: 30%;
+    margin:auto;
+}
+/* chatbot elements end */
 .gif{
     background-color: rgb(89, 89, 95);
     width: 20%;
