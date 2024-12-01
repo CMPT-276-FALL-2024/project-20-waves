@@ -59,7 +59,7 @@ a:visited {
   top: 20%;
   left: 0%;
   border-radius: 30px;
-  color: white;
+  color: #E6E6E6;
 }
 .todo-list > h1 {
   text-align: center;
@@ -78,7 +78,7 @@ a:visited {
   float:right;
 }
 .todo-remove-button {
-  background-color: brown;
+  background-color: rgb(163, 16, 16);
   color: rgb(0, 0, 0);
   width: 20px;
   height: 20px;
@@ -98,8 +98,8 @@ a:visited {
   text-align: center;
   position: relative;
   float: left;
-  background-color: #29353c;
-  color:white;
+  background-color: rgba(255, 255, 255, 0.9);
+  color:black;
   border-radius: 15px;
   font-size: 24px;
 }
@@ -112,8 +112,10 @@ a:visited {
   right: 0;
   bottom: 50%;
 }
+/*chatbot elements start*/
 .chatbot {
-  background-color: rgb(89, 89, 95);
+
+  background-color: #44576D;
   width: 40%;
   height: 40%;
   position:absolute;
@@ -121,14 +123,57 @@ a:visited {
   margin-inline: auto;
   left:0;
   right:0;
+  text-align: center;
+  font-size: 20px;
+  border-radius: 20px;
+  color:#E6E6E6;
 }
+.chatbot-input{
+  background-color: #29353C;
+  width: 90%;
+  position:absolute;
+  padding: 5px;
+  margin-inline: auto;
+  left:0;
+  right:0;
+  bottom:0;
+  text-align: center;
+  font-size:15px;
+  border-radius: 15px;
+  color:#E6E6E6;
+}
+.response-box{
+  background-color: #DFEBF6;
+  color: black;
+  width: 90%;
+  height: 35%;
+  margin:auto;
+  overflow-y: scroll;
+  border-radius: 15px;
+  font-size: 24px;
+  text-align: left;
+}
+.chatbot-input-box{
+  position: relative; 
+  border-radius: 15px;
+  font-size: 24px;
+}
+.chatbot-enter{
+  text-align: center;
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.9);
+  color:black;
+  border-radius: 15px;
+  font-size: 24px;
+}
+/*chatbot elements end*/
 .gif {
   background-color: rgb(89, 89, 95);
   width: 20%;
-  height: 20%;
+  height: 30%;
   position: absolute;
   right: 0;
-  bottom: 0;;
+  bottom: 0;
 }
 
 /*Styling for options*/
