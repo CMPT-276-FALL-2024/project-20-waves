@@ -28,11 +28,12 @@ input.addEventListener("keyup", ({ key }) => {
     if (!checkWhitespace(input.value)) {
       userInput = input.value;
       geminiAPI();
-
+      
       input.value = "";
     }
     else{
-      responsebox.innerHTML = "ERROR: please enter a message";
+      responsebox.innerHTML = "ERROR: Please enter a message";
+      responsebox.style.color = "#ff0033"
     }
   }
 });
@@ -46,6 +47,7 @@ enterbutton.addEventListener("click", () => {
   }
   else{
     responsebox.innerHTML = "ERROR: please enter a message";
+    responsebox.style.color = "#ff0033"
   }
 });
 
@@ -60,4 +62,5 @@ async function geminiAPI() {
 
   const text = response.text();
   responsebox.innerHTML = text;
+  responsebox.style.color = "#000000"
 }
