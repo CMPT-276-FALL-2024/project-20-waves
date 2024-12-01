@@ -1,25 +1,752 @@
-html {
-  scroll-behavior: smooth;
+/****************************************************
+                  Header Styling
+ ****************************************************/
+.header {
+  position: fixed;
+  height: 60px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  padding: 5px 10px;
+  z-index: 1000;
+  box-sizing: border-box;
 }
-
+.header-left,
+.header-right,
+.header-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.header-center {
+  text-align: center;
+  justify-content: center;
+  color: #44576d;
+}
+.header-left {
+  justify-content: flex-start;
+}
+.header-right {
+  justify-content: flex-end;
+  text-align: right;
+}
+/* Header Center Logo */
+.logo-link {
+  text-decoration: none; /* Remove underline */
+  background-color: transparent;
+}
+.logo {
+  color: #44576d; /* Starting color: muted navy */
+  font-size: 24px;
+  font-weight: bold;
+  transition: color 0.3s ease; /* Smooth color change */
+  background-color: transparent;
+}
+.logo:hover {
+  color: #002855; /* Hover color: deep navy */
+  background-color: transparent;
+  cursor: pointer; /* Indicate it's clickable */
+}
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  padding: 70px 0 0 0;
+  background-color: #e6e6e6; /* Light gray */
+  background-image: linear-gradient(135deg, #e6e6e6 50%, #dfebf6 100%);
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  height: calc(100vh - 70px);
 }
-
+/****************************************************
+                  Main Button Styling
+ ****************************************************/
+button {
+  background-color: rgba(255, 255, 255, 0.9); /* Frosted white */
+  color: #44576d; /* Navy text */
+  border: 2px solid #aac7d8; /* Light blue border */
+  border-radius: 6px; /* Rounded corners */
+  padding: 6px 12px;
+  font-size: 14px;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
 button:hover {
-  background-color: gray;
+  background-color: #aac7d8; /* Light blue hover */
+  color: white; /* Contrast white text */
 }
-
-/*Styling for home page*/
-header {
+button:focus {
+  outline: none; /* Remove default focus outline */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.75); /* Add custom focus glow */
+}
+/****************************************************************
+                  Google Button Styling
+  ****************************************************************/
+.google-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  background-color: white;
+  color: #757575;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.google-button:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.google-button img {
+  width: 14px;
+  height: 14px;
+  margin-right: 8px; /* Space between logo and text */
+}
+/****************************************************************
+                  Google Sign-In/Sign-Out Button Styling
+  ****************************************************************/
+.google-button.sign-in {
+  border: 1px solid #4285f4; /* Google's blue border */
+}
+.google-button.sign-out {
+  border: 1px solid #757575; /* Subtle gray border for contrast */
+  background-color: white; /* Keep the white background */
+  color: #757575; /* Use the same gray text color */
+}
+.google-button.sign-out:hover {
+  background-color: #f5f5f5; /* Slightly darker background on hover */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Consistent shadow effect */
+}
+.google-button.sign-out {
+  border: 1px solid #757575; /* Subtle gray border */
+}
+/****************************************************
+                  Notification Styling
+ ****************************************************/
+.notification-bell img {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+}
+.notification-bell {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+#notification-badge {
+  display: none;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  font-size: 12px;
+  border-radius: 50%;
+  padding: 4px 8px;
+  min-width: 12px;
+  text-align: center;
+  font-weight: bold;
+  line-height: 1;
+}
+.notification-dropdown {
+  display: none;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  width: 200px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+#notification-list {
+  list-style: none;
+  margin: 0;
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.notification-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #333;
+}
+#clear-notifications {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: #f5f5f5;
+  border: none;
+  border-top: 1px solid #ddd;
+  cursor: pointer;
   text-align: center;
 }
+#clear-notifications:hover {
+  background-color: #eaeaea;
+}
+/****************************************************
+                  Calendar Styling
+ ****************************************************/
+.moving-cursor {
+  cursor: move; /* Show "move" icon when dragging */
+}
+.calendar-grid {
+  cursor: move; /* Default cursor for the grid */
+}
 
+#calendar-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+#calendar {
+  background-color: rgba(255, 255, 255, 0.85); /* Frosted glass effect */
+  backdrop-filter: blur(10px);
+  border: 1px solid #aac7d8;
+  border-radius: 15px;
+  width: 100%;
+  max-height: 600px;
+  margin: 0;
+  box-sizing: border-box; /* NEW */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Light, modern shadow */
+}
+/****************************************************
+                  Calendar Toolbar Styling
+ ****************************************************/
+.fc-toolbar {
+  background-color: #44576d; /* Navy background */
+  color: white; /* White text */
+  border-radius: 15px 15px 0 0;
+  padding: 10px;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box; /* NEW */
+}
+.fc-toolbar-center {
+  position: absolute; /* Remove it from the flow */
+  left: 50%; /* Start from the horizontal center */
+  transform: translateX(-50%); /* Shift back by half its width */
+  text-align: center; /* Ensure the title text remains centered */
+  width: max-content; /* Fit the content precisely */
+}
+.fc-toolbar-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+}
+.fr-toolbar-left,
+.fr-toolbar-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+/****************************************************
+                  Calendar Day/Header Styling
+ ****************************************************/
+.fc-daygrid-day {
+  border: 1px dotted #e6e6e6; /* Subtle dotted grid lines */
+  background-color: transparent; /* Keep base transparent */
+}
+.fc-daygrid-day-header {
+  background-color: rgba(255, 255, 255, 0.8); /* Frosted white */
+  border-top: 1px solid #aac7d8;
+  border-bottom: 1px solid #aac7d8;
+  border-radius: 10px 10px 0 0;
+  padding: 10px 0;
+}
+.fc-daygrid-day:hover {
+  background-color: rgba(170, 199, 216, 0.15); /* Light blue on hover */
+}
+.fc-daygrid-day-number {
+  color: #29353c;
+  font-size: 18px;
+  font-weight: bold; /* Bold text for emphasis */
+}
+.fc-daygrid-day.fc-day-sat,
+.fc-daygrid-day.fc-day-sun {
+  background-color: rgba(170, 199, 216, 0.2); /* Slightly shaded weekends */
+}
+.fc-day-today {
+  background-color: rgba(
+    170,
+    199,
+    216,
+    0.6
+  ) !important; /* Light blue background */
+  padding: 5px;
+}
+.fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+  font-size: 18px; /* Slightly larger for emphasis */
+  color: #44576d; /* Navy text */
+}
+/****************************************************
+                  Calendar Toolbar Button Styling
+ ****************************************************/
+.fc-toolbar .fc-button {
+  background-color: rgba(255, 255, 255, 0.9); /* Frosted white */
+  color: #44576d; /* Navy text */
+  border: 2px solid #aac7d8; /* Light blue border */
+  border-radius: 6px; /* Rounded corners */
+  padding: 6px 12px;
+  font-size: 14px;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+.fc-toolbar .fc-button:hover {
+  background-color: #aac7d8; /* Light blue hover */
+  color: white; /* Contrast white text */
+}
+.fc-toolbar .fc-button-active {
+  background-color: #44576d; /* Navy active state */
+  color: white;
+  border-color: #29353c; /* Darker navy for active */
+}
+.fc-view {
+  font-size: 1.25em;
+}
+.fc-prev-button,
+.fc-next-button {
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+}
+/****************************************************
+                  Event Styling
+ ****************************************************/
+.fc-event {
+  background-color: #44576d;
+  color: white; /* White text */
+  border-color: #44576d;
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow */
+  transition: transform 0.2 ease, box-shadow 0.2 ease;
+}
+.fc-event-dot {
+  display: none; /* Hide the default dot */
+}
+.fc-event:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+  color: #44576d;
+  background-color: #e6e6e6;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+}
+.fc-event .fc-event-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/****************************************************
+                  Event Sidebar Styling
+ ****************************************************/
+.event-sidebar {
+  display: none; /* Start hidden */
+  background-color: rgba(255, 255, 255, 0.9); /* Frosted white */
+  backdrop-filter: blur(10px);
+  border: 1px solid #aac7d8; /* Light blue border */
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Softer shadow */
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  width: 250px;
+  height: auto;
+  padding: 10px;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+}
+.event-sidebar.open {
+  left: 0;
+}
+.event-sidebar h2 {
+  color: #44576d; /* Navy */
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #aac7d8;
+}
+.event-sidebar button {
+  background-color: #44576d; /* Light blue */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 1em;
+  margin-top: 10px;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+.event-sidebar button:hover {
+  background-color: #aac7d8; /* Navy */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.event-sidebar.open {
+  display: block;
+}
+.drag-handle {
+  background: linear-gradient(90deg, #aac7d8, #44576d);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  font-weight: bold;
+  cursor: grab;
+  padding: 10px;
+  border-radius: 15px 15px 0 0;
+}
+.drag-text {
+  margin: 0;
+}
+.drag-handle:hover {
+  background: linear-gradient(90deg, #44576d, #637489);
+}
+.drag-handle .drag-text {
+  margin: 0;
+}
+.close-button {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s ease;
+}
+.close-button:hover {
+  color: #aac7d881;
+}
+.event-sidebar label {
+  color: #44576d; /* Navy */
+  font-weight: bold;
+}
+.event-sidebar input[type="text"],
+.event-sidebar input[type="date"],
+.event-sidebar input[type="time"] {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin: 5px 0;
+  font-size: 1em;
+  border: 1px solid #aac7d8; /* Light blue border */
+  border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.event-sidebar input:focus {
+  border-color: #44576d; /* Navy */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.time-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.time-input {
+  width: 40%; /* Each input container takes 40% of the width */
+}
+.time-input label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+  color: #333;
+}
+.time-input input[type="time"] {
+  width: 90%;
+  padding: 8px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+#notification-options h3 {
+  font-size: 1.2em;
+  color: #44576d; /* Navy */
+  margin-bottom: 10px;
+}
+#notification-options label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #44576d;
+}
+#notification-options select,
+#notification-options input[type="number"] {
+  width: calc(100% - 20px);
+  margin-top: 5px;
+  padding: 8px;
+  border: 1px solid #aac7d8; /* Light blue border */
+  border-radius: 5px;
+  font-size: 1em;
+}
+#notification-toggle {
+  margin-top: 20px;
+}
+#notification-options {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #aac7d8;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  display: none; /* Start hidden */
+}
+
+/****************************************************
+                  Event Tooltip Styling
+ ****************************************************/
+.event-tooltip {
+  position: absolute;
+  background-color: #333;
+  color: #fff;
+  padding: 8px;
+  border-radius: 5px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  font-size: 0.9em;
+  z-index: 1000;
+  pointer-events: none; /* Makes the tooltip ignore mouse events */
+}
+
+/****************************************************
+                  Modal Styling
+ ****************************************************/
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+}
+.modal-content p {
+  margin-bottom: 20px;
+  font-size: 1.2em;
+  color: #44576d;
+}
+.modal-content button {
+  background-color: #44576d; /* Navy */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px;
+}
+.modal-content button:hover {
+  background-color: #29353c; /* Darker shade */
+}
+
+/****************************************************
+            Floating Action Button Styling
+ ****************************************************/
+/* Floating Action Button (FAB) Styling */
+.fab {
+  position: fixed;
+  bottom: 20px; /* Distance from the bottom */
+  right: 20px; /* Distance from the left */
+  width: 60px;
+  height: 60px;
+  background-color: #44576d; /* Navy blue */
+  color: white;
+  border: none;
+  border-radius: 50%; /* Make it circular */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  font-size: 3rem; /* Larger font for the + symbol */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1000; /* Ensure it's above other elements */
+}
+
+/* Hover and Active States */
+.fab:hover {
+  transform: scale(1.1); /* Slightly enlarge on hover */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3); /* More prominent shadow */
+}
+.fab:active {
+  transform: scale(0.95); /* Slightly shrink on click */
+}
+
+/****************************************************
+                  Auth Controls Styling
+ ****************************************************/
+#auth-controls {
+  align-items: right;
+  text-align: right;
+}
+#user-name {
+  font-weight: bold;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 5px;
+  display: block;
+}
+
+/****************************************************
+                  Agenda Tabs Styling
+ ****************************************************/
+/* Tabs container */
+.tabs-container {
+  position: fixed;
+  top: 20%; /* Starting position */
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #44576d;
+  border-radius: 10px 0 0 10px;
+  z-index: 1000;
+  height: 25px;
+}
+
+.tabs-handle {
+  background-color: #44576d;
+  color: white;
+  text-align: center;
+  cursor: grab;
+  padding: 5px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.tabs-handle:hover {
+  background-color: #aac7d8;
+}
+
+.tabs-handle:active {
+  cursor: grabbing;
+}
+
+/* Individual tab */
+.tab {
+  writing-mode: vertical-rl; /* Rotate text vertically */
+  transform: rotate(180deg); /* Flip text direction */
+  padding: 10px;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  background-color: #44576d;
+  transition: transform 0.5s ease, background-color 0.2s ease-in-out;
+}
+.tab:hover {
+  background-color: #aac7d8;
+}
+
+/* Sliding panels */
+/* Tab Panel Styling */
+.tab-panel {
+  position: absolute;
+  width: 300px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  display: none; /* Hidden by default */
+  z-index: 1000;
+  right: -400px; /* Initially off-screen */
+  height: 60%;
+  overflow-y: auto;
+  z-index: 999;
+  opacity: 0; /* Initially hidden */
+  list-style: none;
+  color: #333;
+  font-size: 14px;
+  margin: 10px 0;
+  transition: all 0.3s ease-in-out;
+}
+.tab-panel li.empty-message {
+  color: #ff0000; /* Highlight missing calendar messages in red */
+  font-weight: bold;
+}
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #44576d;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  border-radius: 8px 8px 0 0;
+}
+.panel-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #aac7d8;
+  font-style: bold;
+}
+.close-panel-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+}
+.close-panel-btn:hover {
+  color: #333;
+}
+/* Active Panel */
+.tab-panel.active {
+  right: 50px; /* Slide into view */
+  opacity: 1;
+  display: block;
+  transform: translateY(0);
+}
+.tab-panel ul {
+  list-style: none;
+  max-height: 100px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 10px;
+}
+.tab-panel ul li {
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #555;
+}
+.tab-panel ul li:last-child {
+  border-bottom: none;
+}
+.tab-panel ul li:hover {
+  background-color: #f9f9f9;
+}
+.event-icon {
+  margin-right: 8px;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .tab-panel {
+    width: 90%; /* Adjust width for smaller screens */
+    left: 5%; /* Center horizontally */
+  }
+}
+
+/****************************************************
+                  Other Styling
+ ****************************************************/
 a {
   text-decoration: none;
 }
-
 .nav-button {
   background-color: #44576D;
   font-size: 25px;
@@ -30,18 +757,20 @@ a {
   border-radius: 10px;
   color:white;
 }
-
 a:hover {
   background-color: rgb(180, 180, 180);
 }
-
 a:visited {
   color: black;
   text-decoration: none;
 }
-
 #calendar-button {
   float: left;
+  width: 250px;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 #practice-button {
