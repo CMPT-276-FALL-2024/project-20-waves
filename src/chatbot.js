@@ -4,7 +4,7 @@ const genAI = new GoogleGenerativeAI("AIzaSyD59cvRLGTGbqq-oQRidggkpYzrNrw1K_I");
 //dinfing variables
 const input = document.querySelector("#chatbot-input");
 const responsebox = document.getElementById("response");
-const enterbutton = document.querySelector("#chatbot-enter");
+const enterbutton = document.querySelector(".chatbot-enter");
 let userInput;
 
 let userresponsearray = [];
@@ -28,8 +28,12 @@ input.addEventListener("keyup", ({ key }) => {
     if (!checkWhitespace(input.value)) {
       userInput = input.value;
       geminiAPI();
-
+      
       input.value = "";
+    }
+    else{
+      responsebox.innerHTML = "ERROR: Please enter a message";
+      responsebox.style.color = "#ff0033"
     }
   }
 });
@@ -40,6 +44,10 @@ enterbutton.addEventListener("click", () => {
     geminiAPI();
 
     input.value = "";
+  }
+  else{
+    responsebox.innerHTML = "ERROR: please enter a message";
+    responsebox.style.color = "#ff0033"
   }
 });
 
@@ -54,4 +62,5 @@ async function geminiAPI() {
 
   const text = response.text();
   responsebox.innerHTML = text;
+  responsebox.style.color = "#000000"
 }
