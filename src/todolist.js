@@ -66,6 +66,18 @@ function checkWhitespace(str) {
   return false;
 }
 
+input.addEventListener("keyup", ({ key }) => {
+  if (key === "Enter") {
+    if (!checkWhitespace(input.value)) {
+      if (items <= maxitems - 1) {
+        itemarray[items].innerHTML = input.value;
+        items++;
+      }
+      input.value = "";
+    }
+  }
+});
+
 donebutton.addEventListener("click", () => {
   if (!checkWhitespace(input.value)) {
     if (items <= maxitems - 1) {
@@ -74,7 +86,7 @@ donebutton.addEventListener("click", () => {
     }
     input.value = "";
   }
-  // input.value = "";
+  
 });
 
 for (let i = 0; i < maxitems; i++) {
