@@ -3,7 +3,7 @@
  ****************************************************/
 .header {
   position: fixed;
-  height: 60px;
+  height: 65px;
   top: 0;
   left: 0;
   width: 100%;
@@ -27,6 +27,13 @@
   text-align: center;
   justify-content: center;
   color: #44576d;
+  flex-direction: column;
+}
+.header-title {
+  font-size: 24px;
+  color: #44576d; /* Navy */
+  font-weight: bold;
+  margin-bottom: 5px; /* Space between title and menu */
 }
 .header-left {
   justify-content: flex-start;
@@ -53,12 +60,32 @@
   cursor: pointer; /* Indicate it's clickable */
 }
 body {
-  padding: 70px 0 0 0;
+  padding: 65px 0 0 0;
   background-color: #e6e6e6; /* Light gray */
   background-image: linear-gradient(135deg, #e6e6e6 50%, #dfebf6 100%);
   margin: 0;
   font-family: "Roboto", sans-serif;
-  height: calc(100vh - 70px);
+  height: calc(100vh - 75px);
+}
+.menu {
+  display: flex;
+  justify-content: center; /* Center the links */
+  gap: 20px; /* Space between links */
+}
+
+.menu a {
+  text-decoration: none;
+  color: #44576d; /* Navy */
+  font-size: 16px;
+  font-weight: bold;
+  padding: 5px 10px;
+  transition: color 0.3s, background-color 0.3s; /* Smooth hover effect */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.menu a:hover {
+  color: white;
+  background-color: #44576d; /* Navy hover background */
 }
 /****************************************************
                   Main Button Styling
