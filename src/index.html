@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
     <script src="script.js"></script>
+
     <title>Study Buddy</title>
   </head>
   <body style = "background-color: #E6E6E6;">
@@ -62,15 +63,29 @@
     </div>
     <!-- timer end -->
     <!-- chatbot -->
+
     <div class="chatbot">
-      
+
+      <h1>AI Help</h1>
+      <div class="response-box">
+        <p id="response"></p>
+      </div>
+      <div class="chatbot-input">
+        <h2>Type a question in here and an AI will answer</h2>
+        <input
+          class="chatbot-input-box"
+          id="chatbot-input"
+          placeholder="Enter Question Here"
+        />
+        <button class="chatbot-enter">Enter</button>
+      </div>
     </div>
     <!-- chatbot end -->
     <!-- gif -->
     <div class="gif">
-      
     </div>
     <!-- gif end -->
     <script src="todolist.js"></script>
+    <script type="module" src="chatbot.js"></script>
   </body>
 </html>
