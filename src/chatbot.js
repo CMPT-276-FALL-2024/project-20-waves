@@ -4,7 +4,7 @@ const genAI = new GoogleGenerativeAI("AIzaSyD59cvRLGTGbqq-oQRidggkpYzrNrw1K_I");
 //dinfing variables
 const input = document.querySelector("#chatbot-input");
 const responsebox = document.getElementById("response");
-const enterbutton = document.querySelector("#chatbot-enter");
+const enterbutton = document.querySelector(".chatbot-enter");
 let userInput;
 
 let userresponsearray = [];
@@ -31,6 +31,9 @@ input.addEventListener("keyup", ({ key }) => {
 
       input.value = "";
     }
+    else{
+      responsebox.innerHTML = "ERROR: please enter a message";
+    }
   }
 });
 
@@ -40,6 +43,9 @@ enterbutton.addEventListener("click", () => {
     geminiAPI();
 
     input.value = "";
+  }
+  else{
+    responsebox.innerHTML = "ERROR: please enter a message";
   }
 });
 
