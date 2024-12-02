@@ -312,8 +312,9 @@ quizSubmitButton.addEventListener("click", () => {
   //Add object to local storage and assign it an id of localstorage length so the id in unique
   localStorage.setItem(localStorage.length, JSON.stringify(quizHistoryItem));
 
-  //Display list
+});
 
+function displayQuizHistory() {
   //For each object in the local storage display the objects values
   for (let itemNumber = 0; itemNumber < localStorage.length; itemNumber++) {
 
@@ -332,8 +333,7 @@ quizSubmitButton.addEventListener("click", () => {
     //Add the row to the the table
     table.appendChild(row);
   }
-
-});
+}
 
 //When generate quiz button is clicked, get the topic entered by the user and then call API
 generateQuizButton.addEventListener("click", () => {
@@ -369,3 +369,5 @@ generateQuizButton.addEventListener("click", () => {
 window.setUserAnswer = function (questionNumber, choice) {
   userAnswers[questionNumber] = choice;
 };
+
+displayQuizHistory();
