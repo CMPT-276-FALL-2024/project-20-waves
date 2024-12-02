@@ -298,6 +298,17 @@ quizSubmitButton.addEventListener("click", () => {
   //Display user score
   quizScore.innerHTML = "Score: " + userScore.toString() + "/10";
   quizScore.style.display = "inline";
+
+  //Add quiz score + topic to quiz history list
+
+  const quizHistoryItem = {
+    topic: userTopic,
+    score: quizScore
+  };
+
+  //Add to local storage
+
+
 });
 
 //When generate quiz button is clicked, get the topic entered by the user and then call API
