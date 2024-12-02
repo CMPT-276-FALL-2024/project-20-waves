@@ -122,7 +122,6 @@ let allButtons = [];
 
 //Variables for user topic and user quiz score
 let userTopic;
-let userScore = 0;
 
 //quiz section
 const quizSection = document.body.querySelector(".quiz");
