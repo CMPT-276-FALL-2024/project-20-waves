@@ -153,6 +153,9 @@ const loader = document.body.querySelector(".loader");
 //Select error message
 const errorMessage = document.body.querySelector(".error-msg");
 
+//Select table
+const table = document.getElementById("quiz-history")
+
 //API function
 async function geminiAPI() {
   //Display loading spinner
@@ -306,11 +309,29 @@ quizSubmitButton.addEventListener("click", () => {
     score: userScore
   };
 
-  //Add object to local storage
-  localStorage.setItem("quizHistoryItem", JSON.stringify(quizHistoryItem));
+  //Add object to local storage and assign it an id of localstorage length so the id in unique
+  localStorage.setItem(localStorage.length, JSON.stringify(quizHistoryItem));
 
+  //Display list
 
+  //For each object in the local storage display the objects values
+  for (let itemNumber = 0; itemNumber < localStorage.length; itemNumber++) {
 
+    //Create a new row
+    var row = document.createElement('tr');
+
+    //Create a new column
+    var column = document.createElement('td');
+
+    //Set the column text to be topic - score for each object
+    column.textContent = (JSON.parse(localStorage[itemNumber])).topic + " - " + (JSON.parse(localStorage[itemNumber])).score;
+
+    //add the column to the row
+    row.appendChild(column);
+
+    //Add the row to the the table
+    table.appendChild(row);
+  }
 
 });
 
