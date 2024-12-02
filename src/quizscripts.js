@@ -299,14 +299,17 @@ quizSubmitButton.addEventListener("click", () => {
   quizScore.innerHTML = "Score: " + userScore.toString() + "/10";
   quizScore.style.display = "inline";
 
-  //Add quiz score + topic to quiz history list
 
+  //Create object to hold quiz topic and score
   const quizHistoryItem = {
     topic: userTopic,
-    score: quizScore
+    score: userScore
   };
 
-  //Add to local storage
+  //Add object to local storage
+  localStorage.setItem("quizHistoryItem", JSON.stringify(quizHistoryItem));
+
+
 
 
 });
