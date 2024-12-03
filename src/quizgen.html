@@ -7,12 +7,16 @@
     <title>Quiz Generation</title>
   </head>
   <body>
-    <header>
-      <a href="./index.html">
-        <div id="top-of-page"></div>
-        <h1>Study Buddy</h1>
-      </a>
+
+    <header class="header">
+      <div class="header-center">
+        <a href="./index.html" class="logo-link">
+          <h1 class="logo">Study Buddy</h1>
+        </a>
+      </div>
     </header>
+
+    <h1 class="page-header">AI Quiz Generation</h1>
 
     <div class="options">
       <div class="quiz-option">
@@ -465,6 +469,16 @@
       <a href="#top-of-page" class="submit-button-go-to-part">
         <button class="quiz-submit-button">Submit</button>
       </a>
+    </section>
+
+    <section>
+        <div class="quiz-history-position">
+          <table id="quiz-history">
+            
+              <th>Quiz History</th>
+          </table>
+          <button class="clear-quiz-history-button">Clear History</button>
+        </div>
     </section>
 
     <script type="module" src="quizscripts.js"></script>
