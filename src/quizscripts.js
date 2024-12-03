@@ -191,11 +191,13 @@ async function geminiAPI() {
 
   //Parse the last element of the array (last element has all the answers as one element) into seperate elements and assign to array
 
-  if (typeof textArray[textArray.length - 1] === "object") {
+  if ((typeof textArray[textArray.length - 1] === "object") || textArray.length > 12) {
     geminiAPI();
   } else {
 
     const answerArray = textArray[textArray.length - 1].split(".");
+
+    console.log(textArray)
 
     //If answer array contains 'answer key' string, remove it
     if (answerArray[0].includes("*")) {
@@ -392,9 +394,10 @@ function displayQuizHistory(itemNumber) {
 
 clearQuizHistoryButton.addEventListener("click", () => {
   localStorage.clear();
-  for (let i = 1; i < rows.length; i++) {
-    rows[i].remove();
-  }
+    while (table.rows.length > 1) {
+      table.deleteRow(1);
+    }
+  
 });
 
 //Display quiz history on page load
