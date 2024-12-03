@@ -1036,6 +1036,36 @@ html {
   justify-content: center;
 }
 
+.quiz-history-position {
+  position: absolute;
+  right: 75px;
+  top: 175px;
+  text-align: center;
+  background-color: rgb(238, 251, 255);
+  border-radius: 10px;
+  padding: 15px;
+}
+
+th {
+  font-size: 25px;
+}
+
+tr {
+  text-align: left;
+  font-size: 20px;
+}
+
+.clear-quiz-history-button {
+  margin-top: 15px;
+}
+
+
+
+
+
+
+
+
 /*For styling loading spinner*/
 .loader-position {
   display: flex;

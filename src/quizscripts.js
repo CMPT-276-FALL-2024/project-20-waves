@@ -392,11 +392,12 @@ function displayQuizHistory(itemNumber) {
   }
 }
 
+//Button to clear quiz topic and score history
 clearQuizHistoryButton.addEventListener("click", () => {
   localStorage.clear();
-    while (table.rows.length > 1) {
-      table.deleteRow(1);
-    }
+  while (table.rows.length > 1) {
+    table.deleteRow(1);
+  }
   
 });
 
