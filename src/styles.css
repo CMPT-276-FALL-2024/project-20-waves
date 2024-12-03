@@ -1048,7 +1048,7 @@ html {
 
 .quiz-history-position {
   position: absolute;
-  right: 75px;
+  right: 20px;
   top: 175px;
   text-align: center;
   background-color: rgb(238, 251, 255);
@@ -1068,13 +1068,6 @@ tr {
 .clear-quiz-history-button {
   margin-top: 15px;
 }
-
-
-
-
-
-
-
 
 /*For styling loading spinner*/
 .loader-position {
