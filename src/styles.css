@@ -60,6 +60,16 @@ body {
   font-family: "Roboto", sans-serif;
   height: calc(100vh - 70px);
 }
+
+.page-header {
+  text-align: center;
+  font-size: 40px;
+}
+
+#top-of-page {
+  margin-left: 50px;
+}
+
 /****************************************************
                   Main Button Styling
  ****************************************************/
