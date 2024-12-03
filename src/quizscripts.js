@@ -156,6 +156,12 @@ const errorMessage = document.body.querySelector(".error-msg");
 //Select table
 const table = document.getElementById("quiz-history")
 
+//Select table rows
+const rows = document.querySelectorAll("table tr")
+
+//Select clear quiz history button
+const clearQuizHistoryButton = document.body.querySelector(".clear-quiz-history-button");
+
 //API function
 async function geminiAPI() {
   //Display loading spinner
@@ -180,12 +186,21 @@ async function geminiAPI() {
     textArray[i] = textArray[i].split("\n");
   }
 
+  
+
+
   //Parse the last element of the array (last element has all the answers as one element) into seperate elements and assign to array
 
   if (typeof textArray[textArray.length - 1] === "object") {
     geminiAPI();
   } else {
-    const answerArray = textArray[textArray.length - 1].split("\n");
+
+    const answerArray = textArray[textArray.length - 1].split(".");
+
+    //If answer array contains 'answer key' string, remove it
+    if (answerArray[0].includes("*")) {
+      answerArray.splice(0, 1);
+    }
 
     //Assign the question, options, and answer for each question into each question object in the questions array
     for (let i = 0; i < 10; i++) {
@@ -194,7 +209,7 @@ async function geminiAPI() {
       questions[i].data.option2 = textArray[i + 1][2];
       questions[i].data.option3 = textArray[i + 1][3];
       questions[i].data.option4 = textArray[i + 1][4];
-      questions[i].data.answer = answerArray[i + 1];
+      questions[i].data.answer = answerArray[i];
     }
 
     //Hide loading spinner
@@ -312,28 +327,10 @@ quizSubmitButton.addEventListener("click", () => {
   //Add object to local storage and assign it an id of localstorage length so the id in unique
   localStorage.setItem(localStorage.length, JSON.stringify(quizHistoryItem));
 
+  //Add newest object to display in quiz history table
+  displayQuizHistory(localStorage.length - 1);
+
 });
-
-function displayQuizHistory() {
-  //For each object in the local storage display the objects values
-  for (let itemNumber = 0; itemNumber < localStorage.length; itemNumber++) {
-
-    //Create a new row
-    var row = document.createElement('tr');
-
-    //Create a new column
-    var column = document.createElement('td');
-
-    //Set the column text to be topic - score for each object
-    column.textContent = (JSON.parse(localStorage[itemNumber])).topic + " - " + (JSON.parse(localStorage[itemNumber])).score;
-
-    //add the column to the row
-    row.appendChild(column);
-
-    //Add the row to the the table
-    table.appendChild(row);
-  }
-}
 
 //When generate quiz button is clicked, get the topic entered by the user and then call API
 generateQuizButton.addEventListener("click", () => {
@@ -370,4 +367,36 @@ window.setUserAnswer = function (questionNumber, choice) {
   userAnswers[questionNumber] = choice;
 };
 
-displayQuizHistory();
+//Add all objects in localstorage to table to display starting from itemnumber
+function displayQuizHistory(itemNumber) {
+
+  //For each object in the local storage display the objects values
+  for (itemNumber; itemNumber < localStorage.length; itemNumber++) {
+
+    //Create a new row
+    var row = document.createElement('tr');
+
+    //Create a new column
+    var column = document.createElement('td');
+
+    //Set the column text to be topic - score for each object
+    column.textContent = (JSON.parse(localStorage[itemNumber])).topic + " - " + (JSON.parse(localStorage[itemNumber])).score + "/10";
+
+    //add the column to the row
+    row.appendChild(column);
+
+    //Add the row to the the table
+    table.appendChild(row);
+  }
+}
+
+clearQuizHistoryButton.addEventListener("click", () => {
+  localStorage.clear();
+  for (let i = 1; i < rows.length; i++) {
+    rows[i].remove();
+  }
+});
+
+//Display quiz history on page load
+displayQuizHistory(0);
+
