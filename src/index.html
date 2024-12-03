@@ -4,107 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
-    <script src="script.js"></script>
 
     <title>Study Buddy</title>
   </head>
   <body style = "background-color: #E6E6E6;">
-    <!-- Header -->
-<header class="header">
-  <div class="header-left">
-    <!-- Menu -->
-    <div class="menu">
-      <a href="index.html">Home</a>
-      <a href="calendar.html">Calendar</a>
-      <a href="quizgen.html">Quiz</a>
-    </div>
-  </div>
-
-  <!-- Center: Title -->
-  <div class="header-center">
-    <h1 class="header-title">Study Buddy</h1>
-  </div>
-
-  <!-- Right: Notification Bell and Google Sign-In/Out -->
-  <div class="header-right">
-    <!-- Notification Bell -->
-    <div id="notification-container" style="position: relative; margin-right: 15px">
-      <button id="notification-bell" class="notification-bell">
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/1827/1827392.png"
-          alt="Bell Icon"
-        />
-        <span
-          id="notification-badge"
-          class="notification-badge"
-          style="display: none"
-          >0</span>
-      </button>
-      <div
-        id="notification-dropdown"
-        class="notification-dropdown"
-        style="display: none"
-      >
-        <ul id="notification-list" class="notification-list"></ul>
-        <button id="clear-notifications" class="clear-notifications">
-          Clear All
-        </button>
-      </div>
-    </div>
-
-    <!-- Google Sign-In/Out -->
-    <div id="auth-controls" style="text-align: right">
-      <!-- Sign In Button -->
-      <button
-        id="sign-in-button"
-        class="google-button sign-in"
-        onclick="handleSignInClick()"
-        style="
-          display: block;
-          padding: 8px 16px;
-          font-size: 14px;
-          border-radius: 6px;
-        "
-      >
-        <img
-          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-          alt="Google Logo"
-          style="vertical-align: middle; margin-right: 8px"
-        />
-        Sign in with Google
-      </button>
-
-      <!-- User Name -->
-      <span
-        id="user-name"
-        style="
-          display: none;
-          font-weight: bold;
-          font-size: 14px;
-          color: #333;
-          margin-bottom: 5px;
-          display: block;
-        "
-      >
-      </span>
-
-      <!-- Sign Out Button -->
-      <button
-        id="sign-out-button"
-        class="google-button sign-out"
-        onclick="handleSignOutClick()"
-        style="
-          display: none;
-          padding: 8px 16px;
-          font-size: 14px;
-          border-radius: 6px;
-        "
-      >
-        Sign Out
-      </button>
-    </div>
-  </div>
-</header>
+   
+    <!-- Website Shared Content -->
+    <div id="shared-content"></div>
 
     
 
@@ -161,6 +67,42 @@
       </div>
     </div>
     <!-- chatbot end -->
+ 
+
+  
+        <script type="module" src="./User.js"></script>
+        <script>
+          // Load the shared header and modal content
+          document.addEventListener("DOMContentLoaded", () => {
+            fetch("application.html")
+              .then(response => response.text())
+              .then(html => {
+                document.getElementById("shared-content").innerHTML = html;
+              })
+              .catch(err => console.error("Failed to load shared content:", err));
+          });
+        </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+          // Initialize GAPI and GIS clients without fetching user data
+          User.initializeClients()
+              .then(() => {
+                  console.log("Clients initialized on page load, ready for user interaction.");
+              })
+              .catch((error) => {
+                  console.error("Error initializing clients:", error);
+              });
+          // Attaching event listeners for buttons
+          const signInButton = document.getElementById("sign-in-button");
+          if (signInButton) {
+              signInButton.addEventListener("click", () => {
+                  User.handleSignInClick();
+              });
+          }
+      });
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>    
     <script src="todolist.js"></script>
     <script type="module" src="chatbot.js"></script>
   </body>
