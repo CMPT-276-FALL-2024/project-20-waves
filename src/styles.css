@@ -1112,6 +1112,10 @@ tr {
   display: none;
 }
 
+#question-not-answered {
+  display: none;
+}
+
 .error-msg-position {
   display: flex;
   justify-content: center;
