@@ -12,7 +12,8 @@
     "start": "node src/index.js",
     "format": "prettier --write .",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
-    "lint:fix": "eslint . --fix "
+    "lint:fix": "eslint . --fix ",
+    "build": "cp -r src/ dist/"
   },
   "jest": {
     "testEnvironment": "jest-environment-jsdom"
