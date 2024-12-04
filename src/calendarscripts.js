@@ -1,454 +1,25 @@
-////////
-// NOTE: this requires API KEY and CLIENT ID to be added below
-////////
-const YOUR_API_KEY = "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M";
-const YOUR_CLIENT_ID =
-  "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com";
+//////////////////////////////////////////////////////////////////////////////
+//                            Google Calendar API                           //
+//////////////////////////////////////////////////////////////////////////////
+//   Manages calendar data and interactions with the Google Calendar API    //
+//////////////////////////////////////////////////////////////////////////////
+import User from './User.js';
 
-////////
-// Global Variables
-////////
-
-// Calendar variables
-let calendar;
-let selectedEvent = null;
-let calendarData = {
-  lectures: [],
-  tests: [],
-};
-
-// API variables
-let tokenClient;
-let accessToken;
-let gapiInited = false;
-let isClientInitialized = false;
-
-// User variables
-let isUserSignedIn = false;
-
-// Polling variables
-let pollingIntervalId = null;
-const POLLING_INTERVAL = 60000; // 1 minute
-
-////////
-// API
-////////
-// Sequentially initialize the GAPI and GIS clients
-// This function is called on page load
-async function initializeClients() {
-  try {
-    await initializeGapiClient();
-    console.log("GAPI client initialized successfully");
-    await initializeGISClient();
-    console.log("GIS client initialized successfully");
-  } catch (error) {
-    console.error("Error initializing clients:", error);
-  }
-}
-function initializeGapiClient() {
-  console.log("Initializing GAPI client");
-  return new Promise((resolve, reject) => {
-    gapi.load("client", async () => {
-      try {
-        await gapi.client.init({
-          apiKey: YOUR_API_KEY, // USER: Replace with your API key
-          discoveryDocs: [
-            "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
-          ],
-        });
-        gapiInited = true;
-        console.log("GAPI client initialized");
-        resolve();
-      } catch (error) {
-        console.error("Error initializing GAPI client:", error);
-        reject(error);
-      }
-    });
+if (window.location.pathname.includes("calendar.html")) {
+  document.addEventListener("DOMContentLoaded", () => {
+      initializeCalendar();
   });
 }
-function initializeGISClient() {
-  return new Promise((resolve, reject) => {
-    try {
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: YOUR_CLIENT_ID, // USER: Replace with your client ID
-        scope:
-          "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile",
-        callback: (response) => {
-          if (response.error || !response.access_token) {
-            console.error(
-              "Error during token request or access token is missing:",
-              response
-            );
-            isUserSignedIn = false;
-            updateAuthButtons();
-            openValidationModal(
-              "Failed to complete sign-in. Please try again."
-            );
-            return;
-          }
-          accessToken = response.access_token;
-          console.log(
-            "Access token received (initializeGISClient()):",
-            accessToken
-          );
-          isClientInitialized = true;
-          isUserSignedIn = true;
-          // Fetch user data and calendars
-          fetchGoogleCalendarEvents(accessToken, gapi, calendar);
-          updateAuthButtons();
-          fetchUserName();
-          fetchUserCalendars();
-        },
-      });
-    } catch (error) {
-      console.error("Error initializing GIS client:", error);
-      reject(error);
-    }
-  });
-}
-// Once user is signed in, fetch the user's name for the top right corner
-async function fetchUserName() {
-  console.log("Fetching user name...");
-  try {
-    const response = await gapi.client.request({
-      path: "https://www.googleapis.com/oauth2/v1/userinfo",
-    });
-    const userInfo = response.result;
-    console.log("User info fetched:", userInfo);
-    const userName = userInfo.name || "User"; // Fallback to 'User' if name is unavailable
 
-    // Update UI
-    const userNameElement = document.getElementById("user-name");
-    if (userNameElement) {
-      userNameElement.textContent = `Welcome, ${userName}`;
-      userNameElement.style.display = "inline"; // Ensure it's visible
-    }
-  } catch (error) {
-    console.error("Failed to fetch user name:", error);
-  }
-}
 
-////////
-// Sign In / Out
-////////
-// Update the sign-in and sign-out buttons
-function updateAuthButtons() {
-  const signInButton = document.getElementById("sign-in-button");
-  const signOutButton = document.getElementById("sign-out-button");
-  const userNameElement = document.getElementById("user-name");
-
-  if (isUserSignedIn) {
-    signInButton.style.display = "none";
-    signOutButton.style.display = "block";
-    if (userNameElement) userNameElement.style.display = "inline";
-  } else {
-    signInButton.style.display = "block";
-    signOutButton.style.display = "none";
-    if (userNameElement) {
-      userNameElement.style.display = "none";
-      userNameElement.textContent = ""; // Clear the user name
-    }
-  }
-}
-// Sign-in and sign-out button click handlers
-function handleSignInClick() {
-  console.log("Sign-In button clicked");
-  if (!gapiInited) {
-    console.error("GAPI client not initialized!");
-    return;
-  }
-  console.log("Requesting access token...");
-  tokenClient.requestAccessToken({
-    prompt: "consent",
-    callback: (response) => {
-      console.log("Access token callback executed:", response);
-      if (response.error) {
-        console.error("Error during token request:", response.error);
-        openValidationModal("Sign-in failed. Please try again.");
-        return;
-      }
-      if (response.access_token) {
-        accessToken = response.access_token;
-        isUserSignedIn = true;
-        console.log("Access token received:", accessToken);
-      } else {
-        console.warn("Access token not received.");
-      }
-    },
-  });
-}
-// Sign out and clear the access token / user name
-function handleSignOutClick() {
-  accessToken = null; // Clear the access token
-  console.log("User signed out");
-  if (calendar) {
-    calendar.removeAllEvents();
-    console.log("All events removed from calendar");
-  }
-  isUserSignedIn = false;
-  updateAuthButtons();
-  stopPollingCalendarUpdates();
-  const modal = document.getElementById("sign-out-modal");
-  modal.style.display = "flex";
-}
-function closeSignOutModal() {
-  const modal = document.getElementById("sign-out-modal");
-  modal.style.display = "none";
-}
-
-////////
-// Fetch Google Calendar Events to import to FullCalendar
-////////
-// Get User's Calendars
-async function fetchUserCalendars() {
-  if (!accessToken) {
-    console.error("No access token available");
-    return [];
-  }
-  try {
-    const response = await gapi.client.calendar.calendarList.list();
-    const calendars = response.result.items;
-    // Log or process the calendars
-    console.log("User's calendars:", calendars);
-    // Return a simplified list for further use
-    return calendars.map((cal) => ({
-      id: cal.id,
-      name: cal.summary.toLowerCase(),
-      primary: cal.primary || false,
-    }));
-  } catch (error) {
-    console.error("Error fetching user's calendars:", error);
-    return [];
-  }
-}
-// Fetch events for calendars
-function fetchGoogleCalendarEvents(accessToken, gapi, calendar) {
-  if (!accessToken) {
-    console.error("No access token available");
-    return;
-  }
-  if (!gapi) {
-    console.error("GAPI not initialized");
-    return;
-  }
-  // Fetch events for the primary calendar
-  gapi.client.calendar.events
-    .list({
-      calendarId: "primary",
-      timeMin: new Date().toISOString(),
-      showDeleted: false,
-      singleEvents: true,
-      orderBy: "startTime",
-    })
-    .then((response) => {
-      const googleEvents = response.result.items;
-      const fullCalendarEvents = googleEvents.map((event) => {
-        // Map event into FullCalendar format
-        const calendarEvent = {
-          title: event.summary,
-          start: event.start.dateTime || event.start.date,
-          end: event.end.dateTime || event.end.date,
-          id: event.id,
-          extendedProps: { reminders: event.reminders },
-        };
-        // Schedule notifications if reminders are present
-        const startDateTime = event.start.dateTime || event.start.date;
-        if (event.reminders && event.reminders.overrides) {
-          event.reminders.overrides.forEach((reminder) => {
-            if (startDateTime) {
-              scheduleNotification(
-                event.summary,
-                startDateTime,
-                reminder.minutes
-              );
-            } else {
-              console.warn(
-                `Unable to schedule notification for event "${event.summary}" - missing start time.`
-              );
-            }
-          });
-        } else {
-          console.log(`Event "${event.summary}" has no reminders.`);
-        }
-        return calendarEvent;
-      });
-      if (calendar) {
-        calendar.addEventSource(fullCalendarEvents);
-        startPollingCalendarUpdates();
-      }
-    })
-    .catch((error) => {
-      // console.log("Inside catch block - about to call console.error"); // Debugging log for unit test
-      console.error("Error fetching calendar events:", error);
-      // console.log("Inside catch block - console.error call completed"); // Debugging log for unit test
-    });
-}
-// Fetch events for secondary(+) calendars
-async function fetchSecondaryGoogleCalendarEvents(gapi, calendarId, listId) {
-  try {
-    const response = await gapi.client.calendar.events.list({
-      calendarId: calendarId,
-      timeMin: new Date().toISOString(),
-      showDeleted: false,
-      singleEvents: true,
-      orderBy: "startTime",
-    });
-
-    const events = response.result.items || [];
-    const listElement = document.getElementById(listId);
-
-    // Update the UI directly
-    if (listElement) {
-      listElement.innerHTML = "";
-
-      if (events.length === 0) {
-        const emptyMessage = document.createElement("li");
-        emptyMessage.textContent = "No events found.";
-        emptyMessage.classList.add("empty-message");
-        listElement.appendChild(emptyMessage);
-      } else {
-        events.forEach((event) => {
-          const listItem = document.createElement("li");
-          const startTime = new Date(event.start.dateTime || event.start.date);
-          listItem.textContent = `${
-            event.summary
-          } - ${startTime.toLocaleString()}`;
-          listElement.appendChild(listItem);
-        });
-      }
-    } else {
-      console.warn(`List element with id "${listId}" not found.`);
-    }
-
-    return events; // Return the events for further use if needed
-  } catch (error) {
-    console.error(`Error fetching events for calendar ${calendarId}:`, error);
-
-    const listElement = document.getElementById(listId);
-    if (listElement) {
-      listElement.innerHTML =
-        "<li>Error fetching events. Please try again.</li>";
-    }
-  }
-}
-////////
-// Polling Events for Fetching Updates
-////////
-function startPollingCalendarUpdates() {
-  if (pollingIntervalId) {
-    console.warn("Polling already in progress");
-    return; // prevents polling from starting multiple times
-  }
-  console.log("Starting polling for calendar events");
-  fetchCalendarUpdates(accessToken, gapi);
-  pollingIntervalId = setInterval(
-    fetchCalendarUpdates(accessToken, gapi),
-    POLLING_INTERVAL
-  );
-}
-function stopPollingCalendarUpdates() {
-  if (pollingIntervalId) {
-    console.log("Stopping polling for calendar events");
-    clearInterval(pollingIntervalId);
-    pollingIntervalId = null;
-  }
-}
-async function fetchCalendarUpdates(accessToken, gapi) {
-  console.log("Fetching calendar updates...");
-  if (!accessToken) {
-    console.error("No access token available");
-    return;
-  }
-  try {
-    const calendars = await fetchUserCalendars();
-    const lecturesCalendars = calendars.find(
-      (cal) => cal.name.toLowerCase() === "lectures"
-    );
-    if (lecturesCalendars) {
-      calendarData.lectures = await fetchSecondaryGoogleCalendarEvents(
-        gapi,
-        lecturesCalendars.id
-      );
-    } else {
-      console.warn("No lectures calendar found.");
-      calendarData.lectures = [];
-    }
-    const testsCalendars = calendars.find(
-      (cal) => cal.name.toLowerCase() === "tests"
-    );
-    if (testsCalendars) {
-      calendarData.tests = await fetchSecondaryGoogleCalendarEvents(
-        gapi,
-        testsCalendars.id
-      );
-    } else {
-      console.warn("No tests calendar found.");
-      calendarData.tests = [];
-    }
-    console.log("Calendar data updated:", calendarData);
-  } catch (error) {
-    console.error("Error fetching calendar updates:", error);
-  }
-  gapi.client.calendar.events
-    .list({
-      calendarId: "primary",
-      timeMin: new Date().toISOString(),
-      showDeleted: false,
-      singleEvents: true,
-      orderBy: "startTime",
-    })
-    .then((response) => {
-      const events = response.result.items;
-      console.log("Fetched calendar events:", events);
-      if (calendar) {
-        // Remove all existing events in the calendar
-        calendar.removeAllEvents();
-        // Map fetched events into FullCalendar format
-        const fullCalendarEvents = events.map((event) => {
-          const calendarEvent = {
-            title: event.summary,
-            start: event.start.dateTime || event.start.date,
-            end: event.end.dateTime || event.end.date,
-            id: event.id,
-            extendedProps: { reminders: event.reminders },
-          };
-
-          // Handle reminders and notifications
-          const startDateTime = event.start.dateTime || event.start.date;
-          if (event.reminders && event.reminders.overrides) {
-            event.reminders.overrides.forEach((reminder) => {
-              if (startDateTime) {
-                scheduleNotification(
-                  event.summary,
-                  startDateTime,
-                  reminder.minutes
-                );
-              } else {
-                console.warn(
-                  `Unable to schedule notification for event "${event.summary}" - missing start time.`
-                );
-              }
-            });
-          } else {
-            console.warn(`Event "${event.summary}" has no reminders.`);
-          }
-          return calendarEvent;
-        });
-        // Add the processed events to FullCalendar
-        calendar.addEventSource(fullCalendarEvents);
-      } else {
-        console.error("Calendar is not defined");
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching calendar events:", error);
-    });
-}
+let calendar; // FullCalendar instance
+let selectedEvent = null; // Currently selected event
 
 ////////
 // Initialize the FullCalendar instance
 // includes event handling functions
 ////////
+
 // Initialize FullCalendar with updated handlers
 function initializeCalendar() {
   console.log("Initializing calendar");
@@ -485,6 +56,80 @@ function initializeCalendar() {
   });
   calendar.render();
 }
+
+export async function populateCalendarEvents() {
+  if (!window.location.pathname.includes("calendar.html")) {
+      console.warn("populateCalendarEvents called outside calendar.html");
+      return;
+  }
+
+  if (!User.isLoggedIn) {
+      console.error("User is not logged in. Cannot populate calendar events.");
+      User.openValidationModal("Please sign in to view your calendar.");
+      return;
+  }
+
+  try {
+      console.log("Populating calendar events...");
+
+      // Ensure calendars and events are fetched
+      if (!User.calendars || User.calendars.length === 0) {
+          console.log("Fetching user calendars...");
+          await User.fetchUserCalendars();
+          console.log("Fetching events for all calendars...");
+          await User.fetchAllCalendarEvents();
+      }
+
+      // Clear existing events in FullCalendar
+      if (calendar) {
+          calendar.getEvents().forEach((event) => event.remove());
+      }
+
+      // Loop through each calendar and add events
+      User.calendars.forEach((calendarObj) => {
+          if (calendarObj.events && calendarObj.events.length > 0) {
+              calendarObj.events.forEach((event) => {
+                  const formattedEvent = {
+                      title: event.title,
+                      start: event.start,
+                      end: event.end || null,
+                  };
+                  calendar.addEvent(formattedEvent);
+                  console.log("Added event to calendar:", formattedEvent);
+              });
+          }
+      });
+
+      console.log("All calendar events populated.");
+  } catch (error) {
+      console.error("Error populating calendar events:", error);
+  }
+}
+
+
+
+/* async function fetchCalendarEvents(calendarId) {
+  try {
+    const response = await gapi.client.calendar.events.list({
+      calendarId: calendarId,
+      timeMin: new Date().toISOString(),
+      showDeleted: false,
+      singleEvents: true,
+      orderBy: "startTime",
+    });
+    
+    return response.result.items.map((event) => ({
+      title: event.summary,
+      start: event.start.dateTime || event.start.date,
+      end: event.end.dateTime || event.end.date,
+    }));
+  } catch (error) {
+    console.error("Error fetching calendar events:", error);
+    return [];
+  }
+} */
+
+
 // Floating Action Button (FAB) for creating a new event
 function setupFAB() {
   const createEventFab = document.getElementById("create-event-fab");
@@ -493,12 +138,9 @@ function setupFAB() {
   }
 }
 
-////////
-// Validate User Log In
-////////
 function requireSignIn(actionCallback) {
-  if (!isUserSignedIn) {
-    openValidationModal("Please sign in to create events.");
+  if (!User.getUserState()) {
+    User.openValidationModal("Please sign in to create events.");
     return false;
   }
   actionCallback();
@@ -508,6 +150,7 @@ function requireSignIn(actionCallback) {
 ////////
 // Event Tooltip
 ////////
+
 // Enable crosshair cursor on the calendar grid
 function setupMoveCursor() {
   const calendarGrid = document.querySelector(".calendar-grid");
@@ -553,6 +196,7 @@ function showEventTooltip(event) {
   document.addEventListener("mousemove", positionTooltip);
   document.body.appendChild(tooltip);
 }
+
 function hideEventTooltip() {
   // console.log("Hiding event tooltip");  // Debugging log
   const tooltip = document.getElementById("event-tooltip");
@@ -561,6 +205,7 @@ function hideEventTooltip() {
   }
   document.removeEventListener("mousemove", positionTooltip);
 }
+
 function positionTooltip(event) {
   const tooltip = document.getElementById("event-tooltip");
   if (!tooltip) return;
@@ -602,6 +247,7 @@ function positionTooltip(event) {
 ////////
 // Sidebar Functionality
 ////////
+
 // Opens the sidebar for creating a new event
 function openCreateEventSidebar(date) {
   clearEventForm();
@@ -611,6 +257,7 @@ function openCreateEventSidebar(date) {
   document.getElementById("delete-event").style.display = "none";
   openSidebar();
 }
+
 // Opens the sidebar for editing an event
 function openEditEventSidebar(event) {
   selectedEvent = event;
@@ -626,6 +273,7 @@ function openEditEventSidebar(event) {
   document.getElementById("delete-event").style.display = "block";
   openSidebar();
 }
+
 // click and drag event creation
 function openCreateEventSidebarForDateRange(start, end) {
   clearEventForm();
@@ -635,6 +283,7 @@ function openCreateEventSidebarForDateRange(start, end) {
   document.getElementById("delete-event").style.display = "none";
   openSidebar();
 }
+
 // set up sidebar listeners
 function setupCloseSidebarListeners() {
   const closeSidebarButton = document.getElementById("close-sidebar-button");
@@ -647,6 +296,7 @@ function setupCloseSidebarListeners() {
     }
   });
 }
+
 // draggable sidebar
 function enableSidebarDragging() {
   const sidebar = document.getElementById("event-sidebar");
@@ -688,6 +338,7 @@ function enableSidebarDragging() {
 ////////
 // Populate Sidebar Functionality
 ////////
+
 // populate notification fields
 function populateNotificationFields(reminder) {
   if (!reminder || typeof reminder.minutes !== "number") {
@@ -715,6 +366,7 @@ function populateNotificationFields(reminder) {
   const notificationOptions = document.getElementById("notification-options");
   if (notificationOptions) notificationOptions.style.display = "block";
 }
+
 // clear notification fields
 function clearNotificationFields() {
   const notificationTimeInput = document.getElementById("notification-time");
@@ -732,6 +384,7 @@ function clearNotificationFields() {
   const notificationOptions = document.getElementById("notification-options");
   if (notificationOptions) notificationOptions.style.display = "none";
 }
+
 // set up toggle notification
 function setupNotificationToggle() {
   const notificationToggle = document.getElementById("enable-notifications");
@@ -744,6 +397,7 @@ function setupNotificationToggle() {
     });
   }
 }
+
 // Populate sidebar with a single date and default time
 function populateSidebarWithDate(date) {
   if (!(date instanceof Date)) date = new Date(date); // Ensure it's a Date object
@@ -761,6 +415,7 @@ function populateSidebarWithDate(date) {
     .toTimeString()
     .slice(0, 5);
 }
+
 // Populate sidebar with a date range
 function populateSidebarForDateRange(start, end) {
   document.getElementById("event-start-date").value = start
@@ -776,6 +431,7 @@ function populateSidebarForDateRange(start, end) {
     .toTimeString()
     .slice(0, 5);
 }
+
 // Populate sidebar with existing event details
 function populateSidebarWithEventDetails(event) {
   const { title } = event._def; // Event title
@@ -808,12 +464,13 @@ function populateSidebarWithEventDetails(event) {
 ////////
 // Edit Event Button
 ////////
+
 function setupEditEventButton() {
   const editEventButton = document.getElementById("edit-event");
   if (editEventButton) {
     editEventButton.addEventListener("click", () => {
       if (!selectedEvent) {
-        openValidationModal("No event selected for editing.");
+        User.openValidationModal("No event selected for editing.");
         return;
       }
 
@@ -901,22 +558,6 @@ function setupEditEventButton() {
 }
 
 ////////
-// Modal Validation
-////////
-// Open the validation modal with a message
-function openValidationModal(message) {
-  const modal = document.getElementById("validation-modal");
-  const messageElement = document.getElementById("validation-message");
-  messageElement.textContent = message; // Set the error message
-  modal.style.display = "flex";
-}
-// Close the validation modal
-function closeValidationModal() {
-  const modal = document.getElementById("validation-modal");
-  modal.style.display = "none";
-}
-
-////////
 // Initialize Event FAB
 ////////
 function handleFABClick() {
@@ -930,18 +571,21 @@ function handleFABClick() {
 ////////
 // Create Event Functionality
 ////////
+
 function handleDateClick(info) {
   requireSignIn(() => {
     clearEventForm();
     openCreateEventSidebar(info.date);
   });
 }
+
 function handleDateSelect(info) {
   requireSignIn(() => {
     clearEventForm();
     openCreateEventSidebarForDateRange(info.start, info.end);
   });
 }
+
 function handleEventClick(info) {
   requireSignIn(() => {
     clearEventForm();
@@ -953,6 +597,7 @@ function handleEventClick(info) {
 ////////
 // Notifications
 ////////
+
 function initializeNotifications() {
   console.log("Initializing notifications");
   const notificationBell = document.getElementById("notification-bell");
@@ -1028,6 +673,7 @@ function initializeNotifications() {
     event.stopPropagation();
   });
 }
+
 function scheduleNotification(eventTitle, eventStartTime, minutesBefore) {
   const eventTime = new Date(eventStartTime).getTime();
   const notificationTime = eventTime - minutesBefore * 60 * 1000;
@@ -1055,12 +701,13 @@ function scheduleNotification(eventTitle, eventStartTime, minutesBefore) {
 ////////
 // Create Event Button
 ////////
+
 function setupEventCreationButton() {
   const createButton = document.getElementById("create-event");
   if (createButton) {
     createButton.addEventListener("click", () => {
-      if (!isUserSignedIn) {
-        openValidationModal("Please log in to create an event.");
+      if (!User.getUserState()) {
+        User.openValidationModal("Please log in to create an event.");
         return;
       }
       // Retrieve form values
@@ -1074,11 +721,11 @@ function setupEventCreationButton() {
       ).checked;
       // Validate required fields
       if (!title) {
-        openValidationModal("Please enter a title for the event.");
+        User.openValidationModal("Please enter a title for the event.");
         return;
       }
       if (!startDate || !startTime || !endDate || !endTime) {
-        openValidationModal(
+        User.openValidationModal(
           "Please enter valid start and end dates and times."
         );
         return;
@@ -1088,7 +735,7 @@ function setupEventCreationButton() {
       console.log("Start Date:", start);
       console.log("End Date:", end);
       if (new Date(start) >= new Date(end)) {
-        openValidationModal("End time must be after start time.");
+        User.openValidationModal("End time must be after start time.");
         return;
       }
       const useThisTimeZone = "PST"; // Set a default time zone or fetch dynamically
@@ -1138,12 +785,12 @@ function setupEventCreationButton() {
                 end: eventResource.end.dateTime,
               });
             }
-            fetchCalendarUpdates(accessToken, gapi); // Fetch updates after adding event
+            fetchCalendarUpdates(); // Fetch updates after adding event
             // openValidationModal("Event successfully added to Google Calendar.");
           })
           .catch((error) => {
             console.error("Error adding event to Google Calendar:", error);
-            openValidationModal(
+            User.openValidationModal(
               "Failed to add event to Google Calendar. Check console for details."
             );
           });
@@ -1174,7 +821,7 @@ function setupDeleteEventButton() {
 
   deleteEventButton.addEventListener("click", () => {
     if (!selectedEvent) {
-      openValidationModal("No event selected for deletion.");
+      User.openValidationModal("No event selected for deletion.");
       return;
     }
 
@@ -1194,13 +841,13 @@ function setupDeleteEventButton() {
           selectedEvent.remove(); // Remove from calendar UI
           selectedEvent = null; // Clear selectedEvent
           closeSidebar();
-          openValidationModal("Event successfully deleted.");
+          User.openValidationModal("Event successfully deleted.");
         } else {
-          openValidationModal("Event ID is missing; unable to delete.");
+          User.openValidationModal("Event ID is missing; unable to delete.");
         }
       } catch (error) {
         console.error("Error deleting event:", error);
-        openValidationModal(
+        User.openValidationModal(
           "Failed to delete event. Check the console for details."
         );
       }
@@ -1211,6 +858,7 @@ function setupDeleteEventButton() {
     };
   });
 }
+
 function clearNotification(eventTitle) {
   if (scheduledReminders.has(eventTitle)) {
     clearTimeout(scheduledReminders.get(eventTitle));
@@ -1222,6 +870,7 @@ function clearNotification(eventTitle) {
 ////////
 // Create Event Functionality
 ////////
+
 // Clear the event form
 function clearEventForm() {
   const titleInput = document.getElementById("event-title");
@@ -1254,6 +903,7 @@ function closeSidebar() {
 ////////
 // Agenda Tabs
 ////////
+
 // Toggle between tabs
 async function togglePanel(panelId, calendarName, listId) {
   const tabsContainer = document.getElementById("tabs-container");
@@ -1266,7 +916,7 @@ async function togglePanel(panelId, calendarName, listId) {
     }
 
     // Close all other panels
-    document
+    docume
       .querySelectorAll(".tab-panel")
       .forEach((p) => p.classList.remove("active"));
 
@@ -1300,16 +950,7 @@ async function togglePanel(panelId, calendarName, listId) {
     panel.classList.add("active"); // Open the panel
   }
 }
-// Set up the agenda tabs for lectures and tests
-async function handleTabClick(calendarName, listId, panelId) {
-  const panels = document.querySelectorAll(".tab-panel");
-  panels.forEach((panel) => panel.classList.remove("active")); // Close other panels
 
-  await fetchAndUpdateTab(calendarName, listId);
-
-  const panel = document.getElementById(panelId);
-  if (panel) panel.classList.add("active");
-}
 // Tab dragging functionality
 function enableTabDragging() {
   const tabsContainer = document.getElementById("tabs-container");
@@ -1462,20 +1103,6 @@ function setupDebugKey() {
 ////////
 // DOM Content Loaded
 ////////
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    await initializeClients();
-    console.log("Clients initialized successfully");
-
-    const userCalendars = await fetchUserCalendars();
-    if (userCalendars.length > 0) {
-      console.log("Available calendars:", userCalendars);
-    } else {
-      console.warn("No calendars found for the user.");
-    }
-  } catch (error) {
-    console.error("Error during initialization:", error);
-  }
   document.querySelectorAll(".close-panel-btn").forEach((button) => {
     button.addEventListener("click", () => {
       const panel = button.closest(".tab-panel");
@@ -1493,10 +1120,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }
   });
-});
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (User.getUserState()) {
   try {
+    initializeCalendar();
+  } catch (error) {
+    console.error("Error initializing calendar:", error);
+  }try {
     console.log("Setting up move cursor");
     setupMoveCursor();
   } catch (error) {
@@ -1518,31 +1149,11 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Error setting up event creation button:", error);
   }
   try {
-    setupDebugKey();
-  } catch (error) {
-    console.error("Error setting up debug");
-  }
-  try {
-    console.log("Page loaded. Checking user authentication status.");
-    updateAuthButtons();
-  } catch (error) {
-    console.error("Error setting up auth buttons:", error);
-  }
-  try {
     setupFAB();
   } catch (error) {
     console.error("Error setting up event FAB:", error);
   }
-  try {
-    initializeCalendar();
-  } catch (error) {
-    console.error("Error initializing calendar:", error);
-  }
-  try {
-    handleSignInClick();
-  } catch (error) {
-    console.error("Error setting up sign-in click handler:", error);
-  }
+
   try {
     setupEditEventButton();
   } catch (error) {
@@ -1569,79 +1180,10 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Error setting up notification toggle:", error);
   }
   try {
-    closeValidationModal();
-  } catch (error) {
-    console.error("Error closing validation modal:", error);
-  }
-  try {
-    closeSignOutModal();
-  } catch (error) {
-    console.error("Error closing sign out modal:", error);
-  }
-  try {
     initializeNotifications();
     console.log("Notifications initialized.");
   } catch (error) {
     console.error("Error initializing notifications:", error);
   }
+}
 });
-module.exports = {
-  clearEventForm, // Clears the event form
-  setupNotificationToggle, // Sets up the notification toggle for enabling/disabling notifications
-  populateSidebarWithDate, // Populates the sidebar with a single date
-  populateSidebarForDateRange, // Populates the sidebar with a date range (for drag-to-select)
-  populateSidebarWithEventDetails, // Populates the sidebar with existing event details
-  fetchGoogleCalendarEvents, // Fetches events from Google Calendar
-  openSidebar, // Opens the event sidebar
-  setupAgendaTabs, // Sets up the agenda tabs for lectures and tests
-  closeSidebar, // Closes the event sidebar
-  setupDeleteEventButton, // Sets up the delete event functionality
-  handleSignInClick, // Handles user sign-in
-  handleSignOutClick, // Handles user sign-out
-  updateAuthButtons, // Updates sign-in/sign-out button visibility
-  setupEditEventButton, // Sets up the edit event button
-  initializeCalendar, // Initializes the FullCalendar instance
-  setupFAB, // Sets up the Floating Action Button (FAB)
-  handleFABClick, // Handles FAB click for creating an event
-  handleDateClick, // Handles single date clicks on the calendar
-  handleDateSelect, // Handles click-and-drag date selection on the calendar
-  handleEventClick, // Handles clicks on existing events for editing
-  requireSignIn, // Ensures the user is signed in before allowing actions
-  openValidationModal, // Opens the validation modal with a message
-  closeValidationModal, // Closes the validation modal
-  fetchCalendarUpdates, // Fetches updates from Google Calendar
-  fetchSecondaryGoogleCalendarEvents, // Fetches events for a specific calendar
-};
-
-////////
-// TO DO
-////////
-// 1. Click to create and drag to create events check login status // DONE
-// 2. Getting notification events from Google Calendar // DONE
-// 3. Auto close notifications on clear // DONE
-// 4. Remove background colour on today square // DONE
-// 5. Study Buddy home link // DONE
-// 6. Top bar doesn't scroll // DONE
-// 7. Calendar doesn't need to scroll (fits height) // DONE
-// 8. Adding Notifications to StudyBuddy // DONE
-
-////////
-// BUGS
-////////
-// 1. The calendar will update with events from Google each time logged in (duplicating events) // FIXED
-// 2. The log in button doens't swap to log out when logged in until second log in // FIXED
-// 3. Sign in, close window, considered signed in // FIXED
-// 4. Can't delete events // FIXED
-// 5. Can't edit notifications // FIXED
-// 6. UTC to PST time fixed // FIXED
-
-////////
-// WISH LIST
-////////
-// 1. Colour coded events
-// 2. Notifications bell at top left // DONE
-// 3. Event Reminders // DONE
-
-/////////////////////////////
-//
-// Schedule notifications error when deleting events if past event date

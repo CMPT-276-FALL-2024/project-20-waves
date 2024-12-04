@@ -572,7 +572,32 @@
         <button class="clear-quiz-history-button">Clear History</button>
       </div>
     </section>
-
+    <script type="module" src="./User.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        fetch("application.html")
+          .then((response) => response.text())
+          .then((html) => {
+            document.getElementById("shared-content").innerHTML = html;
+          })
+          .catch((err) => console.error("Failed to load shared content:", err));
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        try {
+          const response = await fetch("application.html");
+          const html = await response.text();
+          document.getElementById("shared-content").innerHTML = html;
+          await User.loadState();
+          await User.initializeUser(); // Wait until user state is fully initialized
+        } catch (err) {
+          console.error("Error initializing page:", err);
+        }
+      });
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
     <script type="module" src="quizscripts.js"></script>
   </body>
 </html>
