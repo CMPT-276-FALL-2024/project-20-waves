@@ -69,29 +69,39 @@
     <!-- chatbot end -->
  
 
-  
         <script type="module" src="./User.js"></script>
         <script>
-          // Load the shared header and modal content
           document.addEventListener("DOMContentLoaded", () => {
-            fetch("application.html")
-              .then(response => response.text())
-              .then(html => {
-                document.getElementById("shared-content").innerHTML = html;
-              })
-              .catch(err => console.error("Failed to load shared content:", err));
-          });
+    fetch("application.html")
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById("shared-content").innerHTML = html;
+        })
+        .catch(err => console.error("Failed to load shared content:", err));
+});
         </script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
+          // Load the shared header and initialize the user state
+          fetch("application.html")
+              .then(response => response.text())
+              .then(html => {
+                  document.getElementById("shared-content").innerHTML = html;
+  
+                  // Initialize user state
+                  User.initializeUser(); 
+              })
+              .catch(err => console.error("Failed to load shared content:", err));
+  
           // Initialize GAPI and GIS clients without fetching user data
           User.initializeClients()
               .then(() => {
                   console.log("Clients initialized on page load, ready for user interaction.");
               })
-              .catch((error) => {
+              .catch(error => {
                   console.error("Error initializing clients:", error);
               });
+  
           // Attaching event listeners for buttons
           const signInButton = document.getElementById("sign-in-button");
           if (signInButton) {
@@ -100,7 +110,8 @@
               });
           }
       });
-    </script>
+  </script>
+  
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js" async defer></script>    
     <script src="todolist.js"></script>
