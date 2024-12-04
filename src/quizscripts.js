@@ -195,8 +195,6 @@ async function geminiAPI() {
   } else {
     const answerArray = textArray[textArray.length - 1].split(".");
 
-    console.log(textArray);
-
     //If answer array contains 'answer key' string, remove it
     if (answerArray[0].includes("*")) {
       answerArray.splice(0, 1);
@@ -253,6 +251,10 @@ async function geminiAPI() {
     //Display quiz
     quizSection.style.display = "grid";
     quizSubmitButton.style.display = "inline";
+
+    //Enable quiz submit button
+    quizSubmitButton.removeAttribute("disabled", "");
+    quizSubmitButton.setAttribute("enabled", "");
   }
 }
 
@@ -328,6 +330,10 @@ quizSubmitButton.addEventListener("click", () => {
 
   //Add newest object to display in quiz history table
   displayQuizHistory(localStorage.length - 1);
+
+  //Disable quiz submit button
+  quizSubmitButton.removeAttribute("enabled", "");
+  quizSubmitButton.setAttribute("disabled", "");
 });
 
 //When generate quiz button is clicked, get the topic entered by the user and then call API
