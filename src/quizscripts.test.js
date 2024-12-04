@@ -270,7 +270,7 @@ test("Correct option displayed when wrong one picked", () => {
 
   expect(option1.style.backgroundColor).toBe("lightgreen");
 });
-
+let userTopic;
 test("Check if topic is being read and flash cards section is hidden when quiz topic entered", () => {
   document.body.innerHTML = `
         <input id="quiz-topic-textbox" type="text" placeholder="Type topic to create quiz about here" value="topic">
