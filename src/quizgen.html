@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,7 +7,6 @@
     <title>Quiz Generation</title>
   </head>
   <body>
-
     <header class="header">
       <div class="header-center">
         <a href="./index.html" class="logo-link">
@@ -39,7 +38,10 @@
       </div>
 
       <div class="loader-position">
-        <div class="loader"></div>
+        <div class="loader">
+          <img src="/public/duck-walking.gif" id="duck-gif" />
+          <h3>Generating quiz...</h3>
+        </div>
       </div>
 
       <div class="quiz-position">
@@ -472,13 +474,12 @@
     </section>
 
     <section>
-        <div class="quiz-history-position">
-          <table id="quiz-history">
-            
-              <th>Quiz History</th>
-          </table>
-          <button class="clear-quiz-history-button">Clear History</button>
-        </div>
+      <div class="quiz-history-position">
+        <table id="quiz-history">
+          <th>Quiz History</th>
+        </table>
+        <button class="clear-quiz-history-button">Clear History</button>
+      </div>
     </section>
 
     <script type="module" src="quizscripts.js"></script>
