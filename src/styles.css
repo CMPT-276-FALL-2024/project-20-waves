@@ -1112,6 +1112,14 @@ tr {
   display: none;
 }
 
+#question-not-answered {
+  display: none;
+}
+
+#quiz-already-submitted {
+  display: none;
+}
+
 .error-msg-position {
   display: flex;
   justify-content: center;

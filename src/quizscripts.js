@@ -120,6 +120,9 @@ let userAnswers = [];
 let selectedButtons = [];
 let allButtons = [];
 
+//Variable for keeping track if the quiz has already been submitted
+let quizSubmitted = false;
+
 //Variables for user topic and user quiz score
 let userTopic;
 
@@ -156,6 +159,16 @@ const errorMessage = document.body.querySelector(".error-msg");
 //Select table
 const table = document.getElementById("quiz-history");
 
+//Select question not answered error message
+const questionNotAnsweredErrorMessage = document.getElementById(
+  "question-not-answered"
+);
+
+//Select quiz already submitted error message
+const quizAlreadySubmittedErrorMessage = document.getElementById(
+  "quiz-already-submitted"
+);
+
 //Select clear quiz history button
 const clearQuizHistoryButton = document.body.querySelector(
   ".clear-quiz-history-button"
@@ -165,6 +178,9 @@ const clearQuizHistoryButton = document.body.querySelector(
 async function geminiAPI() {
   //Display loading spinner
   loader.style.display = "inline";
+
+  //Hide error message
+  quizAlreadySubmittedErrorMessage.style.display = "none";
 
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
@@ -257,87 +273,104 @@ async function geminiAPI() {
     quizSubmitButton.style.display = "inline";
 
     //Enable quiz submit button
-    quizSubmitButton.removeAttribute("disabled", "");
-    quizSubmitButton.setAttribute("enabled", "");
+    //quizSubmitButton.removeAttribute("disabled", "");
+    // quizSubmitButton.setAttribute("enabled", "");
+
+    quizAlreadySubmittedErrorMessage.style.display = "none";
+    quizSubmitted = false;
   }
 }
 
 //When quiz submit button is clicked check answers and return results
 quizSubmitButton.addEventListener("click", () => {
-  //Select all labels
-  const labels = document.querySelectorAll("label");
+  if (userAnswers.length === 10 && !quizSubmitted) {
+    //Hide questions not answered error message
+    questionNotAnsweredErrorMessage.style.display = "none";
 
-  //Select all radio buttons
-  const radioButtons = document.body.querySelectorAll(".option");
+    //Select all labels
+    const labels = document.querySelectorAll("label");
 
-  //Reset variables
-  selectedButtons = [];
-  allButtons = [];
-  let userScore = 0;
+    //Select all radio buttons
+    const radioButtons = document.body.querySelectorAll(".option");
 
-  //If the radio button is checked, add the label of that radio button to the selected buttons array
-  for (let i = 0; i < 40; i++) {
-    if (radioButtons[i].checked) {
-      selectedButtons.push(labels[i]);
+    //Reset variables
+    selectedButtons = [];
+    allButtons = [];
+    let userScore = 0;
+
+    //If the radio button is checked, add the label of that radio button to the selected buttons array
+    for (let i = 0; i < 40; i++) {
+      if (radioButtons[i].checked) {
+        selectedButtons.push(labels[i]);
+      }
+
+      //Add the label to the all buttons array
+      allButtons.push(labels[i]);
     }
 
-    //Add the label to the all buttons array
-    allButtons.push(labels[i]);
+    //Compare the user answer and actual answers
+    for (let i = 0; i < 10; i++) {
+      //If selected answer is correct make the button green and increment user score
+      if (questions[i].data.answer.includes(userAnswers[i])) {
+        selectedButtons[i].style.backgroundColor = "lightgreen";
+        userScore++;
+      }
+
+      //If selected answer is incorrect make the button red
+      else {
+        selectedButtons[i].style.backgroundColor = "rgb(245, 69, 69)";
+      }
+    }
+
+    //Make correct buttons green by going through each questions answer and by going thorugh the labels
+    // 4 at a time (for each question) setting the correct label in the array to green
+    // After its set to green go to the next 4 labels for the next 4 options in the next question
+
+    let j = 0;
+
+    for (let i = 0; i < 10; i++) {
+      if (questions[i].data.answer.includes("a")) {
+        allButtons[j].style.backgroundColor = "lightgreen";
+      } else if (questions[i].data.answer.includes("b")) {
+        allButtons[j + 1].style.backgroundColor = "lightgreen";
+      } else if (questions[i].data.answer.includes("c")) {
+        allButtons[j + 2].style.backgroundColor = "lightgreen";
+      } else if (questions[i].data.answer.includes("d")) {
+        allButtons[j + 3].style.backgroundColor = "lightgreen";
+      }
+
+      j += 4;
+    }
+
+    //Display user score
+    quizScore.innerHTML = "Score: " + userScore.toString() + "/10";
+    quizScore.style.display = "inline";
+
+    //Create object to hold quiz topic and score
+    const quizHistoryItem = {
+      topic: userTopic,
+      score: userScore,
+    };
+
+    //Add object to local storage and assign it an id of localstorage length so the id in unique
+    localStorage.setItem(localStorage.length, JSON.stringify(quizHistoryItem));
+
+    //Add newest object to display in quiz history table
+    displayQuizHistory(localStorage.length - 1);
+
+    //set quiz submitted to be true
+    quizSubmitted = true;
   }
 
-  //Compare the user answer and actual answers
-  for (let i = 0; i < 10; i++) {
-    //If selected answer is correct make the button green and increment user score
-    if (questions[i].data.answer.includes(userAnswers[i])) {
-      selectedButtons[i].style.backgroundColor = "lightgreen";
-      userScore++;
-    }
-
-    //If selected answer is incorrect make the button red
-    else {
-      selectedButtons[i].style.backgroundColor = "rgb(245, 69, 69)";
-    }
+  //If the quiz has been submitted already and all answers have been submitted, display error message
+  else if (quizSubmitted && userAnswers.length === 10) {
+    quizAlreadySubmittedErrorMessage.style.display = "inline";
   }
-
-  //Make correct buttons green by going through each questions answer and by going thorugh the labels
-  // 4 at a time (for each question) setting the correct label in the array to green
-  // After its set to green go to the next 4 labels for the next 4 options in the next question
-
-  let j = 0;
-
-  for (let i = 0; i < 10; i++) {
-    if (questions[i].data.answer.includes("a")) {
-      allButtons[j].style.backgroundColor = "lightgreen";
-    } else if (questions[i].data.answer.includes("b")) {
-      allButtons[j + 1].style.backgroundColor = "lightgreen";
-    } else if (questions[i].data.answer.includes("c")) {
-      allButtons[j + 2].style.backgroundColor = "lightgreen";
-    } else if (questions[i].data.answer.includes("d")) {
-      allButtons[j + 3].style.backgroundColor = "lightgreen";
-    }
-
-    j += 4;
+  //If not all answers have been submitted, display error message
+  else {
+    //Display questions not answered error message
+    questionNotAnsweredErrorMessage.style.display = "inline";
   }
-
-  //Display user score
-  quizScore.innerHTML = "Score: " + userScore.toString() + "/10";
-  quizScore.style.display = "inline";
-
-  //Create object to hold quiz topic and score
-  const quizHistoryItem = {
-    topic: userTopic,
-    score: userScore,
-  };
-
-  //Add object to local storage and assign it an id of localstorage length so the id in unique
-  localStorage.setItem(localStorage.length, JSON.stringify(quizHistoryItem));
-
-  //Add newest object to display in quiz history table
-  displayQuizHistory(localStorage.length - 1);
-
-  //Disable quiz submit button
-  quizSubmitButton.removeAttribute("enabled", "");
-  quizSubmitButton.setAttribute("disabled", "");
 });
 
 //When generate quiz button is clicked, get the topic entered by the user and then call API
