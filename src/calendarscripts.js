@@ -5,6 +5,13 @@
 //////////////////////////////////////////////////////////////////////////////
 import User from './User.js';
 
+if (window.location.pathname.includes("calendar.html")) {
+  document.addEventListener("DOMContentLoaded", () => {
+      initializeCalendar();
+  });
+}
+
+
 let calendar; // FullCalendar instance
 let selectedEvent = null; // Currently selected event
 
@@ -51,27 +58,57 @@ function initializeCalendar() {
 }
 
 export async function populateCalendarEvents() {
-  if (!User.getUserState()) {
-    console.error("User is not logged in.");
-    User.openValidationModal("Please sign in to view your calendar.");
-    return;
+  if (!window.location.pathname.includes("calendar.html")) {
+      console.warn("populateCalendarEvents called outside calendar.html");
+      return;
+  }
+
+  if (!User.isLoggedIn) {
+      console.error("User is not logged in. Cannot populate calendar events.");
+      User.openValidationModal("Please sign in to view your calendar.");
+      return;
   }
 
   try {
-    console.log("Populating calendar events...");
-    const calendars = await User.calendars();
-    calendars.forEach((cal) => {
-      calendar.events.forEach((event) => {
-        calendar.addEvent(event);
+      console.log("Populating calendar events...");
+
+      // Ensure calendars and events are fetched
+      if (!User.calendars || User.calendars.length === 0) {
+          console.log("Fetching user calendars...");
+          await User.fetchUserCalendars();
+          console.log("Fetching events for all calendars...");
+          await User.fetchAllCalendarEvents();
+      }
+
+      // Clear existing events in FullCalendar
+      if (calendar) {
+          calendar.getEvents().forEach((event) => event.remove());
+      }
+
+      // Loop through each calendar and add events
+      User.calendars.forEach((calendarObj) => {
+          if (calendarObj.events && calendarObj.events.length > 0) {
+              calendarObj.events.forEach((event) => {
+                  const formattedEvent = {
+                      title: event.title,
+                      start: event.start,
+                      end: event.end || null,
+                  };
+                  calendar.addEvent(formattedEvent);
+                  console.log("Added event to calendar:", formattedEvent);
+              });
+          }
       });
-    });
-    console.log("Calendar events populated.");
+
+      console.log("All calendar events populated.");
   } catch (error) {
-    console.error("Error populating calendar events:", error);
+      console.error("Error populating calendar events:", error);
   }
 }
 
-async function fetchCalendarEvents(calendarId) {
+
+
+/* async function fetchCalendarEvents(calendarId) {
   try {
     const response = await gapi.client.calendar.events.list({
       calendarId: calendarId,
@@ -90,7 +127,7 @@ async function fetchCalendarEvents(calendarId) {
     console.error("Error fetching calendar events:", error);
     return [];
   }
-}
+} */
 
 
 // Floating Action Button (FAB) for creating a new event

@@ -12,6 +12,8 @@ const User = {
     isLoggedIn: false, // Tracks login state
     ready: null, // Tracks initialization state
     accessToken: null, // Stores user access token
+    isUserInitialized: false, // Tracks user initialization state
+    userName: null, // Stores user name
 
     saveState() {
         const state = {
@@ -51,44 +53,44 @@ const User = {
     },
 
     async initializeUser() {
-        console.log("Loading user state...");
-        this.loadState();
-
-        if(this.isLoggedIn) {
-            console.log("User already signed in.");
-            this.updateAuthButtons();
+        if (this.isUserInitialized) {
+            console.log("User already initialized.");
             return;
         }
-
+    
+        this.isUserInitialized = true;
+    
         try {
             console.log("Initializing user...");
             await this.initializeClients();
-
+            
             console.log("Waiting for User to sign in...");
             await this.waitForLogIn();
-
+    
             console.log("Fetching user name...");
             await this.fetchUserName();
-
-            this.updateAuthButtons();
-
-            console.log("Fetching user calendars...");
-            await this.fetchUserCalendars();
-
-            console.log("Fetching calendar events...");
-            await this.fetchAllCalendarEvents();
-
+    
+            console.log("Updating auth buttons...");
+            await this.updateAuthButtons();
+    
+            if (window.location.pathname.includes("calendar.html")) {
+                console.log("Fetching user calendars...");
+                await this.fetchUserCalendars();
+    
+                console.log("Fetching calendar events...");
+                await this.fetchAllCalendarEvents();
+    
+                console.log("Populating calendar events...");
+                populateCalendarEvents();
+            }
+    
             console.log("Saving User state...");
             this.saveState();
-
+    
             console.log("User initialized.");
-
-            if ( populateCalendar === "function" ) {
-                populateCalendar(this.calendars);
-            }
         } catch (error) {
             console.error("Error initializing user:", error);
-        }
+        }    
     },
 
     async initializeClients() {
@@ -126,7 +128,7 @@ const User = {
         });
     },
 
-    initializeGISClient() {
+    async initializeGISClient() {
         return new Promise((resolve, reject) => {
             try {
                 this.tokenClient = google.accounts.oauth2.initTokenClient({
@@ -151,22 +153,43 @@ const User = {
     },
 
     async fetchUserName() {
-        console.log("Fetching user name...");
+        // Return the user name if already fetched
+        if (this.userName) {
+            console.log("User name already fetched:", this.userName);
+            return this.userName;
+        }
+    
         try {
-        const response = await gapi.client.request({
-            path: "https://www.googleapis.com/oauth2/v1/userinfo",
-        });
-        const userInfo = response.result;
-        console.log("User info fetched:", userInfo);
-        this.userName = userInfo.name || "User";
-        const userNameElement = document.getElementById("user-name");
-        if (userNameElement) {
-            console.log("Weclome message:", `Welcome, ${this.userName}`);
+            // Set the access token for the GAPI client
+            await gapi.client.setToken({ access_token: this.accessToken });
+            
+            // Fetch user info from the OAuth2 API
+            if (!this.accessToken || !this.isLoggedIn) {
+                await this.ensureAccessToken();
+            }
+
+            const response = await gapi.client.request({
+                path: "https://www.googleapis.com/oauth2/v1/userinfo",
+            });
+    
+            const userInfo = response.result;
+            console.log("User info fetched:", userInfo);
+            this.userName = userInfo.name || "User"; // Fallback if no name is available
+    
+            // Wait until the header is fully loaded
+            const userNameElement = await new Promise((resolve) => {
+                const checkExist = setInterval(() => {
+                    const element = document.getElementById("user-name");
+                    if (element) {
+                        clearInterval(checkExist);
+                        resolve(element);
+                    }
+                }, 100);
+            });
             userNameElement.textContent = `Welcome, ${this.userName}`;
             userNameElement.style.display = "inline";
-        }
         } catch (error) {
-        console.error("Failed to fetch user name:", error);
+            console.error("Failed to fetch user name:", error);
         }
     },
 
@@ -185,7 +208,7 @@ const User = {
             console.log("User is logged in. Switching to sign-out button.");
             signInButton.style.display = "none";
             signOutButton.style.display = "block";
-            userNameElement.textContent = `Welcome, ${this.userName || "User"}`;
+            userNameElement.textContent = `Welcome, ${this.userName}`;
             userNameElement.style.display = "inline";
         } else {
             console.log("User is not logged in. Switching to sign-in button.");
@@ -211,12 +234,8 @@ const User = {
     },
 
     async ensureAccessToken() {
-        console.log("Ensuring access token...");
-        if (this.accessToken) {
-            console.log("Access token already available:", this.accessToken);
-            return this.accessToken;
-        }
-        console.log("Requesting new access token...");
+       if (!this.isLoggedIn) {
+        console.log("Ensuring access token: Requesting new access token...");
         return new Promise((resolve, reject) => {
             try {
                 this.tokenClient.requestAccessToken({
@@ -238,21 +257,28 @@ const User = {
                 reject(error);
             }
         });
+    }
+    console.log("Access token already available");
+    return this.accessToken;
     },
 
     async fetchUserCalendars() {
-        console.log("Fetching user calendars...");
         await this.ensureAccessToken();
 
         try {
             const response = await gapi.client.calendar.calendarList.list();
-            this.calendars = response.result.items.map((cal) => ({
+            const allCalendars = response.result.items;
+            
+            const allowedCalendars = ["Primary", "Lectures", "Assignments", "Tests"];
+            this.calendars = allCalendars
+                .filter((cal) => cal.primary || allowedCalendars.includes(cal.summary))
+                .map((cal) => ({
                 id: cal.id,
-                name: cal.summary,
+                name: cal.primary ? "Primary" : cal.summary,
                 primary: cal.primary || false,
                 events: [], // Initialize events array for each calendar
             }));
-            console.log("Calendars fetched and stored:", this.calendars);
+            console.log("Calendars filtered, fetched and stored:", this.calendars);
             return this.calendars;
         } catch (error) {
             console.error("Error fetching user calendars:", error);
@@ -297,13 +323,17 @@ const User = {
     },
 
     async fetchAllCalendarEvents() {
-        console.log("Fetching events for all calendars...");
-        const eventPromises = this.calendars.map((calendar) =>
-            this.fetchCalendarEvents(calendar.id)
-        );
-        await Promise.all(eventPromises);
-        console.log("All calendar events fetched and stored.");
+        console.log("Fetching events for specific calendars...");
+        const eventPromises = this.calendars.map(async (calendar) => {
+            const events = await this.fetchCalendarEvents(calendar.id);
+            calendar.events = events; // Store fetched events in the calendar object
+            return events;
+        });
+    
+        await Promise.all(eventPromises); // Wait for all fetches to complete
+        console.log("All events fetched and stored.");
     },
+    
 
     closeSignOutModal() {
         const modal = document.getElementById("sign-out-modal");
@@ -367,6 +397,7 @@ const User = {
         this.clearState();
         this.updateAuthButtons();
         console.log("User signed out. State cleared.");
+        location.reload();
     },
 
     async fetchCalendarUpdates() {
@@ -399,19 +430,6 @@ const User = {
     },  
 };
 
-document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        console.log("Initializing application...");
-        await User.initializeUser();
-        console.log("User initialized.");
-        User.updateAuthButtons();
-        User.fetchUserName();
-        User.openValidationModal();
-        User.closeValidationModal();
-    } catch (error) {
-        console.error("Error during DOMContentLoaded event:", error);
-    }
-});
 
 export default User;
 
