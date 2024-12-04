@@ -1,1 +1,0 @@
-console.log("Hello, project-20-waves!");

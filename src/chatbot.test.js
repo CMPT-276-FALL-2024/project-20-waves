@@ -19,6 +19,7 @@ test("check if input is being sent", () => {
   const input = document.querySelector("#chatbot-input");
   const enterbutton = document.querySelector(".chatbot-enter");
   input.value = "question";
+  let userInput;
   function checkWhitespace(str) {
     let whitespace = new Set([" ", "\t", "\n", ""]);
     let j = 0;
@@ -45,7 +46,7 @@ test("check if input is being sent", () => {
   expect(userInput).toBe("question");
 });
 test("check if reponse is displayed", () => {
-    document.body.innerHTML = `
+  document.body.innerHTML = `
                 <div class="chatbot">
         <h1>AI Help</h1>
         <div class="response-box">
@@ -61,14 +62,13 @@ test("check if reponse is displayed", () => {
           <button class="chatbot-enter">Enter</button>
         </div>
       </div>`;
-  
-    const input = document.querySelector("#chatbot-input");
-    const enterbutton = document.querySelector(".chatbot-enter");
-    const responsebox = document.getElementById("response");
-     const response = "answer";
-    responsebox.innerHTML = response;
-    //When generate quiz button is clicked, get the topic entered by the user and then call API
 
-  
-    expect(responsebox.innerHTML).toBe(response);
-  });
+  const input = document.querySelector("#chatbot-input");
+  const enterbutton = document.querySelector(".chatbot-enter");
+  const responsebox = document.getElementById("response");
+  const response = "answer";
+  responsebox.innerHTML = response;
+  //When generate quiz button is clicked, get the topic entered by the user and then call API
+
+  expect(responsebox.innerHTML).toBe(response);
+});

@@ -87,6 +87,16 @@ body {
   color: white;
   background-color: #44576d; /* Navy hover background */
 }
+
+.page-header {
+  text-align: center;
+  font-size: 40px;
+}
+
+#top-of-page {
+  margin-left: 50px;
+}
+
 /****************************************************
                   Main Button Styling
  ****************************************************/
@@ -1061,6 +1071,29 @@ html {
 .quiz-score-position {
   display: flex;
   justify-content: center;
+}
+
+.quiz-history-position {
+  position: absolute;
+  right: 20px;
+  top: 175px;
+  text-align: center;
+  background-color: rgb(238, 251, 255);
+  border-radius: 10px;
+  padding: 15px;
+}
+
+th {
+  font-size: 25px;
+}
+
+tr {
+  text-align: left;
+  font-size: 20px;
+}
+
+.clear-quiz-history-button {
+  margin-top: 15px;
 }
 
 /*For styling loading spinner*/

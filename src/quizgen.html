@@ -7,9 +7,12 @@
     <title>Quiz Generation</title>
   </head>
   <body>
+
 <!-- Website Shared Content -->
     <div id="shared-content"></div>
 
+
+    <h1 class="page-header">AI Quiz Generation</h1>
 
     <div class="options">
       <div class="quiz-option">
@@ -463,6 +466,16 @@
         <button class="quiz-submit-button">Submit</button>
       </a>
     </section>
+
+    <section>
+        <div class="quiz-history-position">
+          <table id="quiz-history">
+            
+              <th>Quiz History</th>
+          </table>
+          <button class="clear-quiz-history-button">Clear History</button>
+        </div>
+    </section>
     <script type="module" src="./User.js"></script>
         <script>
           document.addEventListener("DOMContentLoaded", () => {
@@ -488,7 +501,7 @@
 });
   </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://apis.google.com/js/api.js" async defer></script>    
+    <script src="https://apis.google.com/js/api.js" async defer></script>  
     <script type="module" src="quizscripts.js"></script>
   </body>
 </html>
