@@ -154,13 +154,12 @@ const loader = document.body.querySelector(".loader");
 const errorMessage = document.body.querySelector(".error-msg");
 
 //Select table
-const table = document.getElementById("quiz-history")
-
-//Select table rows
-const rows = document.querySelectorAll("table tr")
+const table = document.getElementById("quiz-history");
 
 //Select clear quiz history button
-const clearQuizHistoryButton = document.body.querySelector(".clear-quiz-history-button");
+const clearQuizHistoryButton = document.body.querySelector(
+  ".clear-quiz-history-button"
+);
 
 //API function
 async function geminiAPI() {
@@ -186,18 +185,17 @@ async function geminiAPI() {
     textArray[i] = textArray[i].split("\n");
   }
 
-  
-
-
   //Parse the last element of the array (last element has all the answers as one element) into seperate elements and assign to array
 
-  if ((typeof textArray[textArray.length - 1] === "object") || textArray.length > 12) {
+  if (
+    typeof textArray[textArray.length - 1] === "object" ||
+    textArray.length > 12
+  ) {
     geminiAPI();
   } else {
-
     const answerArray = textArray[textArray.length - 1].split(".");
 
-    console.log(textArray)
+    console.log(textArray);
 
     //If answer array contains 'answer key' string, remove it
     if (answerArray[0].includes("*")) {
@@ -319,11 +317,10 @@ quizSubmitButton.addEventListener("click", () => {
   quizScore.innerHTML = "Score: " + userScore.toString() + "/10";
   quizScore.style.display = "inline";
 
-
   //Create object to hold quiz topic and score
   const quizHistoryItem = {
     topic: userTopic,
-    score: userScore
+    score: userScore,
   };
 
   //Add object to local storage and assign it an id of localstorage length so the id in unique
@@ -331,7 +328,6 @@ quizSubmitButton.addEventListener("click", () => {
 
   //Add newest object to display in quiz history table
   displayQuizHistory(localStorage.length - 1);
-
 });
 
 //When generate quiz button is clicked, get the topic entered by the user and then call API
@@ -371,18 +367,20 @@ window.setUserAnswer = function (questionNumber, choice) {
 
 //Add all objects in localstorage to table to display starting from itemnumber
 function displayQuizHistory(itemNumber) {
-
   //For each object in the local storage display the objects values
   for (itemNumber; itemNumber < localStorage.length; itemNumber++) {
-
     //Create a new row
-    var row = document.createElement('tr');
+    var row = document.createElement("tr");
 
     //Create a new column
-    var column = document.createElement('td');
+    var column = document.createElement("td");
 
     //Set the column text to be topic - score for each object
-    column.textContent = (JSON.parse(localStorage[itemNumber])).topic + " - " + (JSON.parse(localStorage[itemNumber])).score + "/10";
+    column.textContent =
+      JSON.parse(localStorage[itemNumber]).topic +
+      " - " +
+      JSON.parse(localStorage[itemNumber]).score +
+      "/10";
 
     //add the column to the row
     row.appendChild(column);
@@ -398,9 +396,7 @@ clearQuizHistoryButton.addEventListener("click", () => {
   while (table.rows.length > 1) {
     table.deleteRow(1);
   }
-  
 });
 
 //Display quiz history on page load
 displayQuizHistory(0);
-
