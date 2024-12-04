@@ -9,7 +9,10 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "format": "prettier --write .",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+    "lint:fix": "eslint . --fix "
   },
   "jest": {
     "testEnvironment": "jest-environment-jsdom"
@@ -18,10 +21,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^9.16.0",
     "eslint": "^8.57.1",
+    "globals": "^15.13.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "prettier": "^3.1.0",
+    "prettier": "^3.4.1",
     "prettier-eslint": "^16.1.2",
     "vite": "^5.4.11"
   },
