@@ -120,6 +120,9 @@ let userAnswers = [];
 let selectedButtons = [];
 let allButtons = [];
 
+//Variable for keeping track if the quiz has already been submitted
+let quizSubmitted = false;
+
 //Variables for user topic and user quiz score
 let userTopic;
 
@@ -161,6 +164,11 @@ const questionNotAnsweredErrorMessage = document.getElementById(
   "question-not-answered"
 );
 
+//Select quiz already submitted error message
+const quizAlreadySubmittedErrorMessage = document.getElementById(
+  "quiz-already-submitted"
+);
+
 //Select clear quiz history button
 const clearQuizHistoryButton = document.body.querySelector(
   ".clear-quiz-history-button"
@@ -170,6 +178,9 @@ const clearQuizHistoryButton = document.body.querySelector(
 async function geminiAPI() {
   //Display loading spinner
   loader.style.display = "inline";
+
+  //Hide error message
+  quizAlreadySubmittedErrorMessage.style.display = "none";
 
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
@@ -262,14 +273,17 @@ async function geminiAPI() {
     quizSubmitButton.style.display = "inline";
 
     //Enable quiz submit button
-    quizSubmitButton.removeAttribute("disabled", "");
-    quizSubmitButton.setAttribute("enabled", "");
+    //quizSubmitButton.removeAttribute("disabled", "");
+    // quizSubmitButton.setAttribute("enabled", "");
+
+    quizAlreadySubmittedErrorMessage.style.display = "none";
+    quizSubmitted = false;
   }
 }
 
 //When quiz submit button is clicked check answers and return results
 quizSubmitButton.addEventListener("click", () => {
-  if (userAnswers.length === 10) {
+  if (userAnswers.length === 10 && !quizSubmitted) {
     //Hide questions not answered error message
     questionNotAnsweredErrorMessage.style.display = "none";
 
@@ -344,10 +358,16 @@ quizSubmitButton.addEventListener("click", () => {
     //Add newest object to display in quiz history table
     displayQuizHistory(localStorage.length - 1);
 
-    //Disable quiz submit button
-    quizSubmitButton.removeAttribute("enabled", "");
-    quizSubmitButton.setAttribute("disabled", "");
-  } else {
+    //set quiz submitted to be true
+    quizSubmitted = true;
+  }
+
+  //If the quiz has been submitted already and all answers have been submitted, display error message
+  else if (quizSubmitted && userAnswers.length === 10) {
+    quizAlreadySubmittedErrorMessage.style.display = "inline";
+  }
+  //If not all answers have been submitted, display error message
+  else {
     //Display questions not answered error message
     questionNotAnsweredErrorMessage.style.display = "inline";
   }

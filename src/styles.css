@@ -1116,6 +1116,10 @@ tr {
   display: none;
 }
 
+#quiz-already-submitted {
+  display: none;
+}
+
 .error-msg-position {
   display: flex;
   justify-content: center;
