@@ -187,15 +187,19 @@ async function geminiAPI() {
 
   //Parse the last element of the array (last element has all the answers as one element) into seperate elements and assign to array
 
+  //If the data returned is of type object or returns the data in a different format, recall API until a string is returned for the data type
   if (
     typeof textArray[textArray.length - 1] === "object" ||
     textArray.length > 12
   ) {
     geminiAPI();
-  } else {
+  }
+
+  //If data is type string, split the answer element into its individual elements for each question
+  else {
     const answerArray = textArray[textArray.length - 1].split(".");
 
-    //If answer array contains 'answer key' string, remove it
+    //If answer array contains '**answer key**' string at the front of the array, remove it
     if (answerArray[0].includes("*")) {
       answerArray.splice(0, 1);
     }
@@ -376,10 +380,10 @@ function displayQuizHistory(itemNumber) {
   //For each object in the local storage display the objects values
   for (itemNumber; itemNumber < localStorage.length; itemNumber++) {
     //Create a new row
-    var row = document.createElement("tr");
+    let row = document.createElement("tr");
 
     //Create a new column
-    var column = document.createElement("td");
+    let column = document.createElement("td");
 
     //Set the column text to be topic - score for each object
     column.textContent =
@@ -398,7 +402,10 @@ function displayQuizHistory(itemNumber) {
 
 //Button to clear quiz topic and score history
 clearQuizHistoryButton.addEventListener("click", () => {
+  //Clear local storage
   localStorage.clear();
+
+  //Delete all rows in the table except for the header
   while (table.rows.length > 1) {
     table.deleteRow(1);
   }
