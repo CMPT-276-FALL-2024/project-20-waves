@@ -13,7 +13,10 @@
     </div>
 
     <div class="header-right">
-      <div id="notification-container" style="position: relative; margin-right: 15px">
+      <div
+        id="notification-container"
+        style="position: relative; margin-right: 15px"
+      >
         <button id="notification-bell" class="notification-bell">
           <img
             src="https://cdn-icons-png.flaticon.com/512/1827/1827392.png"
@@ -24,22 +27,28 @@
             id="notification-badge"
             class="notification-badge"
             style="display: none"
-            >0</span>
-
+            >0</span
+          >
         </button>
 
-        <div id="notification-dropdown" class="notification-dropdown" style="display: none">
+        <div
+          id="notification-dropdown"
+          class="notification-dropdown"
+          style="display: none"
+        >
           <ul id="notification-list" class="notification-list"></ul>
           <button id="clear-notifications" class="clear-notifications">
             Clear All
           </button>
-
         </div>
-        
       </div>
 
       <div id="auth-controls" style="text-align: right">
-        <button id="sign-in-button" class="google-button sign-in" onclick="User.handleSignInClick()">
+        <button
+          id="sign-in-button"
+          class="google-button sign-in"
+          onclick="User.handleSignInClick()"
+        >
           <img
             src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
             alt="Google Logo"
@@ -47,9 +56,17 @@
           />
           Sign in with Google
         </button>
-        <span id="user-name" style="display: none; font-weight: bold; font-size: 14px; color: #333;">
+        <span
+          id="user-name"
+          style="display: none; font-weight: bold; font-size: 14px; color: #333"
+        >
         </span>
-        <button id="sign-out-button" class="google-button sign-out" onclick="User.handleSignOutClick()" style="display: none;">
+        <button
+          id="sign-out-button"
+          class="google-button sign-out"
+          onclick="User.handleSignOutClick()"
+          style="display: none"
+        >
           Sign Out
         </button>
       </div>
@@ -65,15 +82,15 @@
       <button onclick="closeSignOutModal()">Close</button>
     </div>
   </div>
-  
+
   <!-- Validation Error Modal -->
   <div id="validation-modal" class="modal" style="display: none">
     <div class="modal-content">
       <p id="validation-message"></p>
-      <button onclick="closeValidationModal()">Close</button>
+      <button onclick="User.closeValidationModal()">Close</button>
     </div>
   </div>
-  
+
   <!-- Delete Confirmation Modal -->
   <div id="delete-confirmation-modal" class="modal" style="display: none">
     <div class="modal-content">
@@ -84,4 +101,3 @@
   </div>
 </div>
 <script type="module" src="./User.js"></script>
-

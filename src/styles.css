@@ -66,6 +66,7 @@ body {
   margin: 0;
   font-family: "Roboto", sans-serif;
   height: calc(100vh - 75px);
+  overflow-x: hidden;
 }
 .menu {
   display: flex;
@@ -79,7 +80,9 @@ body {
   font-size: 16px;
   font-weight: bold;
   padding: 5px 10px;
-  transition: color 0.3s, background-color 0.3s; /* Smooth hover effect */
+  transition:
+    color 0.3s,
+    background-color 0.3s; /* Smooth hover effect */
   border-radius: 4px; /* Rounded corners */
 }
 
@@ -107,7 +110,9 @@ button {
   border-radius: 6px; /* Rounded corners */
   padding: 6px 12px;
   font-size: 14px;
-  transition: background-color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    box-shadow 0.2s;
 }
 button:hover {
   background-color: #aac7d8; /* Light blue hover */
@@ -132,7 +137,9 @@ button:focus {
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 .google-button:hover {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -238,7 +245,7 @@ button:focus {
 }
 
 #calendar-container {
-  width: 90%;
+  width: 80%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -333,7 +340,9 @@ button:focus {
   border-radius: 6px; /* Rounded corners */
   padding: 6px 12px;
   font-size: 14px;
-  transition: background-color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    box-shadow 0.2s;
 }
 .fc-toolbar .fc-button:hover {
   background-color: #aac7d8; /* Light blue hover */
@@ -367,7 +376,9 @@ button:focus {
   border-radius: 4px;
   border: 1px solid transparent;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow */
-  transition: transform 0.2 ease, box-shadow 0.2 ease;
+  transition:
+    transform 0.2 ease,
+    box-shadow 0.2 ease;
 }
 .fc-event-dot {
   display: none; /* Hide the default dot */
@@ -421,7 +432,9 @@ button:focus {
   padding: 10px;
   font-size: 1em;
   margin-top: 10px;
-  transition: background-color 0.3s, box-shadow 0.3s;
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
 }
 .event-sidebar button:hover {
   background-color: #aac7d8; /* Navy */
@@ -475,7 +488,9 @@ button:focus {
   border: 1px solid #aac7d8; /* Light blue border */
   border-radius: 8px;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
 }
 .event-sidebar input:focus {
   border-color: #44576d; /* Navy */
@@ -611,7 +626,9 @@ button:focus {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   z-index: 1000; /* Ensure it's above other elements */
 }
 
@@ -644,9 +661,9 @@ button:focus {
  ****************************************************/
 /* Tabs container */
 .tabs-container {
-  position: fixed;
-  top: 20%; /* Starting position */
-  right: 0;
+  position: absolute;
+  top: 100px; /* Starting position */
+  right: 10px;
   display: flex;
   flex-direction: column;
   background-color: #44576d;
@@ -682,34 +699,37 @@ button:focus {
   cursor: pointer;
   text-align: center;
   background-color: #44576d;
-  transition: transform 0.5s ease, background-color 0.2s ease-in-out;
+  transition:
+    transform 0.5s ease,
+    background-color 0.2s ease-in-out;
 }
 .tab:hover {
   background-color: #aac7d8;
 }
-
-/* Sliding panels */
-/* Tab Panel Styling */
 .tab-panel {
+  right: 50px;
   position: absolute;
-  width: 300px;
-  background-color: #ffffff;
+  background-color: white;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   padding: 10px;
-  display: none; /* Hidden by default */
   z-index: 1000;
-  right: -400px; /* Initially off-screen */
-  height: 60%;
-  overflow-y: auto;
-  z-index: 999;
-  opacity: 0; /* Initially hidden */
-  list-style: none;
-  color: #333;
-  font-size: 14px;
-  margin: 10px 0;
-  transition: all 0.3s ease-in-out;
+  width: 200px;
+  height: 300px;
+  display: none; /* Hidden by default */
+  opacity: 0; /* Hidden by default */
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  transform: translateY(-10px); /* Slight upward offset when hidden */
+  pointer-events: none; /* Prevent interaction when hidden */
+}
+.tab-panel.active {
+  display: block;
+  opacity: 1; /* Fully visible */
+  transform: translateY(0); /* Reset transform for visibility */
+  background-color: white;
 }
 .tab-panel li.empty-message {
   color: #ff0000; /* Highlight missing calendar messages in red */
@@ -740,13 +760,7 @@ button:focus {
 .close-panel-btn:hover {
   color: #333;
 }
-/* Active Panel */
-.tab-panel.active {
-  right: 50px; /* Slide into view */
-  opacity: 1;
-  display: block;
-  transform: translateY(0);
-}
+
 .tab-panel ul {
   list-style: none;
   max-height: 100px;
@@ -785,14 +799,14 @@ a {
   text-decoration: none;
 }
 .nav-button {
-  background-color: #44576D;
+  background-color: #44576d;
   font-size: 25px;
   text-align: center;
   width: 155px;
   height: 45px;
   border: none;
   border-radius: 10px;
-  color:white;
+  color: white;
 }
 a:hover {
   background-color: rgb(180, 180, 180);
@@ -817,7 +831,7 @@ html {
 /*styling for homepage elements*/
 /* todolist elements */
 .todo-list {
-  background-color: #44576D;
+  background-color: #44576d;
   width: 25%;
   height: 60%;
   position: absolute;
@@ -825,7 +839,7 @@ html {
   top: 20%;
   left: 0%;
   border-radius: 30px;
-  color: #E6E6E6;
+  color: #e6e6e6;
 }
 .todo-list > h1 {
   text-align: center;
@@ -841,7 +855,7 @@ html {
   text-align: center;
   bottom: 0%;
   right: 30px;
-  float:right;
+  float: right;
 }
 .todo-remove-button {
   background-color: rgb(163, 16, 16);
@@ -865,7 +879,7 @@ html {
   position: relative;
   float: left;
   background-color: rgba(255, 255, 255, 0.9);
-  color:black;
+  color: black;
   border-radius: 15px;
   font-size: 24px;
 }
@@ -880,55 +894,54 @@ html {
 }
 /*chatbot elements start*/
 .chatbot {
-
-  background-color: #44576D;
+  background-color: #44576d;
   width: 40%;
   height: 40%;
-  position:absolute;
-  bottom:0;
+  position: absolute;
+  bottom: 0;
   margin-inline: auto;
-  left:0;
-  right:0;
+  left: 0;
+  right: 0;
   text-align: center;
   font-size: 20px;
   border-radius: 20px;
-  color:#E6E6E6;
+  color: #e6e6e6;
 }
-.chatbot-input{
-  background-color: #29353C;
+.chatbot-input {
+  background-color: #29353c;
   width: 90%;
-  position:absolute;
+  position: absolute;
   padding: 5px;
   margin-inline: auto;
-  left:0;
-  right:0;
-  bottom:0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   text-align: center;
-  font-size:15px;
+  font-size: 15px;
   border-radius: 15px;
-  color:#E6E6E6;
+  color: #e6e6e6;
 }
-.response-box{
-  background-color: #DFEBF6;
+.response-box {
+  background-color: #dfebf6;
   color: black;
   width: 90%;
   height: 35%;
-  margin:auto;
+  margin: auto;
   overflow-y: scroll;
   border-radius: 15px;
   font-size: 24px;
   text-align: left;
 }
-.chatbot-input-box{
-  position: relative; 
+.chatbot-input-box {
+  position: relative;
   border-radius: 15px;
   font-size: 24px;
 }
-.chatbot-enter{
+.chatbot-enter {
   text-align: center;
   position: relative;
   background-color: rgba(255, 255, 255, 0.9);
-  color:black;
+  color: black;
   border-radius: 15px;
   font-size: 24px;
 }
