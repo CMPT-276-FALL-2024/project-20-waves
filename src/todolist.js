@@ -86,7 +86,6 @@ donebutton.addEventListener("click", () => {
     }
     input.value = "";
   }
-  
 });
 
 for (let i = 0; i < maxitems; i++) {
