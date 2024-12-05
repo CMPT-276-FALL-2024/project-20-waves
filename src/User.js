@@ -15,6 +15,8 @@ const User = {
   accessToken: null, // Stores user access token
   isUserInitialized: false, // Tracks user initialization state
   userName: null, // Stores user name
+  //quizHistory: [], // Stores quiz history
+  //toDoList: [], // Stores user's to-do list
 
   saveState() {
     const state = {
@@ -23,6 +25,8 @@ const User = {
       calendars: this.calendars,
       events: this.events,
       userName: this.userName,
+      //quizHistory: this.quizHistory,
+      //toDoList: this.toDoList,
     };
     console.log("Saving user state:", state); // Debug log
     localStorage.setItem("userState", JSON.stringify(state));
@@ -47,6 +51,30 @@ const User = {
       console.error("Error parsing user state from localStorage:", error);
     }
   },
+
+  /* saveQuizScore(topic, score) {
+    const quizItem = { topic, score, date: new Date().toISOString() };
+    this.quizHistory.push(quizItem);
+    this.saveState();
+  },
+
+  loadQuizScores() {
+    const state = localStorage.getItem("userState");
+    if (state) {
+      try {
+        const parsedState = JSON.parse(state);
+        this.quizHistory = parsedState.quizHistory || [];
+        console.log("Quiz history loaded:", this.quizHistory);
+      } catch (error) {
+        console.error("Error loading quiz history:", error);
+      }
+    }
+  },
+
+  clearHistory() {
+    this.quizHistory = [];
+    this.saveState();
+  }, */
 
   clearState() {
     localStorage.removeItem("userState");
