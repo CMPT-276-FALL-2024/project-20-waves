@@ -48,7 +48,7 @@ jobs:
     needs: build
     steps:
        - name: Download static files artifact
-         uses: actions/download-pages-artifact@v3
+         uses: actions/download-artifact@v3
          with:
            path: ./dist
 
