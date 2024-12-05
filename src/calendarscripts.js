@@ -655,10 +655,6 @@ function handleEventClick(info) {
 }
 
 ////////
-// Notifications
-////////
-
-////////
 // Create Event Button
 ////////
 
@@ -824,15 +820,6 @@ function setupDeleteEventButton() {
   });
 }
 
-// Clear notificaitons
-function clearNotification(eventTitle) {
-  if (scheduledReminders.has(eventTitle)) {
-    clearTimeout(scheduledReminders.get(eventTitle));
-    scheduledReminders.delete(eventTitle);
-    console.log(`Notification for "${eventTitle}" cleared.`);
-  }
-}
-
 ////////
 // Create Event Functionality
 ////////
@@ -856,11 +843,13 @@ function clearEventForm() {
   if (notificationsCheckbox) notificationsCheckbox.checked = false;
   if (notificationOptions) notificationOptions.style.display = "none";
 }
+
 // Open the sidebar
 function openSidebar() {
   const eventSidebar = document.getElementById("event-sidebar");
   eventSidebar.classList.add("open");
 }
+
 // Close the sidebar
 function closeSidebar() {
   const eventSidebar = document.getElementById("event-sidebar");
@@ -1017,18 +1006,6 @@ function setupTabs() {
 // Helper Functions
 ////////
 
-// Get the reminder object from an event
-function getReminderFromEvent(event) {
-  if (
-    event.extendedProps &&
-    event.extendedProps.reminders &&
-    event.extendedProps.reminders.overrides
-  ) {
-    return event.extendedProps.reminders.overrides[0]; // Assume single reminder for now
-  }
-  return null; // No reminder found
-}
-
 // Convert minutes to a friendly format
 function convertMinutesToFriendlyFormat(minutes) {
   if (minutes >= 1440) {
@@ -1116,6 +1093,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (document.getElementById("create-event-fab")) {
       console.log("Setting up FAB...");
       setupFAB();
+    }
+
+    // Edit Event Button
+    if (document.getElementById("edit-event")) {
+      console.log("Setting up edit event button...");
+      setupEditEventButton();
+    }
+
+    if (document.getElementById("delete-event")) {
+      console.log("Setting up delete event button...");
+      setupDeleteEventButton();
+    }
+
+    // Notification Toggle
+    if (document.getElementById("enable-notifications")) {
+      console.log("Setting up notification toggle...");
+      setupNotificationToggle();
     }
 
     // Initialize Complete
