@@ -3,21 +3,13 @@
 //////////////////////////////////////////////////////////////////////////////
 //   Manages calendar data and interactions with the Google Calendar API    //
 //////////////////////////////////////////////////////////////////////////////
-import User from './User.js';
-
-if (window.location.pathname.includes("calendar.html")) {
-  document.addEventListener("DOMContentLoaded", () => {
-      initializeCalendar();
-  });
-}
-
+import User from "./User.js";
 
 let calendar; // FullCalendar instance
 let selectedEvent = null; // Currently selected event
 
 ////////
 // Initialize the FullCalendar instance
-// includes event handling functions
 ////////
 
 // Initialize FullCalendar with updated handlers
@@ -59,76 +51,52 @@ function initializeCalendar() {
 
 export async function populateCalendarEvents() {
   if (!window.location.pathname.includes("calendar.html")) {
-      console.warn("populateCalendarEvents called outside calendar.html");
-      return;
+    console.warn("populateCalendarEvents called outside calendar.html");
+    return;
   }
 
   if (!User.isLoggedIn) {
-      console.error("User is not logged in. Cannot populate calendar events.");
-      User.openValidationModal("Please sign in to view your calendar.");
-      return;
+    console.error("User is not logged in. Cannot populate calendar events.");
+    User.openValidationModal("Please sign in to view your calendar.");
+    return;
   }
 
   try {
-      console.log("Populating calendar events...");
+    console.log("Populating calendar events...");
 
-      // Ensure calendars and events are fetched
-      if (!User.calendars || User.calendars.length === 0) {
-          console.log("Fetching user calendars...");
-          await User.fetchUserCalendars();
-          console.log("Fetching events for all calendars...");
-          await User.fetchAllCalendarEvents();
+    // Ensure calendars and events are fetched
+    if (!User.calendars || User.calendars.length === 0) {
+      console.log("Fetching user calendars...");
+      await User.fetchUserCalendars();
+      console.log("Fetching events for all calendars...");
+      await User.fetchAllCalendarEvents();
+    }
+
+    // Clear existing events in FullCalendar
+    if (calendar) {
+      calendar.getEvents().forEach((event) => event.remove());
+    }
+
+    // Loop through each calendar and add events
+    User.calendars.forEach((calendarObj) => {
+      if (calendarObj.events && calendarObj.events.length > 0) {
+        calendarObj.events.forEach((event) => {
+          const formattedEvent = {
+            title: event.title,
+            start: event.start,
+            end: event.end || null,
+          };
+          calendar.addEvent(formattedEvent);
+          console.log("Added event to calendar:", formattedEvent);
+        });
       }
+    });
 
-      // Clear existing events in FullCalendar
-      if (calendar) {
-          calendar.getEvents().forEach((event) => event.remove());
-      }
-
-      // Loop through each calendar and add events
-      User.calendars.forEach((calendarObj) => {
-          if (calendarObj.events && calendarObj.events.length > 0) {
-              calendarObj.events.forEach((event) => {
-                  const formattedEvent = {
-                      title: event.title,
-                      start: event.start,
-                      end: event.end || null,
-                  };
-                  calendar.addEvent(formattedEvent);
-                  console.log("Added event to calendar:", formattedEvent);
-              });
-          }
-      });
-
-      console.log("All calendar events populated.");
+    console.log("All calendar events populated.");
   } catch (error) {
-      console.error("Error populating calendar events:", error);
+    console.error("Error populating calendar events:", error);
   }
 }
-
-
-
-/* async function fetchCalendarEvents(calendarId) {
-  try {
-    const response = await gapi.client.calendar.events.list({
-      calendarId: calendarId,
-      timeMin: new Date().toISOString(),
-      showDeleted: false,
-      singleEvents: true,
-      orderBy: "startTime",
-    });
-    
-    return response.result.items.map((event) => ({
-      title: event.summary,
-      start: event.start.dateTime || event.start.date,
-      end: event.end.dateTime || event.end.date,
-    }));
-  } catch (error) {
-    console.error("Error fetching calendar events:", error);
-    return [];
-  }
-} */
-
 
 // Floating Action Button (FAB) for creating a new event
 function setupFAB() {
@@ -139,8 +107,7 @@ function setupFAB() {
 }
 
 function requireSignIn(actionCallback) {
-  if (!User.getUserState()) {
-    User.openValidationModal("Please sign in to create events.");
+  if (!User.isLoggedIn) {
     return false;
   }
   actionCallback();
@@ -288,10 +255,15 @@ function openCreateEventSidebarForDateRange(start, end) {
 function setupCloseSidebarListeners() {
   const closeSidebarButton = document.getElementById("close-sidebar-button");
   if (closeSidebarButton) {
+    console.log("Attaching close sidebar listener");
     closeSidebarButton.addEventListener("click", closeSidebar);
+  } else {
+    console.error("Close sidebar button not found!");
   }
+
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
+      console.log("Escape key pressed, closing sidebar.");
       closeSidebar();
     }
   });
@@ -529,8 +501,8 @@ function setupEditEventButton() {
           (notificationTimeUnit === "hours"
             ? 60
             : notificationTimeUnit === "days"
-            ? 1440
-            : 1);
+              ? 1440
+              : 1);
         scheduleNotification(title, newStart, reminderMinutes);
       }
 
@@ -701,103 +673,93 @@ function scheduleNotification(eventTitle, eventStartTime, minutesBefore) {
 ////////
 // Create Event Button
 ////////
-
 function setupEventCreationButton() {
   const createButton = document.getElementById("create-event");
-  if (createButton) {
-    createButton.addEventListener("click", () => {
-      if (!User.getUserState()) {
-        User.openValidationModal("Please log in to create an event.");
-        return;
-      }
-      // Retrieve form values
-      const title = document.getElementById("event-title").value.trim();
-      const startDate = document.getElementById("event-start-date").value;
-      const startTime = document.getElementById("event-start-time").value;
-      const endDate = document.getElementById("event-end-date").value;
-      const endTime = document.getElementById("event-end-time").value;
-      const notificationsEnabled = document.getElementById(
-        "enable-notifications"
-      ).checked;
-      // Validate required fields
-      if (!title) {
-        User.openValidationModal("Please enter a title for the event.");
-        return;
-      }
-      if (!startDate || !startTime || !endDate || !endTime) {
-        User.openValidationModal(
-          "Please enter valid start and end dates and times."
-        );
-        return;
-      }
-      const start = `${startDate}T${startTime}:00`;
-      const end = `${endDate}T${endTime}:00`;
-      console.log("Start Date:", start);
-      console.log("End Date:", end);
-      if (new Date(start) >= new Date(end)) {
-        User.openValidationModal("End time must be after start time.");
-        return;
-      }
-      const useThisTimeZone = "PST"; // Set a default time zone or fetch dynamically
-      let reminderMinutes = null;
-      if (notificationsEnabled) {
-        const notificationTime = parseInt(
-          document.getElementById("notification-time").value,
-          10
-        );
-        const notificationTimeUnit = document.getElementById(
-          "notification-time-unit"
-        ).value;
-        const reminderMinutes =
-          notificationTime *
-          (notificationTimeUnit === "hours"
-            ? 60
-            : notificationTimeUnit === "days"
-            ? 1440
-            : 1);
-        reminders = {
-          useDefault: false,
-          overrides: [{ method: "popup", minutes: reminderMinutes }],
-        };
-        scheduleNotification(title, start, reminderMinutes);
-      }
-      // Prepare the minimal event payload (no reminders)
-      const eventResource = {
-        summary: title,
-        start: { dateTime: start, timeZone: useThisTimeZone },
-        end: { dateTime: end, timeZone: useThisTimeZone },
-        reminders: reminders || { useDefault: true },
-      };
-      // Debugging: Log the payload before sending
-      console.log("Event Resource Payload (no notifications):", eventResource);
-      // Add the event to Google Calendar
-      if (gapiInited) {
-        gapi.client.calendar.events
-          .insert({
-            calendarId: "primary",
-            resource: eventResource,
-          })
-          .then(() => {
-            if (calendar) {
-              calendar.addEvent({
-                title: eventResource.summary,
-                start: eventResource.start.dateTime,
-                end: eventResource.end.dateTime,
-              });
-            }
-            fetchCalendarUpdates(); // Fetch updates after adding event
-            // openValidationModal("Event successfully added to Google Calendar.");
-          })
-          .catch((error) => {
-            console.error("Error adding event to Google Calendar:", error);
-            User.openValidationModal(
-              "Failed to add event to Google Calendar. Check console for details."
-            );
-          });
-      }
-      closeSidebar();
-    });
+  if (!createButton) {
+    console.error("Create button not found.");
+    return;
   }
+
+  createButton.addEventListener("click", async () => {
+    console.log("Create button clicked!");
+
+    // Validate user is logged in
+    if (!User.isLoggedIn) {
+      console.warn("User is not logged in.");
+      User.openValidationModal("Please log in to create an event.");
+      return;
+    }
+
+    // Get form values
+    const title = document.getElementById("event-title").value.trim();
+    const startDate = document.getElementById("event-start-date").value;
+    const startTime = document.getElementById("event-start-time").value;
+    const endDate = document.getElementById("event-end-date").value;
+    const endTime = document.getElementById("event-end-time").value;
+
+    console.log({ title, startDate, startTime, endDate, endTime });
+
+    // Validate inputs
+    if (!title || !startDate || !startTime || !endDate || !endTime) {
+      console.error("Missing required fields.");
+      User.openValidationModal("All fields must be filled out.");
+      return;
+    }
+
+    const start = `${startDate}T${startTime}:00`;
+    const end = `${endDate}T${endTime}:00`;
+
+    if (new Date(start) >= new Date(end)) {
+      console.error("Start time is after end time.");
+      User.openValidationModal("End time must be after start time.");
+      return;
+    }
+
+    try {
+      // Add the event to Google Calendar
+      console.log("Adding event to Google Calendar...");
+      const response = await gapi.client.calendar.events.insert({
+        calendarId: "primary", // Adding to the user's primary calendar
+        resource: {
+          summary: title,
+          start: {
+            dateTime: start,
+            timeZone: "UTC", // Adjust to the user's time zone if needed
+          },
+          end: {
+            dateTime: end,
+            timeZone: "UTC",
+          },
+        },
+      });
+
+      console.log("Event successfully added to Google Calendar:", response);
+
+      // Add the event to the local FullCalendar instance
+      if (calendar) {
+        calendar.addEvent({
+          title: title,
+          start: start,
+          end: end,
+        });
+        console.log(`Event added to FullCalendar: ${title}`);
+      }
+
+      // Show success message
+      User.openValidationModal(
+        "Event successfully added to your Google Calendar."
+      );
+
+      // Clear form and close the sidebar
+      clearEventForm();
+      closeSidebar();
+    } catch (error) {
+      console.error("Error adding event to Google Calendar:", error);
+      User.openValidationModal(
+        "Failed to add the event to Google Calendar. Please try again."
+      );
+    }
+  });
 }
 
 ////////
@@ -903,83 +865,40 @@ function closeSidebar() {
 ////////
 // Agenda Tabs
 ////////
-
-// Toggle between tabs
-async function togglePanel(panelId, calendarName, listId) {
-  const tabsContainer = document.getElementById("tabs-container");
-  const panel = document.getElementById(panelId);
-
-  if (tabsContainer && panel) {
-    if (panel.classList.contains("active")) {
-      panel.classList.remove("active"); // Close if already open
-      return;
-    }
-
-    // Close all other panels
-    docume
-      .querySelectorAll(".tab-panel")
-      .forEach((p) => p.classList.remove("active"));
-
-    // Align the panel with the tabs-container's position
-    panel.style.top = `${tabsContainer.offsetTop}px`;
-
-    try {
-      const calendars = await fetchUserCalendars();
-      const targetCalendar = calendars.find(
-        (cal) => cal.name.toLowerCase() === calendarName.toLowerCase()
-      );
-
-      if (targetCalendar) {
-        await fetchSecondaryGoogleCalendarEvents(
-          gapi,
-          targetCalendar.id,
-          listId
-        );
-      } else {
-        document.getElementById(
-          listId
-        ).innerHTML = `<li>No "${calendarName}" calendar found.</li>`;
-      }
-    } catch (error) {
-      console.error(`Error toggling panel for ${calendarName}:`, error);
-      document.getElementById(
-        listId
-      ).innerHTML = `<li>Error fetching events. Please try again.</li>`;
-    }
-
-    panel.classList.add("active"); // Open the panel
-  }
-}
-
-// Tab dragging functionality
 function enableTabDragging() {
   const tabsContainer = document.getElementById("tabs-container");
-  const handle = document.getElementById("tabs-handle");
+  const dragHandle = document.getElementById("tabs-handle");
+  const panels = document.querySelectorAll(".tab-panel");
+
+  if (!tabsContainer || !dragHandle) {
+    console.error("Tabs container or drag handle not found.");
+    return;
+  }
 
   let isDragging = false;
-  let startY = 0; // Initial mouse position
-  let startTop = 0; // Initial top position of the container
+  let offsetY = 0;
 
-  handle.addEventListener("mousedown", (event) => {
+  dragHandle.addEventListener("mousedown", (event) => {
     event.preventDefault(); // Prevent text selection and default behavior
     isDragging = true;
-    startY = event.clientY;
-    startTop = tabsContainer.offsetTop; // Current top position of the container
+    offsetY = event.clientY - tabsContainer.offsetTop;
+
+    // Close all panels on drag start
+    panels.forEach((panel) => (panel.style.display = "none"));
+
     document.body.style.cursor = "grabbing";
   });
 
   document.addEventListener("mousemove", (event) => {
     if (!isDragging) return;
 
-    // Calculate new top position
-    const deltaY = event.clientY - startY;
-    let newTop = startTop + deltaY;
+    let newTop = event.clientY - offsetY;
 
-    // Clamp the position to keep within screen bounds
-    const maxTop = window.innerHeight - tabsContainer.offsetHeight;
-    newTop = Math.max(0, Math.min(newTop, maxTop));
-
-    tabsContainer.style.top = `${newTop}px`;
+    // Restrict vertical movement
+    tabsContainer.style.top = `${Math.max(
+      0,
+      Math.min(newTop, window.innerHeight - tabsContainer.offsetHeight)
+    )}px`;
   });
 
   document.addEventListener("mouseup", () => {
@@ -989,77 +908,89 @@ function enableTabDragging() {
     }
   });
 }
-// Ensure tabs remain functional
-function setupAgendaTabs() {
-  document
-    .getElementById("lectures-tab")
-    .addEventListener("click", async () => {
-      await openPanel("lectures-panel", "Lectures", "lectures-list");
-    });
+function initializeTabsandPanels() {
+  const tabs = document.querySelectorAll(".tab");
+  const panels = document.querySelectorAll(".tab-panel");
+  const closeButtons = document.querySelectorAll(".close-panel");
 
-  document.getElementById("tests-tab").addEventListener("click", async () => {
-    await openPanel("tests-panel", "Tests", "tests-list");
+  // Handle tab click to show the corresponding panel
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      // Hide all panels
+      panels.forEach((panel) => panel.classList.remove("active"));
+
+      // Show the corresponding panel
+      const targetPanelId = tab.id.replace("-tab", "-panel");
+      const targetPanel = document.getElementById(targetPanelId);
+      if (targetPanel) {
+        targetPanel.classList.add("active");
+      }
+    });
+  });
+
+  // Handle close button click to hide the corresponding panel
+  closeButtons.forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const panel = event.target.closest(".tab-panel");
+      if (panel) {
+        panel.classList.remove("active");
+      }
+    });
+  });
+
+  // Handle outside click to hide all open panels
+  document.addEventListener("click", (event) => {
+    // Check if the click is inside a tab or panel
+    const isClickInside =
+      event.target.closest(".tab-panel") || event.target.closest(".tab");
+
+    if (!isClickInside) {
+      panels.forEach((panel) => panel.classList.remove("active"));
+      console.log("Closed all panels.");
+    }
   });
 }
-// Open panel at tab height
-function openPanel(panelId, calendarName, listId) {
-  const tabsContainer = document.getElementById("tabs-container");
+
+function openPanel(panelId) {
   const panel = document.getElementById(panelId);
+  const tabsContainer = document.getElementById("tabs-container");
 
-  if (tabsContainer && panel) {
-    // Close the panel if it's already open
-    if (panel.classList.contains("active")) {
-      panel.classList.remove("active");
-      return;
-    }
-
-    // Close other panels before opening the new one
-    document
-      .querySelectorAll(".tab-panel")
-      .forEach((p) => p.classList.remove("active"));
-
-    // Align the panel's top position with the tabs-container
-    if (!panel.style.top) {
-      panel.style.top = `${tabsContainer.offsetTop}px`;
-    }
-
-    // Use pre-fetched data to populate the panel
-    const events =
-      calendarName.toLowerCase() === "lectures"
-        ? calendarData.lectures
-        : calendarData.tests;
-
-    const listElement = document.getElementById(listId);
-    if (listElement) {
-      listElement.innerHTML = ""; // Clear existing list
-
-      if (events.length > 0) {
-        events.forEach((event) => {
-          const listItem = document.createElement("li");
-          const startTime = new Date(event.start.dateTime || event.start.date);
-          listItem.textContent = `${
-            event.summary
-          } - ${startTime.toLocaleString()}`;
-          listElement.appendChild(listItem);
-        });
-      } else {
-        listElement.innerHTML = `<li>No "${calendarName}" events found.</li>`;
-      }
-    } else {
-      console.warn(`List element with id "${listId}" not found.`);
-    }
-
-    panel.classList.add("active"); // Open the panel
+  if (panel && tabsContainer) {
+    panel.style.top = `${tabsContainer.offsetTop}px`;
+    panel.style.display = "block"; // Show the panel
   } else {
-    console.warn("Tabs container or panel not found.");
+    console.error(`Panel with id "${panelId}" or tabs container not found.`);
   }
 }
-// close panel
+
+// Export for global access (if using modules)
+window.openPanel = openPanel;
+
 function closePanel(panelId) {
   const panel = document.getElementById(panelId);
   if (panel) {
-    panel.classList.remove("active");
+    panel.style.display = "none"; // Hide the panel
   }
+}
+
+// Setup tabs functionality
+function setupTabs() {
+  const tabs = [
+    { id: "lectures-tab", panel: "lectures-panel" },
+    { id: "tests-tab", panel: "tests-panel" },
+    { id: "assignments-tab", panel: "assignments-panel" },
+  ];
+
+  tabs.forEach(({ id, panel }) => {
+    const tab = document.getElementById(id);
+    if (tab) {
+      tab.addEventListener("click", () => openPanel(panel, id));
+    } else {
+      console.warn(`Tab with id "${id}" not found.`);
+    }
+  });
+
+  console.log("Tabs setup complete.");
 }
 
 ////////
@@ -1103,87 +1034,72 @@ function setupDebugKey() {
 ////////
 // DOM Content Loaded
 ////////
-  document.querySelectorAll(".close-panel-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      const panel = button.closest(".tab-panel");
-      panel.classList.remove("active");
-    });
-  });
 
-  // Outside click listener
-  document.addEventListener("click", (event) => {
-    const isClickInside =
-      event.target.closest(".tab-panel") || event.target.closest(".tab");
-    if (!isClickInside) {
-      document.querySelectorAll(".tab-panel").forEach((panel) => {
-        panel.classList.remove("active");
-      });
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("Document fully loaded. Starting initialization...");
+
+  try {
+    // Load shared header and modals
+    const sharedContent = document.getElementById("shared-content");
+    if (sharedContent) {
+      console.log("Loading shared content...");
+      const response = await fetch("application.html");
+      const html = await response.text();
+      sharedContent.innerHTML = html;
+    } else {
+      console.warn("Shared content container not found.");
     }
-  });
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (User.getUserState()) {
-  try {
-    initializeCalendar();
-  } catch (error) {
-    console.error("Error initializing calendar:", error);
-  }try {
-    console.log("Setting up move cursor");
-    setupMoveCursor();
-  } catch (error) {
-    console.error("Error setting up crosshair cursor:", error);
-  }
-  try {
-    enableTabDragging();
-  } catch (error) {
-    console.error("Error enabling tab dragging:", error);
-  }
-  try {
-    setupAgendaTabs();
-  } catch {
-    console.error("Error setting up agenda tabs");
-  }
-  try {
-    setupEventCreationButton();
-  } catch (error) {
-    console.error("Error setting up event creation button:", error);
-  }
-  try {
-    setupFAB();
-  } catch (error) {
-    console.error("Error setting up event FAB:", error);
-  }
+    // Initialize user state and authentication
+    if (window.User) {
+      console.log("Initializing user...");
+      await User.loadState();
+      await User.initializeUser();
+    } else {
+      console.error("User module not found.");
+    }
 
-  try {
-    setupEditEventButton();
+    // Initialize Calendar
+    if (document.getElementById("calendar")) {
+      console.log("Initializing calendar...");
+      initializeCalendar();
+    }
+
+    // Initialize Sidebar
+    if (document.getElementById("event-sidebar")) {
+      console.log("Setting up event sidebar...");
+      setupCloseSidebarListeners();
+      enableSidebarDragging();
+    }
+
+    // Initialize Tabs
+    if (document.getElementById("tabs-container")) {
+      console.log("Setting up tabs...");
+      setupTabs();
+      initializeTabsandPanels();
+      enableTabDragging();
+    }
+
+    // CreateButton
+    if (document.getElementById("create-event")) {
+      console.log("Setting up create event button...");
+      setupEventCreationButton();
+    }
+
+    // Floating Action Button (FAB)
+    if (document.getElementById("create-event-fab")) {
+      console.log("Setting up FAB...");
+      setupFAB();
+    }
+
+    // Notification Bell
+    if (document.getElementById("notification-bell")) {
+      console.log("Initializing notifications...");
+      initializeNotifications();
+    }
+
+    console.log("Initialization completed.");
   } catch (error) {
-    console.error("Error setting up edit event button:", error);
+    console.error("Error during initialization:", error);
   }
-  try {
-    setupDeleteEventButton();
-  } catch (error) {
-    console.error("Error setting up delete event button:", error);
-  }
-  try {
-    setupCloseSidebarListeners();
-  } catch (error) {
-    console.error("Error setting up close sidebar listeners:", error);
-  }
-  try {
-    enableSidebarDragging();
-  } catch (error) {
-    console.error("Error enabling sidebar dragging:", error);
-  }
-  try {
-    setupNotificationToggle();
-  } catch (error) {
-    console.error("Error setting up notification toggle:", error);
-  }
-  try {
-    initializeNotifications();
-    console.log("Notifications initialized.");
-  } catch (error) {
-    console.error("Error initializing notifications:", error);
-  }
-}
 });

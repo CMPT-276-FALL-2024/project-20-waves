@@ -2,26 +2,26 @@
 <!---------------   Calendar   --------------->
 <!-------------------------------------------->
 
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
-     <title>Study Buddy Calendar</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css"
+      rel="stylesheet"
+    />
+    <title>Study Buddy Calendar</title>
   </head>
 
   <body>
-
-<!-- Website Shared Content -->
-<div id="shared-content"></div>
+    <!-- Website Shared Content -->
+    <div id="shared-content"></div>
 
     <div id="calendar-container">
       <div id="calendar"></div>
     </div>
-
 
     <!-- Sidebar for Event Creation and Editing -->
     <div id="event-sidebar" class="event-sidebar">
@@ -125,20 +125,19 @@
     <button id="create-event-fab" class="fab">+</button>
 
     <div id="tabs-container" class="tabs-container">
-      <!-- Drag Handle -->
       <div id="tabs-handle" class="tabs-handle">☰</div>
 
-      <!-- Tabs -->
-      <div class="tab" id="lectures-tab">Lectures</div>
-      <div class="tab" id="tests-tab">Tests</div>
+      <div id="lectures-tab" class="tab">Lectures</div>
+
+      <div id="tests-tab" class="tab">Tests</div>
+
+      <div id="assignments-tab" class="tab">Assignments</div>
     </div>
 
     <div id="lectures-panel" class="tab-panel">
       <div class="panel-header">
         <h3>Upcoming Lectures</h3>
-        <button class="close-panel" onclick="closePanel('lectures-panel')">
-          ✖
-        </button>
+        <button class="close-panel" title="Close Panel">✖</button>
       </div>
       <ul id="lectures-list"></ul>
     </div>
@@ -146,38 +145,40 @@
     <div id="tests-panel" class="tab-panel">
       <div class="panel-header">
         <h3>Upcoming Tests</h3>
-        <button class="close-panel" onclick="closePanel('tests-panel')">
-          ✖
-        </button>
+        <button class="close-panel" title="Close Panel">✖</button>
       </div>
-      <ul id="tests-list"></ul>
     </div>
 
+    <div id="assignments-panel" class="tab-panel">
+      <div class="panel-header">
+        <h3>Upcoming Assignments</h3>
+        <button class="close-panel" title="Close Panel">✖</button>
+      </div>
+    </div>
 
     <script type="module" src="./User.js"></script>
 
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        // Fetch and load shared header
-        const response = await fetch("application.html");
-        const html = await response.text();
-        document.getElementById("shared-content").innerHTML = html;
-        await User.loadState();
-        // Initialize user state and update auth buttons
-        await User.initializeUser();
-    } catch (err) {
-        console.error("Error loading calendar page:", err);
-    }
-});
-
-  </script>
+        try {
+          // Fetch and load shared header
+          const response = await fetch("application.html");
+          const html = await response.text();
+          document.getElementById("shared-content").innerHTML = html;
+          await User.loadState();
+          // Initialize user state and update auth buttons
+          await User.initializeUser();
+        } catch (err) {
+          console.error("Error loading calendar page:", err);
+        }
+      });
+    </script>
     <!-- calendar.html -->
-     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-<script type="module" src="./calendarscripts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script type="module" src="./calendarscripts.js"></script>
 
-<!-- Google Sign-In and Calendar API -->
+    <!-- Google Sign-In and Calendar API -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js" async defer></script>
-    </body>
+  </body>
 </html>
