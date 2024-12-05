@@ -489,6 +489,7 @@
           document.getElementById("shared-content").innerHTML = html;
           await User.loadState();
           await User.initializeUser(); // Wait until user state is fully initialized
+          User.initializeNotifications();
         } catch (err) {
           console.error("Error initializing page:", err);
         }

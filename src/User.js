@@ -107,16 +107,16 @@ const User = {
       console.log("Updating auth buttons...");
       await this.updateAuthButtons();
 
+      console.log("Fetching user calendars...");
+      await this.fetchUserCalendars();
+
+      console.log("Fetching calendar events...");
+      await this.fetchAllCalendarEvents();
+
+      console.log("Scheduling notifications...");
+      this.scheduleAllNotifications();
+
       if (window.location.pathname.includes("calendar.html")) {
-        console.log("Fetching user calendars...");
-        await this.fetchUserCalendars();
-
-        console.log("Fetching calendar events...");
-        await this.fetchAllCalendarEvents();
-
-        console.log("Fetching calendar notifications...");
-        await this.fetchAllCalendarNotifications();
-
         console.log("Populating calendar events...");
         populateCalendarEvents();
       }
@@ -344,6 +344,7 @@ const User = {
         title: event.summary,
         start: event.start.dateTime || event.start.date,
         end: event.end.dateTime || event.end.date,
+        reminders: event.reminders,
       }));
 
       // Find the calendar and store its events
@@ -372,6 +373,77 @@ const User = {
 
     await Promise.all(eventPromises); // Wait for all fetches to complete
     console.log("All events fetched and stored.");
+  },
+
+  scheduleAllNotifications() {
+    const currentTime = new Date().getTime();
+
+    this.calendars.forEach((calendar) => {
+      calendar.events.forEach((event) => {
+        if (!event.title || !event.start || !event.reminders) return;
+
+        // Check if overrides are defined in the reminders
+        if (
+          event.reminders.useDefault ||
+          (event.reminders.overrides && event.reminders.overrides.length > 0)
+        ) {
+          const overrides = event.reminders.overrides || [];
+          overrides.forEach((override) => {
+            const minutesBefore = override.minutes;
+
+            const startTime = new Date(event.start).getTime();
+            const notificationTime = startTime - minutesBefore * 60 * 1000;
+
+            if (notificationTime > currentTime) {
+              const delay = notificationTime - currentTime;
+
+              setTimeout(() => {
+                this.addNotification(
+                  `Reminder: "${event.title}" starts in ${minutesBefore} minutes.`
+                );
+              }, delay);
+
+              console.log(
+                `Notification scheduled for "${event.title}" at ${new Date(
+                  notificationTime
+                ).toLocaleString()}`
+              );
+            }
+          });
+        } else {
+          console.log(
+            `No notifications scheduled for "${event.title}" - no overrides found.`
+          );
+        }
+      });
+    });
+  },
+
+  addNotification(message) {
+    if (!this.notifications) this.notifications = [];
+
+    // Push notification to the array only when triggered
+    this.notifications.push(message);
+    this.saveState(); // Persist the updated state
+
+    const notificationBadge = document.getElementById("notification-badge");
+    const notificationList = document.getElementById("notification-list");
+
+    // Update badge count
+    if (notificationBadge) {
+      notificationBadge.style.display = "block";
+      notificationBadge.textContent = this.notifications.length;
+    }
+
+    // Add the notification to the dropdown list
+    if (notificationList) {
+      const listItem = document.createElement("li");
+      listItem.textContent = message;
+      listItem.className = "notification-item";
+      notificationList.appendChild(listItem);
+    }
+
+    console.log("Notification triggered:", message);
   },
 
   closeSignOutModal() {
@@ -465,6 +537,102 @@ const User = {
     } catch (error) {
       console.error("Error updating calendar events:", error);
       throw error;
+    }
+  },
+
+  initializeNotifications() {
+    console.log("Initializing notifications");
+    const notificationBell = document.getElementById("notification-bell");
+    const notificationDropdown = document.getElementById(
+      "notification-dropdown"
+    );
+    const clearNotificationsButton = document.getElementById(
+      "clear-notifications"
+    );
+
+    if (!notificationBell || !notificationDropdown) {
+      console.error("Notification bell or dropdown not found.");
+      return;
+    }
+
+    let isDropdownVisible = false;
+
+    // Show or hide the dropdown
+    notificationBell.addEventListener("click", (event) => {
+      event.stopPropagation(); // Prevent click from propagating to the document
+      isDropdownVisible = !isDropdownVisible;
+      notificationDropdown.style.display = isDropdownVisible ? "block" : "none";
+    });
+
+    // Hide the dropdown when clicking outside
+    document.addEventListener("click", () => {
+      if (isDropdownVisible) {
+        notificationDropdown.style.display = "none";
+        isDropdownVisible = false;
+      }
+    });
+
+    // Prevent dropdown from closing when clicking inside
+    notificationDropdown.addEventListener("click", (event) => {
+      event.stopPropagation(); // Allow clicks inside the dropdown
+    });
+
+    // Clear all notifications
+    clearNotificationsButton.addEventListener("click", () => {
+      this.notifications = [];
+      this.saveState();
+
+      const notificationBadge = document.getElementById("notification-badge");
+      const notificationList = document.getElementById("notification-list");
+
+      notificationBadge.style.display = "none";
+      notificationList.innerHTML = "<li>No notifications.</li>";
+
+      notificationDropdown.style.display = "none";
+      isDropdownVisible = false;
+
+      console.log("All notifications cleared.");
+    });
+
+    // Render existing notifications on load
+    this.renderNotifications();
+  },
+
+  addNotification(message) {
+    if (!this.notifications) this.notifications = [];
+    this.notifications.push(message);
+    this.saveState();
+    this.updateNotificationDisplay();
+  },
+
+  renderNotifications() {
+    const notificationBadge = document.getElementById("notification-badge");
+    const notificationList = document.getElementById("notification-list");
+
+    if (this.notifications.length > 0) {
+      notificationBadge.style.display = "block";
+      notificationBadge.textContent = this.notifications.length;
+
+      notificationList.innerHTML = ""; // Clear existing items
+      this.notifications.forEach((notification) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = notification;
+        listItem.className = "notification-item";
+        notificationList.appendChild(listItem);
+      });
+    } else {
+      notificationBadge.style.display = "none";
+      notificationList.innerHTML = "<li>No notifications.</li>";
+    }
+  },
+
+  updateNotificationDisplay() {
+    const notificationBadge = document.getElementById("notification-badge");
+    if (this.notifications.length > 0) {
+      notificationBadge.style.display = "block";
+      notificationBadge.textContent = this.notifications.length;
+    } else {
+      notificationBadge.style.display = "none";
     }
   },
 };

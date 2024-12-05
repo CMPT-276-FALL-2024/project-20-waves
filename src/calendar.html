@@ -170,6 +170,7 @@
           await User.loadState();
           // Initialize user state and update auth buttons
           await User.initializeUser();
+          User.initializeNotifications();
         } catch (err) {
           console.error("Error loading calendar page:", err);
         }

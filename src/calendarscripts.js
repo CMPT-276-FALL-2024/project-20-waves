@@ -658,110 +658,6 @@ function handleEventClick(info) {
 // Notifications
 ////////
 
-// Initialize notifications
-function initializeNotifications() {
-  console.log("Initializing notifications");
-  const notificationBell = document.getElementById("notification-bell");
-  const notificationDropdown = document.getElementById("notification-dropdown");
-  const clearNotificationsButton = document.getElementById(
-    "clear-notifications"
-  );
-  // Get notification list element
-  const notificationList = document.getElementById("notification-list");
-
-  let notifications = [];
-
-  // Render notifications in the dropdown
-  function renderNotifications() {
-    notificationList.innerHTML = "";
-    if (notifications.length === 0) {
-      const emptyItem = document.createElement("li");
-      emptyItem.textContent = "No notifications.";
-      emptyItem.className = "notification-item";
-      notificationList.appendChild(emptyItem);
-      // Hide the dropdown if empty
-    } else {
-      notifications.forEach((notification) => {
-        const listItem = document.createElement("li");
-        listItem.textContent = notification;
-        listItem.className = "notification-item";
-        notificationList.appendChild(listItem);
-      });
-    }
-  }
-
-  // Update the badge when notifications are added/cleared
-  function updateNotificationBadge() {
-    const badge = document.getElementById("notification-badge");
-    if (notifications.length > 0) {
-      badge.style.display = "block";
-      badge.textContent = notifications.length;
-    } else {
-      badge.style.display = "none";
-    }
-  }
-
-  // Add a notification
-  window.addNotification = function (message) {
-    notifications.push(message);
-    updateNotificationBadge();
-    renderNotifications();
-  };
-
-  // Clear all notifications
-  clearNotificationsButton.addEventListener("click", () => {
-    notifications = [];
-    updateNotificationBadge();
-    renderNotifications();
-    notificationDropdown.style.display = "none";
-    console.log("All notifications cleared");
-  });
-
-  // Show or hide the dropdown
-  notificationBell.addEventListener("click", (event) => {
-    event.stopPropagation();
-    const isVisible = notificationDropdown.style.display === "block";
-    console.log("notification dropdown:", notificationDropdown.display);
-    notificationDropdown.style.display = isVisible ? "none" : "block";
-    console.log("notification dropdown:", notificationDropdown.display);
-  });
-
-  // Hide the dropdown when clicking outside
-  document.addEventListener("click", () => {
-    notificationDropdown.style.display = "none";
-  });
-
-  // Prevent dropdown from closing when clicking inside
-  notificationDropdown.addEventListener("click", (event) => {
-    event.stopPropagation();
-  });
-}
-
-// Schedule a notification for an event
-function scheduleNotification(eventTitle, eventStartTime, minutesBefore) {
-  const eventTime = new Date(eventStartTime).getTime();
-  const notificationTime = eventTime - minutesBefore * 60 * 1000;
-  const currentTime = Date.now();
-
-  if (notificationTime > currentTime) {
-    const delay = notificationTime - currentTime;
-
-    setTimeout(() => {
-      addNotification(
-        `Reminder: "${eventTitle}" starts in ${minutesBefore} minutes.`
-      );
-    }, delay);
-
-    console.log(
-      `Notification scheduled for "${eventTitle}" at ${new Date(
-        notificationTime
-      )}`
-    );
-  } else {
-    console.warn(`Skipped past notification for "${eventTitle}".`);
-  }
-}
-
 ////////
 // Create Event Button
 ////////
@@ -1220,12 +1116,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (document.getElementById("create-event-fab")) {
       console.log("Setting up FAB...");
       setupFAB();
-    }
-
-    // Notification Bell
-    if (document.getElementById("notification-bell")) {
-      console.log("Initializing notifications...");
-      initializeNotifications();
     }
 
     // Initialize Complete
