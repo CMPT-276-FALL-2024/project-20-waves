@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+
 jobs:
 
   build:
@@ -44,12 +47,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: get code
-        uses: actions/checkout@v3
-        
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
+       - name: Download static files artifact
+         uses: actions/download-pages-artifact@v3
+         with:
+           path: ./dist
+
+       - name: Deploy to GitHub Pages
+         uses: peaceiris/actions-gh-pages@v3
+         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: gh-pages
