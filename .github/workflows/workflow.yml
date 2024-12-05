@@ -76,12 +76,6 @@ jobs:
       - name: Install Node.js dependencies
         run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
 
-      - name: Build assets
-        run: |
-          # Example build command if using tools like Webpack, Parcel, etc.
-          # npm run build
-          echo "No build step needed for this JS/HTML/CSS project"
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
