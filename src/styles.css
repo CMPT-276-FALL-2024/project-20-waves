@@ -1116,16 +1116,16 @@ tr {
   margin-top: 150px;
   position: absolute;
   margin-left: 925px;
+  flex-direction: column;
+  text-align: center;
 }
 
 .loader {
-  border: 10px solid rgb(235, 235, 235);
-  border-radius: 50%;
-  border-top: 10px solid lightblue;
-  width: 75px;
-  height: 75px;
-  animation: spin 2s linear infinite;
   display: none;
+}
+
+#duck-gif {
+  border-radius: 100px;
 }
 
 /*For styling the error message*/
