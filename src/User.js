@@ -24,15 +24,10 @@ const User = {
       isLoggedIn: this.isLoggedIn,
       accessToken: this.accessToken,
       calendars: this.calendars,
-      events: this.events,
+      notifications: this.notifications,
       userName: this.userName,
-      //notifications: this.notifications,
-      //quizHistory: this.quizHistory,
-      //toDoList: this.toDoList,
     };
-    console.log("Saving user state:", state); // Debug log
     localStorage.setItem("userState", JSON.stringify(state));
-    console.log("User state saved to localStorage."); // Confirmation log
   },
 
   loadState() {
@@ -53,7 +48,7 @@ const User = {
       //this.quizHistory = parsedState.quizHistory || [];
       //this.toDoList = parsedState.toDoList || [];
     } catch (error) {
-      console.error("Error parsing user state from localStorage:", error);
+      console.error("Error loading user state:", error);
     }
   },
 
@@ -370,7 +365,10 @@ const User = {
           title: event.summary,
           start: event.start.dateTime || event.start.date,
           end: event.end.dateTime || event.end.date,
-          notificationSettings, // Store notification settings
+          extendedProps: {
+            eventId: event.id,
+            reminders: reminders,
+          }, // Store event ID in extendedProps
         };
       });
 
@@ -566,14 +564,6 @@ const User = {
       }
     };
 
-    // Add notification to the bell
-    this.addNotification = (message) => {
-      this.notifications.push(message);
-      updateNotificationBadge();
-      renderNotifications();
-      this.saveState();
-    };
-
     // Clear all notifications
     clearNotificationsButton.addEventListener("click", () => {
       this.notifications = [];
@@ -603,6 +593,86 @@ const User = {
     // Render existing notifications
     renderNotifications();
     updateNotificationBadge();
+  },
+
+  // Add notification to the bell
+  addNotification(message) {
+    const notificationList = document.getElementById("notification-list");
+    if (!notificationList) {
+      console.error("Notification list not found.");
+      return;
+    }
+    const notificationItem = document.createElement("li");
+    notificationItem.textContent = message;
+    notificationItem.className = "notification-item";
+    notificationList.appendChild(notificationItem);
+
+    const notificationBadge = document.getElementById("notification-badge");
+    if (!notificationBadge) {
+      console.error("Notification badge not found.");
+      return;
+    } else {
+      const currentCount = parseInt(notificationBadge.textContent, 10) || 0;
+      notificationBadge.textContent = currentCount + 1;
+      notificationBadge.style.display = "block";
+    }
+
+    this.notifications.push(message);
+
+    console.log("Notification added:", message);
+
+    this.saveState();
+  },
+
+  async updateCalendarEvent(eventId, title, start, end, reminders = null) {
+    console.log(
+      "Updating event on Google Calendar...",
+      eventId,
+      title,
+      start,
+      end,
+      reminders
+    );
+    if (!this.isLoggedIn) {
+      console.error("User is not logged in. Cannot update event.");
+      return;
+    }
+
+    if (!eventId) {
+      console.error("Event ID not provided. Cannot update event.");
+      return;
+    }
+
+    try {
+      console.log(`Updating event ${eventId} on Google Calendar...`);
+
+      // Ensure the access token is valid
+      await this.ensureAccessToken();
+
+      const response = await gapi.client.calendar.events.update({
+        calendarId: "primary",
+        eventId: eventId,
+        resource: {
+          summary: title,
+          start: { dateTime: start },
+          end: { dateTime: end },
+          reminders: reminders,
+        },
+      });
+      if (response.status === 200) {
+        console.log("Event successfully updated on Google Calendar:", response);
+        return response.result; // Return the updated event details if needed
+      } else {
+        console.error("Failed to update event, unexpected response:", response);
+        throw new Error("Failed to update the event on Google Calendar.");
+      }
+    } catch (error) {
+      console.error(
+        `Failed to update event ${eventId} on Google Calendar:`,
+        error
+      );
+      throw new Error("Failed to update the event on Google Calendar.");
+    }
   },
 };
 

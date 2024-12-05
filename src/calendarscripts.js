@@ -8,18 +8,21 @@ import User from "./User.js";
 // Global Variables
 let calendar; // FullCalendar instance
 let selectedEvent = null; // Currently selected event
+let thisTimeZone = "PST"; // User's time zone, hardcoded for now
 
 ////////
-// Initialize the FullCalendar instance
+// Initialize the FullCalendar instance - DONE
 ////////
 
 // Initialize FullCalendar with updated handlers
 function initializeCalendar() {
   console.log("Initializing calendar");
   const calendarEl = document.getElementById("calendar");
+  // Add calendar-grid class for styling
   if (calendarEl) {
     calendarEl.classList.add("calendar-grid");
   }
+  // Ensure calendar element exists
   calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     selectable: true,
@@ -118,6 +121,7 @@ export async function populateCalendarEvents() {
   }
 }
 
+// Add events to the FullCalendar instance
 function populateFullCalendar(events) {
   console.log("Adding events to FullCalendar:", events); // Debugging
   events.forEach((event) => {
@@ -130,12 +134,14 @@ function populateFullCalendar(events) {
       title: event.title,
       start: event.start,
       end: event.end || null,
+      extendedProps: event.extendedProps,
     });
   });
 
   console.log("Events added to FullCalendar.");
 }
 
+// Populate a tab with events
 function populateTab(listId, events) {
   if (!User.isLoggedIn) {
     const emptyItem = document.createElement("li");
@@ -166,7 +172,7 @@ function populateTab(listId, events) {
 }
 
 ////////
-// Event Tooltip
+// Event Tooltip - DONE
 ////////
 
 // Enable crosshair cursor on the calendar grid
@@ -267,10 +273,10 @@ function positionTooltip(event) {
 }
 
 ////////
-// Sidebar Functionality for Event Data
+// Sidebar Functionality for Event Data - DONE
 ////////
 
-// Opens the sidebar for creating a new event
+// Opens the sidebar for creating a new event with FAB
 function openCreateEventSidebar(date) {
   clearEventForm();
   populateSidebarWithDate(date); // Populate with default or selected date
@@ -285,6 +291,7 @@ function openEditEventSidebar(event) {
   selectedEvent = event;
   populateSidebarWithEventDetails(event); // Fill in event details
   const reminder = getReminderFromEvent(event);
+  // If a reminder is set, populate the notification fields
   if (reminder) {
     populateNotificationFields(reminder);
   } else {
@@ -367,7 +374,7 @@ function enableSidebarDragging() {
 }
 
 ////////
-// Populate Sidebar Functionality
+// Populate Sidebar Functionality - DONE
 ////////
 
 // Populate notification fields in the sidebar
@@ -492,6 +499,8 @@ function populateSidebarWithEventDetails(event) {
       .split("T")[1]
       .substring(0, 5); // HH:MM
   }
+
+  // Populate notification fields separate call
 }
 
 ////////
@@ -499,7 +508,7 @@ function populateSidebarWithEventDetails(event) {
 ////////
 
 // Set up the edit event button
-function setupEditEventButton() {
+async function setupEditEventButton() {
   const editEventButton = document.getElementById("edit-event");
   if (editEventButton) {
     editEventButton.addEventListener("click", () => {
@@ -508,12 +517,29 @@ function setupEditEventButton() {
         return;
       }
 
+      // Validate that selectedEvent is still a FullCalendar event
+      if (
+        typeof selectedEvent.setProp !== "function" ||
+        typeof selectedEvent.setStart !== "function" ||
+        typeof selectedEvent.setEnd !== "function"
+      ) {
+        User.openValidationModal(
+          "Unable to update event. Selected event is invalid."
+        );
+        return;
+      }
       // Get updated details from the sidebar form
       const titleInput = document.getElementById("event-title");
       const startDateInput = document.getElementById("event-start-date");
       const startTimeInput = document.getElementById("event-start-time");
       const endDateInput = document.getElementById("event-end-date");
       const endTimeInput = document.getElementById("event-end-time");
+      const enableNotificationsCheckbox = document.getElementById(
+        "enable-notifications"
+      );
+
+      const notificationsEnabled =
+        enableNotificationsCheckbox && enableNotificationsCheckbox.checked;
 
       // Validate form inputs
       if (
@@ -523,7 +549,7 @@ function setupEditEventButton() {
         !endDateInput ||
         !endTimeInput
       ) {
-        openValidationModal("One or more required inputs are missing.");
+        User.openValidationModal("One or more required inputs are missing.");
         return;
       }
 
@@ -536,11 +562,11 @@ function setupEditEventButton() {
 
       // Validate form values
       if (!title) {
-        openValidationModal("Event title cannot be empty.");
+        User.openValidationModal("Event title cannot be empty.");
         return;
       }
       if (!startDate || !startTime || !endDate || !endTime) {
-        openValidationModal("Please fill out all date and time fields.");
+        User.openValidationModal("Please fill out all date and time fields.");
         return;
       }
 
@@ -550,9 +576,11 @@ function setupEditEventButton() {
 
       // Validate start and end times
       if (new Date(newEnd) <= new Date(newStart)) {
-        openValidationModal("End time must be after start time.");
+        User.openValidationModal("End time must be after start time.");
         return;
       }
+
+      let reminders = { useDefault: true };
 
       // Check if notifications are enabled
       if (notificationsEnabled) {
@@ -570,19 +598,11 @@ function setupEditEventButton() {
             : notificationTimeUnit === "days"
               ? 1440
               : 1);
-        scheduleNotification(title, newStart, reminderMinutes);
-      }
-
-      // Update event properties
-      if (
-        typeof selectedEvent.setProp !== "function" ||
-        typeof selectedEvent.setStart !== "function" ||
-        typeof selectedEvent.setEnd !== "function"
-      ) {
-        openValidationModal(
-          "Unable to update event. Selected event is invalid."
-        );
-        return;
+        User.scheduleNotification(title, newStart, reminderMinutes);
+        reminders = {
+          useDefault: false,
+          overrides: [{ method: "popup", minutes: reminderMinutes }],
+        };
       }
 
       // Update event properties
@@ -590,7 +610,27 @@ function setupEditEventButton() {
       selectedEvent.setStart(newStart);
       selectedEvent.setEnd(newEnd);
 
-      // Clear selected event and close the sidebar
+      // Update the event on Google Calendar
+      User.updateCalendarEvent(selectedEvent.id, title, newStart, newEnd)
+        .then((updatedEvent) => {
+          User.openValidationModal("Event successfully updated.");
+
+          if (updatedEvent && calendar) {
+            const event = calendar.getEventById(selectedEvent.id);
+            if (event) {
+              event.setProp("title", title);
+              event.setStart(newStart);
+              event.setEnd(newEnd);
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to update event:", error);
+          User.openValidationModal(
+            "Failed to update event on Google Calendar."
+          );
+        });
+
       selectedEvent = null;
       closeSidebar();
     });
@@ -650,7 +690,24 @@ function handleEventClick(info) {
   requireSignIn(() => {
     clearEventForm();
     openEditEventSidebar(info.event);
-    selectedEvent = info.event;
+
+    selectedEvent = {
+      id: info.event.id,
+      title: info.event.title,
+      start: info.event.start,
+      end: info.event.end,
+      extendedProps: info.event.extendedProps,
+    };
+
+    if (info.event.extendedProps && info.event.extendedProps.eventId) {
+      console.log("Event ID:", info.event.extendedProps.eventId);
+      selectedEvent.id = info.event.extendedProps.eventId;
+    } else {
+      console.warn(
+        "Event ID not found in extendedProps:",
+        info.event.extendedProps
+      );
+    }
   });
 }
 
@@ -713,11 +770,11 @@ function setupEventCreationButton() {
           summary: title,
           start: {
             dateTime: start,
-            timeZone: "UTC", // Adjust to the user's time zone if needed
+            timeZone: thisTimeZone, // Adjust to the user's time zone if needed
           },
           end: {
             dateTime: end,
-            timeZone: "UTC",
+            timeZone: thisTimeZone,
           },
         },
       });
@@ -821,7 +878,7 @@ function setupDeleteEventButton() {
 }
 
 ////////
-// Create Event Functionality
+// Create Event Functionality - DONE
 ////////
 
 // Clear the event form
@@ -857,8 +914,11 @@ function closeSidebar() {
 }
 
 ////////
-// Agenda Tabs
+// Agenda Tabs - DONE, formatting needed if time
 ////////
+
+// Export for global access (if using modules)
+window.openPanel = openPanel;
 
 // Enable dragging for the tabs container
 function enableTabDragging() {
@@ -963,15 +1023,12 @@ function openPanel(panelId) {
 
   // Check if the panel and tabs container exist
   if (panel && tabsContainer) {
-    panel.style.top = `${tabsContainer.offsetTop}px`;
+    panel.style.top = `${tabsContainer.offsetTop}px`; // Position the panel
     panel.style.display = "block"; // Show the panel
   } else {
     console.error(`Panel with id "${panelId}" or tabs container not found.`);
   }
 }
-
-// Export for global access (if using modules)
-window.openPanel = openPanel;
 
 // Close a panel by ID
 function closePanel(panelId) {
@@ -1006,6 +1063,24 @@ function setupTabs() {
 // Helper Functions
 ////////
 
+// Retreive the reminder from the event
+function getReminderFromEvent(event) {
+  if (!event || !event.extendedProps || !event.extendedProps.reminders) {
+    return null;
+  }
+
+  const reminders = event.extendedProps.reminders;
+  if (reminders.useDefault) {
+    return { minutes: 10, method: "popup" }; // Default reminder
+  }
+
+  if (reminders.overrides && reminders.overrides.length > 0) {
+    return reminders.overrides[0]; // Return the first override reminder
+  }
+
+  return null; // No reminders available
+}
+
 // Convert minutes to a friendly format
 function convertMinutesToFriendlyFormat(minutes) {
   if (minutes >= 1440) {
@@ -1021,7 +1096,7 @@ function convertMinutesToFriendlyFormat(minutes) {
 }
 
 ////////
-// Debugging
+// Debugging - DELETE BEFORE RELEASE
 ////////
 
 // Setup debug key for testing
