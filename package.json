@@ -1,6 +1,8 @@
+
 {
   "name": "project-20-waves",
   "version": "1.0.0",
+  "homepage": "https://cmpt-276-fall-2024.github.io/project-20-waves/",
   "description": "Milestone 1 Presentation Video Link: https://youtu.be/1liXEcpK08s",
   "main": "index.js",
   "directories": {
@@ -9,11 +11,11 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "start": "node src/index.js",
-    "format": "prettier --write .",
-    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
-    "lint:fix": "eslint . --fix ",
-    "build": "cp -r src/ dist/"
+    "start": "node todolist.js",
+    "format": "prettier --write *",
+    "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
+    "lint:fix": "eslint . --fix",
+    "build": "cp -r * dist/"
   },
   "jest": {
     "testEnvironment": "jest-environment-jsdom"
