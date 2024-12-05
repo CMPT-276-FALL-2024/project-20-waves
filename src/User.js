@@ -116,6 +116,9 @@ const User = {
       console.log("Saving User state...");
       this.saveState();
 
+      console.log("Starting calendar update interval...");
+      this.startCalendarUpdateInterval();
+
       console.log("User initialized.");
     } catch (error) {
       console.error("Error initializing user:", error);
@@ -496,28 +499,37 @@ const User = {
     await this.ensureAccessToken(); // Ensure token validity
 
     try {
-      const response = await gapi.client.calendar.events.list({
-        calendarId,
-        timeMin: new Date().toISOString(),
-        showDeleted: false,
-        singleEvents: true,
-        orderBy: "startTime",
+      // Clear existing events from all calendars
+      this.calendars.forEach((calendar) => {
+        calendar.events = [];
       });
+      // Clear existing notifications
+      this.notifications = [];
 
-      const updatedEvents = response.result.items.map((event) => ({
-        title: event.summary,
-        start: event.start.dateTime || event.start.date,
-        end: event.end.dateTime || event.end.date,
-      }));
+      // Fetch updated events for all calendars
+      await this.fetchAllCalendarEvents();
 
-      this.calendarEvents = updatedEvents;
-      console.log("Calendar events updated:", this.calendarEvents);
+      console.log("Calendar events updated:", this.calendars);
 
-      return this.calendarEvents;
+      if (window.location.pathname.includes("calendar.html")) {
+        console.log("Populating calendar events...");
+        populateCalendarEvents(); // Re-populate the calendar with updated events
+      }
     } catch (error) {
       console.error("Error updating calendar events:", error);
       throw error;
     }
+  },
+
+  startCalendarUpdateInterval() {
+    // Set up the interval to refresh calendar updates every 5 minutes (300,000 milliseconds)
+    setInterval(async () => {
+      try {
+        await this.fetchCalendarUpdates();
+      } catch (error) {
+        console.error("Error fetching calendar updates in interval:", error);
+      }
+    }, 60000); // 1 minutes for testing
   },
 
   initializeNotifications() {
