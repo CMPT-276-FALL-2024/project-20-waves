@@ -1,6 +1,7 @@
 {
   "name": "project-20-waves",
   "version": "1.0.0",
+  "homepage": "https://cmpt-276-fall-2024.github.io/project-20-waves/",
   "description": "Milestone 1 Presentation Video Link: https://youtu.be/1liXEcpK08s",
   "main": "index.js",
   "directories": {
