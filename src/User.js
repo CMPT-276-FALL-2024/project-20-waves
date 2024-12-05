@@ -10,6 +10,7 @@ const User = {
   CLIENT_ID:
     "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com", // Client ID for GIS client
   calendars: [], // Stores user calendars, storing events in each calendar
+  notifications: [], // Stores user notifications
   isLoggedIn: false, // Tracks login state
   ready: null, // Tracks initialization state
   accessToken: null, // Stores user access token
@@ -25,6 +26,7 @@ const User = {
       calendars: this.calendars,
       events: this.events,
       userName: this.userName,
+      notifications: this.notifications,
       //quizHistory: this.quizHistory,
       //toDoList: this.toDoList,
     };
@@ -47,6 +49,9 @@ const User = {
       this.accessToken = parsedState.accessToken || null;
       this.calendars = parsedState.calendars || [];
       this.events = parsedState.events || [];
+      this.notifications = parsedState.notifications || [];
+      //this.quizHistory = parsedState.quizHistory || [];
+      //this.toDoList = parsedState.toDoList || [];
     } catch (error) {
       console.error("Error parsing user state from localStorage:", error);
     }
@@ -108,6 +113,9 @@ const User = {
 
         console.log("Fetching calendar events...");
         await this.fetchAllCalendarEvents();
+
+        console.log("Fetching calendar notifications...");
+        await this.fetchAllCalendarNotifications();
 
         console.log("Populating calendar events...");
         populateCalendarEvents();

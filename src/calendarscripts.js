@@ -80,30 +80,88 @@ export async function populateCalendarEvents() {
       await User.fetchAllCalendarEvents();
     }
 
+    // Ensure events are populated
+    const leftoverEvents = [];
+
     // Clear existing events in FullCalendar
     if (calendar) {
       calendar.getEvents().forEach((event) => event.remove());
     }
 
-    // Loop through each calendar and add events
+    // Populate events by calendar type
     User.calendars.forEach((calendarObj) => {
-      if (calendarObj.events && calendarObj.events.length > 0) {
-        calendarObj.events.forEach((event) => {
-          const formattedEvent = {
-            title: event.title,
-            start: event.start,
-            end: event.end || null,
-          };
-          calendar.addEvent(formattedEvent);
-          console.log("Added event to calendar:", formattedEvent);
-        });
+      if (calendarObj.name === "Lectures") {
+        console.log("Populating Lectures tab:", calendarObj.events); // Debug
+        populateTab("lectures-list", calendarObj.events);
+      } else if (calendarObj.name === "Assignments") {
+        console.log("Populating Assignments tab:", calendarObj.events); // Debug
+        populateTab("assignments-list", calendarObj.events);
+      } else if (calendarObj.name === "Tests") {
+        console.log("Populating Tests tab:", calendarObj.events); // Debug
+        populateTab("tests-list", calendarObj.events);
+      } else {
+        console.log(
+          "Adding leftover events to FullCalendar:",
+          calendarObj.events
+        ); // Debug
+        leftoverEvents.push(...calendarObj.events);
       }
     });
+
+    populateFullCalendar(leftoverEvents);
+    calendar.refetchEvents(); // Refresh the calendar view
 
     // Show success message for debugging
     console.log("All calendar events populated.");
   } catch (error) {
     console.error("Error populating calendar events:", error);
+  }
+}
+
+function populateFullCalendar(events) {
+  console.log("Adding events to FullCalendar:", events); // Debugging
+  events.forEach((event) => {
+    if (!event.title || !event.start) {
+      console.error("Invalid event format:", event); // Log invalid events
+      return;
+    }
+
+    calendar.addEvent({
+      title: event.title,
+      start: event.start,
+      end: event.end || null,
+    });
+  });
+
+  console.log("Events added to FullCalendar.");
+}
+
+function populateTab(listId, events) {
+  if (!User.isLoggedIn) {
+    const emptyItem = document.createElement("li");
+    emptyItem.textContent = "Please sign in to view your events.";
+    list.appendChild(emptyItem);
+    return;
+  }
+  const list = document.getElementById(listId);
+  if (!list) {
+    console.error(`Tab list with ID "${listId}" not found.`);
+    return;
+  }
+
+  list.innerHTML = ""; // Clear existing items
+  events.forEach((event) => {
+    const li = document.createElement("li");
+    li.textContent = `${event.title} - ${new Date(
+      event.start
+    ).toLocaleString()}`;
+    list.appendChild(li);
+  });
+
+  if (events.length === 0) {
+    const emptyItem = document.createElement("li");
+    emptyItem.textContent = "No events to show.";
+    list.appendChild(emptyItem);
   }
 }
 

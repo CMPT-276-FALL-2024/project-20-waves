@@ -729,7 +729,10 @@ button:focus {
   display: block;
   opacity: 1; /* Fully visible */
   transform: translateY(0); /* Reset transform for visibility */
+  pointer-events: auto; /* Enable interaction */
   background-color: white;
+  height: auto;
+  min-height: 300px;
 }
 .tab-panel li.empty-message {
   color: #ff0000; /* Highlight missing calendar messages in red */
@@ -763,13 +766,14 @@ button:focus {
 
 .tab-panel ul {
   list-style: none;
-  max-height: 100px;
+  height: 300px;
   overflow-y: auto;
   margin: 0;
   padding: 10px;
 }
 .tab-panel ul li {
   padding: 8px;
+  height: auto;
   border-bottom: 1px solid #f0f0f0;
   color: #555;
 }
