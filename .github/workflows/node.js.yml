@@ -15,29 +15,27 @@ permissions:
   id-token: write
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: checkout
-      uses: actions/checkout@2
-    - name: setup node
-      uses: actions/setup-node@3
-      with:
-        node-version: 20
-    - name: install dependencies
-      run: npm ci
-    - name: build project
-      run: npm run build
-    - name: upload artifacts
-      uses: actions/upload-pages-artifact@v3
-      with:
-        name: 'github-pages'
-        path: build
-    - name: deploy to gh pages
-      uses: actions/deploy-pages@3
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        artifact_name: 'github-pages'
-    
+      - name: checkout
+        uses: actions/checkout@v3  # Correct version
+      - name: setup node
+        uses: actions/setup-node@v3  # Correct version
+        with:
+          node-version: 20
+      - name: install dependencies
+        run: npm ci
+      - name: build project
+        run: npm run build
+      - name: upload artifacts
+        uses: actions/upload-pages-artifact@v3  # Correct version
+        with:
+          name: 'github-pages'
+          path: build
+      - name: deploy to gh pages
+        uses: actions/deploy-pages@v2  # Correct version
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifact_name: 'github-pages'
   
