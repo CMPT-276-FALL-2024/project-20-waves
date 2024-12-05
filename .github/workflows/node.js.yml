@@ -5,7 +5,9 @@ name: Node.js CI/CD
 
 on:
   push:
-    branches: [ deploy-to-gh-pages ]
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 permissions:
   contents: read
