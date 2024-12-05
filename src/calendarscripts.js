@@ -5,6 +5,7 @@
 //////////////////////////////////////////////////////////////////////////////
 import User from "./User.js";
 
+// Global Variables
 let calendar; // FullCalendar instance
 let selectedEvent = null; // Currently selected event
 
@@ -42,19 +43,26 @@ function initializeCalendar() {
     eventMouseEnter: function (info) {
       showEventTooltip(info.event);
     },
+
+    // Hide tooltip when mouse leaves event
     eventMouseLeave: function (info) {
       hideEventTooltip();
     },
   });
+
+  // Render calendar
   calendar.render();
 }
 
+// Populate calendar events from user's Google Calendar
 export async function populateCalendarEvents() {
+  // Ensure user is on the calendar
   if (!window.location.pathname.includes("calendar.html")) {
     console.warn("populateCalendarEvents called outside calendar.html");
     return;
   }
 
+  // Ensure user is logged in
   if (!User.isLoggedIn) {
     console.error("User is not logged in. Cannot populate calendar events.");
     User.openValidationModal("Please sign in to view your calendar.");
@@ -92,26 +100,11 @@ export async function populateCalendarEvents() {
       }
     });
 
+    // Show success message for debugging
     console.log("All calendar events populated.");
   } catch (error) {
     console.error("Error populating calendar events:", error);
   }
-}
-
-// Floating Action Button (FAB) for creating a new event
-function setupFAB() {
-  const createEventFab = document.getElementById("create-event-fab");
-  if (createEventFab) {
-    createEventFab.addEventListener("click", handleFABClick);
-  }
-}
-
-function requireSignIn(actionCallback) {
-  if (!User.isLoggedIn) {
-    return false;
-  }
-  actionCallback();
-  return true;
 }
 
 ////////
@@ -138,10 +131,12 @@ function setupMoveCursor() {
     calendarGrid.classList.remove("moving-cursor");
   };
 
+  // Add event listeners
   calendarGrid.addEventListener("mouseup", removeMoveCursor);
   calendarGrid.addEventListener("mouseleave", removeMoveCursor);
 }
 
+// Show event tooltip on mouse hover
 function showEventTooltip(event) {
   const tooltip = document.createElement("div");
   tooltip.id = "event-tooltip";
@@ -164,6 +159,7 @@ function showEventTooltip(event) {
   document.body.appendChild(tooltip);
 }
 
+// Hide event tooltip on mouse leave
 function hideEventTooltip() {
   // console.log("Hiding event tooltip");  // Debugging log
   const tooltip = document.getElementById("event-tooltip");
@@ -173,6 +169,7 @@ function hideEventTooltip() {
   document.removeEventListener("mousemove", positionTooltip);
 }
 
+// Position the tooltip near the mouse cursor
 function positionTooltip(event) {
   const tooltip = document.getElementById("event-tooltip");
   if (!tooltip) return;
@@ -212,7 +209,7 @@ function positionTooltip(event) {
 }
 
 ////////
-// Sidebar Functionality
+// Sidebar Functionality for Event Data
 ////////
 
 // Opens the sidebar for creating a new event
@@ -241,7 +238,7 @@ function openEditEventSidebar(event) {
   openSidebar();
 }
 
-// click and drag event creation
+// Click event listener for dragging
 function openCreateEventSidebarForDateRange(start, end) {
   clearEventForm();
   populateSidebarForDateRange(start, end);
@@ -251,7 +248,7 @@ function openCreateEventSidebarForDateRange(start, end) {
   openSidebar();
 }
 
-// set up sidebar listeners
+// Close the sidebar listeners
 function setupCloseSidebarListeners() {
   const closeSidebarButton = document.getElementById("close-sidebar-button");
   if (closeSidebarButton) {
@@ -269,7 +266,7 @@ function setupCloseSidebarListeners() {
   });
 }
 
-// draggable sidebar
+// Draggable sidebar
 function enableSidebarDragging() {
   const sidebar = document.getElementById("event-sidebar");
   const dragHandle = sidebar.querySelector(".drag-handle");
@@ -286,22 +283,26 @@ function enableSidebarDragging() {
     document.body.style.cursor = "grabbing";
   });
 
+  // Move the sidebar with the mouse
   document.addEventListener("mousemove", (event) => {
     if (!isDragging) return;
 
+    // Calculate new position
     const newLeft = event.clientX - offsetX;
     const newTop = event.clientY - offsetY;
-
+    // Calculate maximum position
     const maxLeft = window.innerWidth - sidebar.offsetWidth;
     const maxTop = window.innerHeight - sidebar.offsetHeight;
     sidebar.style.left = `${Math.max(0, Math.min(newLeft, maxLeft))}px`;
     sidebar.style.top = `${Math.max(0, Math.min(newTop, maxTop))}px`;
   });
 
+  // Stop dragging on mouseup
   document.addEventListener("mouseup", () => {
     if (isDragging) {
       isDragging = false;
 
+      // Reset cursor and remove event listeners
       document.body.style.cursor = "";
     }
   });
@@ -311,7 +312,7 @@ function enableSidebarDragging() {
 // Populate Sidebar Functionality
 ////////
 
-// populate notification fields
+// Populate notification fields in the sidebar
 function populateNotificationFields(reminder) {
   if (!reminder || typeof reminder.minutes !== "number") {
     console.warn("Invalid reminder data:", reminder);
@@ -339,7 +340,7 @@ function populateNotificationFields(reminder) {
   if (notificationOptions) notificationOptions.style.display = "block";
 }
 
-// clear notification fields
+// Clear notification fields
 function clearNotificationFields() {
   const notificationTimeInput = document.getElementById("notification-time");
   const notificationTimeUnitSelect = document.getElementById(
@@ -357,7 +358,7 @@ function clearNotificationFields() {
   if (notificationOptions) notificationOptions.style.display = "none";
 }
 
-// set up toggle notification
+// Set up toggle notification
 function setupNotificationToggle() {
   const notificationToggle = document.getElementById("enable-notifications");
   const notificationOptions = document.getElementById("notification-options");
@@ -412,6 +413,7 @@ function populateSidebarWithEventDetails(event) {
 
   document.getElementById("event-title").value = title || "";
 
+  // Populate start date and time
   if (start) {
     document.getElementById("event-start-date").value = start
       .toISOString()
@@ -422,6 +424,7 @@ function populateSidebarWithEventDetails(event) {
       .substring(0, 5); // HH:MM
   }
 
+  // Populate end date and time
   if (end) {
     document.getElementById("event-end-date").value = end
       .toISOString()
@@ -437,6 +440,7 @@ function populateSidebarWithEventDetails(event) {
 // Edit Event Button
 ////////
 
+// Set up the edit event button
 function setupEditEventButton() {
   const editEventButton = document.getElementById("edit-event");
   if (editEventButton) {
@@ -453,6 +457,7 @@ function setupEditEventButton() {
       const endDateInput = document.getElementById("event-end-date");
       const endTimeInput = document.getElementById("event-end-time");
 
+      // Validate form inputs
       if (
         !titleInput ||
         !startDateInput ||
@@ -464,6 +469,7 @@ function setupEditEventButton() {
         return;
       }
 
+      // Get form values
       const title = titleInput.value.trim();
       const startDate = startDateInput.value.trim();
       const startTime = startTimeInput.value.trim();
@@ -480,14 +486,17 @@ function setupEditEventButton() {
         return;
       }
 
+      // Combine date and time strings
       const newStart = `${startDate}T${startTime}`;
       const newEnd = `${endDate}T${endTime}`;
 
+      // Validate start and end times
       if (new Date(newEnd) <= new Date(newStart)) {
         openValidationModal("End time must be after start time.");
         return;
       }
 
+      // Check if notifications are enabled
       if (notificationsEnabled) {
         const notificationTime = parseInt(
           document.getElementById("notification-time").value,
@@ -518,6 +527,7 @@ function setupEditEventButton() {
         return;
       }
 
+      // Update event properties
       selectedEvent.setProp("title", title);
       selectedEvent.setStart(newStart);
       selectedEvent.setEnd(newEnd);
@@ -544,6 +554,24 @@ function handleFABClick() {
 // Create Event Functionality
 ////////
 
+// Floating Action Button (FAB) for creating a new event
+function setupFAB() {
+  const createEventFab = document.getElementById("create-event-fab");
+  if (createEventFab) {
+    createEventFab.addEventListener("click", handleFABClick);
+  }
+}
+
+// Check if the user is signed in before performing an action
+function requireSignIn(actionCallback) {
+  if (!User.isLoggedIn) {
+    return false;
+  }
+  actionCallback();
+  return true;
+}
+
+// Handle date click to create a new event
 function handleDateClick(info) {
   requireSignIn(() => {
     clearEventForm();
@@ -551,6 +579,7 @@ function handleDateClick(info) {
   });
 }
 
+// Handle date range selection to create a new event
 function handleDateSelect(info) {
   requireSignIn(() => {
     clearEventForm();
@@ -558,6 +587,7 @@ function handleDateSelect(info) {
   });
 }
 
+// Handle event click to edit an existing event
 function handleEventClick(info) {
   requireSignIn(() => {
     clearEventForm();
@@ -570,6 +600,7 @@ function handleEventClick(info) {
 // Notifications
 ////////
 
+// Initialize notifications
 function initializeNotifications() {
   console.log("Initializing notifications");
   const notificationBell = document.getElementById("notification-bell");
@@ -577,6 +608,7 @@ function initializeNotifications() {
   const clearNotificationsButton = document.getElementById(
     "clear-notifications"
   );
+  // Get notification list element
   const notificationList = document.getElementById("notification-list");
 
   let notifications = [];
@@ -589,6 +621,7 @@ function initializeNotifications() {
       emptyItem.textContent = "No notifications.";
       emptyItem.className = "notification-item";
       notificationList.appendChild(emptyItem);
+      // Hide the dropdown if empty
     } else {
       notifications.forEach((notification) => {
         const listItem = document.createElement("li");
@@ -646,6 +679,7 @@ function initializeNotifications() {
   });
 }
 
+// Schedule a notification for an event
 function scheduleNotification(eventTitle, eventStartTime, minutesBefore) {
   const eventTime = new Date(eventStartTime).getTime();
   const notificationTime = eventTime - minutesBefore * 60 * 1000;
@@ -673,6 +707,8 @@ function scheduleNotification(eventTitle, eventStartTime, minutesBefore) {
 ////////
 // Create Event Button
 ////////
+
+// Set up the create event button
 function setupEventCreationButton() {
   const createButton = document.getElementById("create-event");
   if (!createButton) {
@@ -680,6 +716,7 @@ function setupEventCreationButton() {
     return;
   }
 
+  // Add event listener for creating a new event
   createButton.addEventListener("click", async () => {
     console.log("Create button clicked!");
 
@@ -706,9 +743,11 @@ function setupEventCreationButton() {
       return;
     }
 
+    // Combine date and time strings
     const start = `${startDate}T${startTime}:00`;
     const end = `${endDate}T${endTime}:00`;
 
+    // Validate start and end times
     if (new Date(start) >= new Date(end)) {
       console.error("Start time is after end time.");
       User.openValidationModal("End time must be after start time.");
@@ -733,6 +772,7 @@ function setupEventCreationButton() {
         },
       });
 
+      // Log the response for debugging
       console.log("Event successfully added to Google Calendar:", response);
 
       // Add the event to the local FullCalendar instance
@@ -776,25 +816,30 @@ function setupDeleteEventButton() {
   const confirmDeleteButton = document.getElementById("confirm-delete-button");
   const cancelDeleteButton = document.getElementById("cancel-delete-button");
 
+  // Check if required elements are present
   if (!deleteEventButton || !deleteConfirmationModal) {
     console.error("Required elements for delete functionality are missing.");
     return;
   }
 
+  // Add event listener for deleting an event
   deleteEventButton.addEventListener("click", () => {
     if (!selectedEvent) {
       User.openValidationModal("No event selected for deletion.");
       return;
     }
 
+    // Show delete confirmation modal
     const eventTitle = selectedEvent.title || "this event";
     deleteConfirmationMessage.textContent = `Are you sure you want to delete "${eventTitle}"?`;
     deleteConfirmationModal.style.display = "flex";
 
+    // Confirm or cancel deletion
     confirmDeleteButton.onclick = async () => {
       deleteConfirmationModal.style.display = "none";
 
       try {
+        // Check if the event has an ID
         if (selectedEvent.id) {
           await gapi.client.calendar.events.delete({
             calendarId: "primary",
@@ -803,11 +848,14 @@ function setupDeleteEventButton() {
           selectedEvent.remove(); // Remove from calendar UI
           selectedEvent = null; // Clear selectedEvent
           closeSidebar();
+          // Show success message
           User.openValidationModal("Event successfully deleted.");
         } else {
+          // Show error message if event ID is missing
           User.openValidationModal("Event ID is missing; unable to delete.");
         }
       } catch (error) {
+        // Show error message if deletion fails
         console.error("Error deleting event:", error);
         User.openValidationModal(
           "Failed to delete event. Check the console for details."
@@ -815,12 +863,14 @@ function setupDeleteEventButton() {
       }
     };
 
+    // Cancel deletion
     cancelDeleteButton.onclick = () => {
       deleteConfirmationModal.style.display = "none";
     };
   });
 }
 
+// Clear notificaitons
 function clearNotification(eventTitle) {
   if (scheduledReminders.has(eventTitle)) {
     clearTimeout(scheduledReminders.get(eventTitle));
@@ -843,6 +893,7 @@ function clearEventForm() {
   const notificationsCheckbox = document.getElementById("enable-notifications");
   const notificationOptions = document.getElementById("notification-options");
 
+  // Clear form inputs
   if (titleInput) titleInput.value = "";
   if (startDateInput) startDateInput.value = "";
   if (startTimeInput) startTimeInput.value = "";
@@ -865,19 +916,24 @@ function closeSidebar() {
 ////////
 // Agenda Tabs
 ////////
+
+// Enable dragging for the tabs container
 function enableTabDragging() {
   const tabsContainer = document.getElementById("tabs-container");
   const dragHandle = document.getElementById("tabs-handle");
   const panels = document.querySelectorAll(".tab-panel");
 
+  // Check if required elements are present
   if (!tabsContainer || !dragHandle) {
     console.error("Tabs container or drag handle not found.");
     return;
   }
 
+  // Initialize dragging variables
   let isDragging = false;
   let offsetY = 0;
 
+  // Handle mouse events for dragging
   dragHandle.addEventListener("mousedown", (event) => {
     event.preventDefault(); // Prevent text selection and default behavior
     isDragging = true;
@@ -889,9 +945,11 @@ function enableTabDragging() {
     document.body.style.cursor = "grabbing";
   });
 
+  // Move the tabs container with the mouse
   document.addEventListener("mousemove", (event) => {
     if (!isDragging) return;
 
+    // Calculate new position
     let newTop = event.clientY - offsetY;
 
     // Restrict vertical movement
@@ -901,6 +959,7 @@ function enableTabDragging() {
     )}px`;
   });
 
+  // Stop dragging on mouseup
   document.addEventListener("mouseup", () => {
     if (isDragging) {
       isDragging = false;
@@ -908,6 +967,8 @@ function enableTabDragging() {
     }
   });
 }
+
+// Initialize tabs and panels
 function initializeTabsandPanels() {
   const tabs = document.querySelectorAll(".tab");
   const panels = document.querySelectorAll(".tab-panel");
@@ -944,6 +1005,7 @@ function initializeTabsandPanels() {
     const isClickInside =
       event.target.closest(".tab-panel") || event.target.closest(".tab");
 
+    // Close all panels if the click is outside
     if (!isClickInside) {
       panels.forEach((panel) => panel.classList.remove("active"));
       console.log("Closed all panels.");
@@ -951,10 +1013,12 @@ function initializeTabsandPanels() {
   });
 }
 
+// Open a panel by ID
 function openPanel(panelId) {
   const panel = document.getElementById(panelId);
   const tabsContainer = document.getElementById("tabs-container");
 
+  // Check if the panel and tabs container exist
   if (panel && tabsContainer) {
     panel.style.top = `${tabsContainer.offsetTop}px`;
     panel.style.display = "block"; // Show the panel
@@ -966,6 +1030,7 @@ function openPanel(panelId) {
 // Export for global access (if using modules)
 window.openPanel = openPanel;
 
+// Close a panel by ID
 function closePanel(panelId) {
   const panel = document.getElementById(panelId);
   if (panel) {
@@ -981,6 +1046,7 @@ function setupTabs() {
     { id: "assignments-tab", panel: "assignments-panel" },
   ];
 
+  // Setup click event listeners for each tab
   tabs.forEach(({ id, panel }) => {
     const tab = document.getElementById(id);
     if (tab) {
@@ -996,6 +1062,8 @@ function setupTabs() {
 ////////
 // Helper Functions
 ////////
+
+// Get the reminder object from an event
 function getReminderFromEvent(event) {
   if (
     event.extendedProps &&
@@ -1006,6 +1074,8 @@ function getReminderFromEvent(event) {
   }
   return null; // No reminder found
 }
+
+// Convert minutes to a friendly format
 function convertMinutesToFriendlyFormat(minutes) {
   if (minutes >= 1440) {
     return { value: Math.floor(minutes / 1440), unit: "days" };
@@ -1022,6 +1092,8 @@ function convertMinutesToFriendlyFormat(minutes) {
 ////////
 // Debugging
 ////////
+
+// Setup debug key for testing
 function setupDebugKey() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "d" || event.key === "D") {
@@ -1098,6 +1170,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       initializeNotifications();
     }
 
+    // Initialize Complete
     console.log("Initialization completed.");
   } catch (error) {
     console.error("Error during initialization:", error);
