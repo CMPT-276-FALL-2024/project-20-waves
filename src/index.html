@@ -4,25 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
-    <script src="script.js"></script>
 
     <title>Study Buddy</title>
   </head>
   <body style = "background-color: #E6E6E6;">
-    <!-- header -->
-    <header>
-      <h1>Study Buddy</h1>
-    </header>
-    <!-- Directory Buttons -->
-    <div>
-      <a href="calendar.html" class="nav-button" id="calendar-button">
-        Calendar
-      </a>
+   
+    <!-- Website Shared Content -->
+    <div id="shared-content"></div>
 
-      <a href="quizgen.html" class="nav-button" id="practice-button">
-        Quiz Generator
-      </a>
-    </div>
+    
+
     <!--main elements -->
     <!-- todolist -->
     <div class="todo-list">
@@ -76,6 +67,25 @@
       </div>
     </div>
     <!-- chatbot end -->
+ 
+
+        <script type="module" src="./User.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const response = await fetch("application.html");
+        const html = await response.text();
+        document.getElementById("shared-content").innerHTML = html;
+        await User.loadState();
+        await User.initializeUser(); // Wait until user state is fully initialized
+    } catch (err) {
+        console.error("Error initializing page:", err);
+    }
+});
+  </script>
+  
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>    
     <script src="todolist.js"></script>
     <script type="module" src="chatbot.js"></script>
   </body>

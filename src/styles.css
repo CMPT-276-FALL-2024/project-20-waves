@@ -1,9 +1,9 @@
 /****************************************************
-                  Header Styling
+        Header Styling for shared content
  ****************************************************/
 .header {
   position: fixed;
-  height: 60px;
+  height: 65px;
   top: 0;
   left: 0;
   width: 100%;
@@ -27,6 +27,13 @@
   text-align: center;
   justify-content: center;
   color: #44576d;
+  flex-direction: column;
+}
+.header-title {
+  font-size: 24px;
+  color: #44576d; /* Navy */
+  font-weight: bold;
+  margin-bottom: 5px; /* Space between title and menu */
 }
 .header-left {
   justify-content: flex-start;
@@ -53,12 +60,35 @@
   cursor: pointer; /* Indicate it's clickable */
 }
 body {
-  padding: 70px 0 0 0;
+  padding: 65px 0 0 0;
   background-color: #e6e6e6; /* Light gray */
   background-image: linear-gradient(135deg, #e6e6e6 50%, #dfebf6 100%);
   margin: 0;
   font-family: "Roboto", sans-serif;
-  height: calc(100vh - 70px);
+  height: calc(100vh - 75px);
+  overflow-x: hidden;
+}
+.menu {
+  display: flex;
+  justify-content: center; /* Center the links */
+  gap: 20px; /* Space between links */
+}
+
+.menu a {
+  text-decoration: none;
+  color: #44576d; /* Navy */
+  font-size: 16px;
+  font-weight: bold;
+  padding: 5px 10px;
+  transition:
+    color 0.3s,
+    background-color 0.3s; /* Smooth hover effect */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.menu a:hover {
+  color: white;
+  background-color: #44576d; /* Navy hover background */
 }
 
 .page-header {
@@ -215,7 +245,7 @@ button:focus {
 }
 
 #calendar-container {
-  width: 90%;
+  width: 80%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -631,9 +661,9 @@ button:focus {
  ****************************************************/
 /* Tabs container */
 .tabs-container {
-  position: fixed;
-  top: 20%; /* Starting position */
-  right: 0;
+  position: absolute;
+  top: 100px; /* Starting position */
+  right: 10px;
   display: flex;
   flex-direction: column;
   background-color: #44576d;
@@ -676,29 +706,30 @@ button:focus {
 .tab:hover {
   background-color: #aac7d8;
 }
-
-/* Sliding panels */
-/* Tab Panel Styling */
 .tab-panel {
+  right: 50px;
   position: absolute;
-  width: 300px;
-  background-color: #ffffff;
+  background-color: white;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   padding: 10px;
-  display: none; /* Hidden by default */
   z-index: 1000;
-  right: -400px; /* Initially off-screen */
-  height: 60%;
-  overflow-y: auto;
-  z-index: 999;
-  opacity: 0; /* Initially hidden */
-  list-style: none;
-  color: #333;
-  font-size: 14px;
-  margin: 10px 0;
-  transition: all 0.3s ease-in-out;
+  width: 200px;
+  height: 300px;
+  display: none; /* Hidden by default */
+  opacity: 0; /* Hidden by default */
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  transform: translateY(-10px); /* Slight upward offset when hidden */
+  pointer-events: none; /* Prevent interaction when hidden */
+}
+.tab-panel.active {
+  display: block;
+  opacity: 1; /* Fully visible */
+  transform: translateY(0); /* Reset transform for visibility */
+  background-color: white;
 }
 .tab-panel li.empty-message {
   color: #ff0000; /* Highlight missing calendar messages in red */
@@ -729,13 +760,7 @@ button:focus {
 .close-panel-btn:hover {
   color: #333;
 }
-/* Active Panel */
-.tab-panel.active {
-  right: 50px; /* Slide into view */
-  opacity: 1;
-  display: block;
-  transform: translateY(0);
-}
+
 .tab-panel ul {
   list-style: none;
   max-height: 100px;
