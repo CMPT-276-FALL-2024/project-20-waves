@@ -7,6 +7,7 @@
     <title>Quiz Generation</title>
   </head>
   <body>
+    <div id="top-of-page"></div>
     <!-- Header -->
     <header class="header">
       <div class="header-left">
@@ -119,24 +120,24 @@
       <button class="generate-quiz-button">Generate Quiz</button>
     </div>
 
-    <div class="error-msg-position">
-      <div class="error-msg">Error: Please enter a topic</div>
-      <div class="error-msg" id="question-not-answered">
-        Error: Not all questions answered
-      </div>
-      <div class="error-msg" id="quiz-already-submitted">
-        Error: Quiz already submitted. Please create a new one
-      </div>
-    </div>
-
     <section class="quiz-section">
       <div class="quiz-score-position">
         <div class="quiz-score"></div>
       </div>
 
+      <div class="error-msg-position">
+        <div class="error-msg">Error: Please enter a topic</div>
+        <div class="error-msg" id="question-not-answered">
+          Error: Not all questions answered
+        </div>
+        <div class="error-msg" id="quiz-already-submitted">
+          Error: Quiz already submitted. Please create a new one
+        </div>
+      </div>
+
       <div class="loader-position">
         <div class="loader">
-          <img src="/public/duck-walking.gif" id="duck-gif" />
+          <img src="./public/duck-walking.gif" id="duck-gif" />
           <h3>Generating quiz...</h3>
         </div>
       </div>

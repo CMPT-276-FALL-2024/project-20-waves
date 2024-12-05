@@ -833,12 +833,12 @@ html {
 .todo-list {
   background-color: #44576d;
   width: 25%;
-  height: 60%;
+  height: 70%;
   position: absolute;
-  overflow-y: scroll;
-  top: 20%;
-  left: 0%;
-  border-radius: 30px;
+  overflow: auto;
+  top: 17%;
+  left: 10%;
+  border-radius: 25px;
   color: #e6e6e6;
 }
 .todo-list > h1 {
@@ -858,7 +858,7 @@ html {
   float: right;
 }
 .todo-remove-button {
-  background-color: rgb(163, 16, 16);
+  background-color: rgb(199, 43, 43);
   color: rgb(0, 0, 0);
   width: 20px;
   height: 20px;
@@ -872,16 +872,27 @@ html {
   position: relative;
   float: left;
   border-radius: 15px;
-  font-size: 24px;
+  font-size: 15px;
+  outline: none;
+  border: none;
+  text-indent: 20px;
+  width: 275px;
+  height: 30px;
+  margin-top: 10px;
+  margin-right: 2px;
 }
 .todo-list-done {
   text-align: center;
   position: relative;
   float: left;
   background-color: rgba(255, 255, 255, 0.9);
-  color: black;
-  border-radius: 15px;
-  font-size: 24px;
+  border-radius: 20px;
+  font-size: 23px;
+  border: none;
+  margin-left: 5px;
+  width: 80px;
+  margin-top: 7px;
+  height: 30px;
 }
 /* todolist elements end */
 .timer {
@@ -896,55 +907,68 @@ html {
 .chatbot {
   background-color: #44576d;
   width: 40%;
-  height: 40%;
+  height: 65%;
+  top: 20%;
+  left: 30%;
   position: absolute;
-  bottom: 0;
   margin-inline: auto;
-  left: 0;
   right: 0;
   text-align: center;
   font-size: 20px;
-  border-radius: 20px;
+  border-radius: 25px;
   color: #e6e6e6;
+  margin-bottom: 20px;
 }
-.chatbot-input {
-  background-color: #29353c;
-  width: 90%;
-  position: absolute;
-  padding: 5px;
-  margin-inline: auto;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  text-align: center;
-  font-size: 15px;
-  border-radius: 15px;
-  color: #e6e6e6;
-}
+
 .response-box {
-  background-color: #dfebf6;
+  background-color: #edf6ff;
   color: black;
   width: 90%;
-  height: 35%;
+  height: 70%;
   margin: auto;
-  overflow-y: scroll;
-  border-radius: 15px;
-  font-size: 24px;
+  overflow: auto;
+  border-radius: 25px;
+  font-size: 20px;
   text-align: left;
+  margin-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 .chatbot-input-box {
   position: relative;
   border-radius: 15px;
-  font-size: 24px;
+  font-size: 15px;
+  width: 500px;
+  height: 40px;
+  border-radius: 25px;
+  margin-top: 25px;
+  border: none;
+  outline: none;
+  text-indent: 20px;
+}
+
+.chatbot-input-box::placeholder,
+.todo-input-box::placeholder {
+  font-size: 20px;
 }
 .chatbot-enter {
   text-align: center;
   position: relative;
   background-color: rgba(255, 255, 255, 0.9);
   color: black;
-  border-radius: 15px;
-  font-size: 24px;
+  border-radius: 20px;
+  font-size: 23px;
+  border: none;
+  margin-left: 5px;
+  width: 100px;
+  height: 40px;
 }
+
+.home-page {
+  display: flex;
+  justify-content: center;
+}
+
 /*chatbot elements end*/
 .gif {
   background-color: rgb(89, 89, 95);
@@ -981,6 +1005,7 @@ html {
   border-width: 1px;
   margin-right: 25px;
   margin-left: 100px;
+  text-indent: 20px;
 }
 
 ::placeholder {
@@ -1000,10 +1025,11 @@ html {
   grid-template-rows: repeat(5, auto);
   gap: 30px;
   animation: fadeIn 0.3s;
+  color: rgb(230, 230, 230);
 }
 
 .quiz-question-card {
-  background-color: rgb(228, 228, 228);
+  background-color: #44576d;
   width: 500px;
   border-radius: 20px;
   padding: 20px;
@@ -1040,7 +1066,7 @@ html {
 }
 
 .multiple-choice-options label:hover {
-  background-color: rgb(192, 192, 192);
+  background-color: #364557;
 }
 
 .multiple-choice-options input[type="radio"] {
@@ -1048,7 +1074,7 @@ html {
 }
 
 .multiple-choice-options input[type="radio"]:checked + label {
-  background-color: rgb(153, 153, 153);
+  background-color: #2b3846;
 }
 
 .question {
@@ -1057,7 +1083,7 @@ html {
 }
 
 .quiz-submit-button {
-  background-color: rgb(177, 247, 177);
+  background-color: rgb(104, 223, 104);
   font-size: 30px;
   width: 150px;
   height: 45px;
@@ -1069,7 +1095,7 @@ html {
 }
 
 .quiz-submit-button:hover {
-  background-color: rgb(100, 194, 100);
+  background-color: rgb(85, 182, 85);
 }
 
 .submit-button-go-to-part {
@@ -1091,9 +1117,10 @@ html {
   right: 20px;
   top: 175px;
   text-align: center;
-  background-color: rgb(238, 251, 255);
+  background-color: #44576d;
   border-radius: 10px;
   padding: 15px;
+  color: white;
 }
 
 th {
@@ -1115,7 +1142,7 @@ tr {
   justify-content: center;
   margin-top: 150px;
   position: absolute;
-  margin-left: 925px;
+  margin-left: 875px;
   flex-direction: column;
   text-align: center;
 }
@@ -1148,6 +1175,8 @@ tr {
 .error-msg-position {
   display: flex;
   justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 50px;
 }
 
 /*For animations*/
