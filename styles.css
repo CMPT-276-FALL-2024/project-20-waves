@@ -1005,6 +1005,7 @@ html {
   border-width: 1px;
   margin-right: 25px;
   margin-left: 100px;
+  text-indent: 20px;
 }
 
 ::placeholder {
@@ -1141,7 +1142,7 @@ tr {
   justify-content: center;
   margin-top: 150px;
   position: absolute;
-  margin-left: 925px;
+  margin-left: 875px;
   flex-direction: column;
   text-align: center;
 }
@@ -1174,6 +1175,8 @@ tr {
 .error-msg-position {
   display: flex;
   justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 50px;
 }
 
 /*For animations*/
