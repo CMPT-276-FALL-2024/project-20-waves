@@ -7,12 +7,9 @@
 
     <title>Study Buddy</title>
   </head>
-  <body style = "background-color: #E6E6E6;">
-   
+  <body style="background-color: #e6e6e6">
     <!-- Website Shared Content -->
     <div id="shared-content"></div>
-
-    
 
     <!--main elements -->
     <!-- todolist -->
@@ -51,7 +48,6 @@
     <!-- chatbot -->
 
     <div class="chatbot">
-
       <h1>AI Help</h1>
       <div class="response-box">
         <p id="response"></p>
@@ -67,26 +63,25 @@
       </div>
     </div>
     <!-- chatbot end -->
- 
 
-        <script type="module" src="./User.js"></script>
+    <script type="module" src="./User.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        const response = await fetch("application.html");
-        const html = await response.text();
-        document.getElementById("shared-content").innerHTML = html;
-        await User.loadState();
-        await User.initializeUser(); // Wait until user state is fully initialized
-    } catch (err) {
-        console.error("Error initializing page:", err);
-    }
-});
-  </script>
-  
+        try {
+          const response = await fetch("application.html");
+          const html = await response.text();
+          document.getElementById("shared-content").innerHTML = html;
+          await User.loadState();
+          await User.initializeUser(); // Wait until user state is fully initialized
+        } catch (err) {
+          console.error("Error initializing page:", err);
+        }
+      });
+    </script>
+
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://apis.google.com/js/api.js" async defer></script>    
-    <script src="todolist.js"></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
+    <script src="index.js"></script>
     <script type="module" src="chatbot.js"></script>
   </body>
 </html>
