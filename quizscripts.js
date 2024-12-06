@@ -174,8 +174,14 @@ const clearQuizHistoryButton = document.body.querySelector(
   ".clear-quiz-history-button"
 );
 
+//Boolean variable to keep track of if a quiz is already being generated
+let quizGenerating = false;
+
 //API function
 async function geminiAPI() {
+  //Set quiz generating value to true
+  quizGenerating = true;
+
   //Display loading spinner
   loader.style.display = "inline";
 
@@ -272,13 +278,12 @@ async function geminiAPI() {
     quizSection.style.display = "grid";
     quizSubmitButton.style.display = "inline";
 
-    //Enable quiz submit button
-    //quizSubmitButton.removeAttribute("disabled", "");
-    // quizSubmitButton.setAttribute("enabled", "");
-
     quizAlreadySubmittedErrorMessage.style.display = "none";
     quizSubmitted = false;
   }
+
+  //Set quiz generating variable to false
+  quizGenerating = false;
 }
 
 //When quiz submit button is clicked check answers and return results
@@ -375,31 +380,34 @@ quizSubmitButton.addEventListener("click", () => {
 
 //When generate quiz button is clicked, get the topic entered by the user and then call API
 generateQuizButton.addEventListener("click", () => {
-  //Get textbox value
-  userTopic = quizTopicTextBox.value;
+  //If a quiz isnt already being generated, generate a quiz
+  if (!quizGenerating) {
+    //Get textbox value
+    userTopic = quizTopicTextBox.value;
 
-  //Uncheck all radio buttons
-  document
-    .querySelectorAll('input[type="radio"]')
-    .forEach((radio) => (radio.checked = false));
+    //Uncheck all radio buttons
+    document
+      .querySelectorAll('input[type="radio"]')
+      .forEach((radio) => (radio.checked = false));
 
-  //Reset all background colours of labels
-  document
-    .querySelectorAll("label")
-    .forEach((label) => (label.style.backgroundColor = ""));
+    //Reset all background colours of labels
+    document
+      .querySelectorAll("label")
+      .forEach((label) => (label.style.backgroundColor = ""));
 
-  //If user topic is blank, display error message and dont call API
-  if (!userTopic) {
-    errorMessage.style.display = "inline";
-  }
+    //If user topic is blank, display error message and dont call API
+    if (!userTopic) {
+      errorMessage.style.display = "inline";
+    }
 
-  //If user topic is entered hide all quiz components and call API
-  else {
-    errorMessage.style.display = "none";
-    quizSection.style.display = "none";
-    quizSubmitButton.style.display = "none";
-    quizScore.style.display = "none";
-    geminiAPI();
+    //If user topic is entered hide all quiz components and call API
+    else {
+      errorMessage.style.display = "none";
+      quizSection.style.display = "none";
+      quizSubmitButton.style.display = "none";
+      quizScore.style.display = "none";
+      geminiAPI();
+    }
   }
 });
 
