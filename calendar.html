@@ -27,7 +27,7 @@
     <!-- Sidebar for Event Creation and Editing -->
     <div id="event-sidebar" class="event-sidebar">
       <div class="drag-handle">
-        <span class="drag-text">☰ Drag</span>
+        <span class="drag-text">☰</span>
         <button
           id="close-sidebar-button"
           class="close-button"
@@ -36,7 +36,7 @@
           ✖
         </button>
       </div>
-      <h2>Create Event</h2>
+      <h2>Create Primary Calendar Event</h2>
 
       <!-- Title Input -->
       <label for="event-title">Title:</label>
@@ -63,12 +63,6 @@
         name="event-start-time"
         required
       />
-
-      <div>
-        <label>
-          <input type="checkbox" id="all-day-event-checkbox" /> All Day Event
-        </label>
-      </div>
 
       <!-- End Date and Time -->
       <label for="event-end-date">End Date:</label>
@@ -148,6 +142,7 @@
         <h3>Upcoming Tests</h3>
         <button class="close-panel" title="Close Panel">✖</button>
       </div>
+      <ul id="tests-list"></ul>
     </div>
 
     <div id="assignments-panel" class="tab-panel">
@@ -155,6 +150,7 @@
         <h3>Upcoming Assignments</h3>
         <button class="close-panel" title="Close Panel">✖</button>
       </div>
+      <ul id="assignments-list"></ul>
     </div>
 
     <script type="module" src="./User.js"></script>
@@ -169,6 +165,7 @@
           await User.loadState();
           // Initialize user state and update auth buttons
           await User.initializeUser();
+          User.initializeNotifications();
         } catch (err) {
           console.error("Error loading calendar page:", err);
         }

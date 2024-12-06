@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
-    <link rel="icon" type="image/x-icon" href="images/favicon.png">
+    <link rel="icon" type="image/x-icon" href="images/favicon.png" />
     <title>Study Buddy</title>
   </head>
   <body style="background-color: #e6e6e6">
@@ -75,6 +75,7 @@
           document.getElementById("shared-content").innerHTML = html;
           await User.loadState();
           await User.initializeUser(); // Wait until user state is fully initialized
+          User.initializeNotifications();
         } catch (err) {
           console.error("Error initializing page:", err);
         }

@@ -56,19 +56,23 @@ let items = 0;
 //function for checking wether the string inputted by user is only whitespace
 function checkWhitespace(str) {
   let j = 0;
-  for (let i = 0; i < str.length; i++) { //iterates through all values of string
+  for (let i = 0; i < str.length; i++) {
+    //iterates through all values of string
     if (str[i] == " ") {
       j++; //if string has whitespace for character, i , then keep trakc of it
     }
   }
-  if (str == "" || j == str.length) {//if the amopunt of white space is = amount of characters, then the string is all white space
+  if (str == "" || j == str.length) {
+    //if the amopunt of white space is = amount of characters, then the string is all white space
     return true;
   }
   return false;
 }
-function addItem(string){
-  if (!checkWhitespace(string)) { //hcecks for valid input
-    if (items <= maxitems - 1) {//makes sure list isnt full
+function addItem(string) {
+  if (!checkWhitespace(string)) {
+    //hcecks for valid input
+    if (items <= maxitems - 1) {
+      //makes sure list isnt full
       itemarray[items].innerHTML = string; //adds item
       items++; //increment items
     }
@@ -90,24 +94,29 @@ donebutton.addEventListener("click", () => {
 for (let i = 0; i < maxitems; i++) {
   removearray[i].addEventListener("click", () => {
     let j = i;
-    if (items == maxitems) {//check edge case if list is max
+    if (items == maxitems) {
+      //check edge case if list is max
       //loop to move each item once the previous is removed
-      while (itemarray[j + 1].innerHTML != "") {//checks if the next item is filled
+      while (itemarray[j + 1].innerHTML != "") {
+        //checks if the next item is filled
         itemarray[j].innerHTML = itemarray[j + 1].innerHTML; //moves next item to previous slot
         j++; //increment step count
-        if (j == maxitems - 1) {//if ther eis no next item
+        if (j == maxitems - 1) {
+          //if ther eis no next item
           break;
         }
       }
-      itemarray[items - 1].innerHTML = "";//set last item to be empty
+      itemarray[items - 1].innerHTML = ""; //set last item to be empty
       items--; //decrease item count
-    } else if (itemarray[i].innerHTML !== "") {//if the item that corresponds to remove button is not empty
-      while (itemarray[j + 1].innerHTML != "") {//loop until items are in right spot
+    } else if (itemarray[i].innerHTML !== "") {
+      //if the item that corresponds to remove button is not empty
+      while (itemarray[j + 1].innerHTML != "") {
+        //loop until items are in right spot
         itemarray[j].innerHTML = itemarray[j + 1].innerHTML; //moves next item to previous slot
-        j++;//increment step count
+        j++; //increment step count
       }
-      itemarray[j].innerHTML = "";//set last item to be empty
-      items--;//decrease item count
+      itemarray[j].innerHTML = ""; //set last item to be empty
+      items--; //decrease item count
     }
   });
 }
