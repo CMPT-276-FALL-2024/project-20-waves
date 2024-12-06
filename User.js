@@ -19,6 +19,7 @@ const User = {
   //quizHistory: [], // Stores quiz history
   //toDoList: [], // Stores user's to-do list
 
+  //
   saveState() {
     const state = {
       isLoggedIn: this.isLoggedIn,
@@ -30,6 +31,7 @@ const User = {
     localStorage.setItem("userState", JSON.stringify(state));
   },
 
+  //
   loadState() {
     const state = localStorage.getItem("userState");
     if (!state) {
@@ -44,7 +46,7 @@ const User = {
       this.accessToken = parsedState.accessToken || null;
       this.calendars = parsedState.calendars || [];
       this.events = parsedState.events || [];
-      //this.notifications = parsedState.notifications || [];
+      this.notifications = parsedState.notifications || [];
       //this.quizHistory = parsedState.quizHistory || [];
       //this.toDoList = parsedState.toDoList || [];
     } catch (error) {
@@ -76,11 +78,13 @@ const User = {
     this.saveState();
   }, */
 
+  //
   clearState() {
     localStorage.removeItem("userState");
     console.log("User state cleared from localStorage.");
   },
 
+  //
   async initializeUser() {
     if (this.isUserInitialized) {
       console.log("User already initialized.");
@@ -125,6 +129,7 @@ const User = {
     }
   },
 
+  //
   async initializeClients() {
     if (!this.ready) {
       this.ready = new Promise((resolve, reject) => {
@@ -145,6 +150,7 @@ const User = {
     return this.ready;
   },
 
+  //
   async initializeGapiClient() {
     return new Promise((resolve, reject) => {
       gapi.load("client", async () => {
@@ -164,6 +170,7 @@ const User = {
     });
   },
 
+  //
   async initializeGISClient() {
     return new Promise((resolve, reject) => {
       try {
@@ -189,6 +196,7 @@ const User = {
     });
   },
 
+  //
   async fetchUserName() {
     // Return the user name if already fetched
     if (this.userName) {
@@ -230,6 +238,7 @@ const User = {
     }
   },
 
+  //
   updateAuthButtons() {
     console.log("Updating auth buttons...");
     const signInButton = document.getElementById("sign-in-button");
@@ -256,6 +265,7 @@ const User = {
     }
   },
 
+  //
   async waitForLogIn() {
     // Wait for the user to log in if not already logged in
     if (this.isLoggedIn) return;
@@ -270,6 +280,7 @@ const User = {
     });
   },
 
+  //
   async ensureAccessToken() {
     if (!this.isLoggedIn) {
       console.log("Ensuring access token: Requesting new access token...");
@@ -336,46 +347,18 @@ const User = {
         orderBy: "startTime",
       });
 
-      const events = response.result.items.map((event) => {
-        const reminders = event.reminders || {};
-        const notificationSettings = [];
+      const events = response.result.items.map((event) => ({
+        id: event.id,
+        title: event.summary,
+        start: event.start.dateTime || event.start.date,
+        end: event.end.dateTime || event.end.date,
+        extendedProps: {
+          eventId: event.id,
+          reminders: event.reminders || { overrides: [] },
+        },
+      }));
 
-        // Only process overrides; skip if no reminders are set
-        if (reminders.overrides) {
-          reminders.overrides.forEach((override) => {
-            notificationSettings.push({
-              method: override.method,
-              minutesBefore: override.minutes,
-            });
-          });
-        }
-
-        // Schedule notifications only if there are valid reminder overrides
-        if (notificationSettings.length > 0) {
-          notificationSettings.forEach((notification) => {
-            this.scheduleNotification(
-              event.summary,
-              event.start.dateTime || event.start.date,
-              notification.minutesBefore
-            );
-          });
-        } else {
-          console.log(
-            `No notifications scheduled for event "${event.summary}".`
-          );
-        }
-
-        return {
-          id: event.id,
-          title: event.summary,
-          start: event.start.dateTime || event.start.date,
-          end: event.end.dateTime || event.end.date,
-          extendedProps: {
-            eventId: event.id,
-            reminders: reminders,
-          }, // Store event ID in extendedProps
-        };
-      });
+      this.processNotifications(events); // Process notifications for each event
 
       // Find the calendar and store its events
       const calendar = this.calendars.find((cal) => cal.id === calendarId);
@@ -391,6 +374,32 @@ const User = {
       console.error(`Error fetching events for calendar ${calendarId}:`, error);
       throw error;
     }
+  },
+
+  processNotifications(events) {
+    const now = Date.now();
+    const tenMinutesFromNow = now + 10 * 60 * 1000; // 10 minutes from now
+
+    events.forEach((event) => {
+      const reminders = event.extendedProps.reminders.overrides || [];
+      reminders.forEach((reminder) => {
+        const notificationTime =
+          new Date(event.start).getTime() - reminder.minutes * 60 * 1000;
+
+        if (notificationTime > now && notificationTime < tenMinutesFromNow) {
+          const notification = {
+            id: event.id,
+            title: event.title,
+            time: new Date(notificationTime).toISOString(),
+            eventStart: event.start,
+          };
+          this.notifications.push(notification);
+        }
+      });
+    });
+
+    this.saveState();
+    this.updateNotificationUI();
   },
 
   async fetchAllCalendarEvents() {
@@ -470,29 +479,36 @@ const User = {
     location.reload();
   },
 
-  scheduleNotification(eventTitle, eventStartTime, minutesBefore) {
-    const eventTime = new Date(eventStartTime).getTime();
-    const notificationTime = eventTime - minutesBefore * 60 * 1000;
-    const currentTime = Date.now();
+  updateNotificationUI() {
+    const notificationBadge = document.getElementById("notification-badge");
+    const notificationList = document.getElementById("notification-list");
 
-    if (notificationTime > currentTime) {
-      const delay = notificationTime - currentTime;
+    if (!notificationBadge || !notificationList) {
+      console.error("Notification badge or list not found.");
+      return;
+    }
 
-      setTimeout(() => {
-        this.addNotification(
-          `Reminder: "${eventTitle}" starts in ${minutesBefore} minutes.`
-        );
-      }, delay);
-
-      console.log(
-        `Notification scheduled for "${eventTitle}" at ${new Date(
-          notificationTime
-        ).toLocaleString()}`
-      );
+    if (this.notifications.length > 0) {
+      notificationBadge.style.display = "block";
+      notificationBadge.textContent = this.notifications.length;
     } else {
-      console.warn(
-        `Skipped past notification for "${eventTitle}" as it has already passed.`
-      );
+      notificationBadge.style.display = "none";
+    }
+
+    // Update dropdown list
+    notificationList.innerHTML = "";
+    if (this.notifications.length === 0) {
+      const emptyItem = document.createElement("li");
+      emptyItem.textContent = "No notifications.";
+      notificationList.appendChild(emptyItem);
+    } else {
+      this.notifications.forEach((notification) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = `Reminder: "${notification.title}" at ${new Date(
+          notification.time
+        ).toLocaleTimeString()}`;
+        notificationList.appendChild(listItem);
+      });
     }
   },
 
@@ -607,35 +623,6 @@ const User = {
     // Render existing notifications
     renderNotifications();
     updateNotificationBadge();
-  },
-
-  // Add notification to the bell
-  addNotification(message) {
-    const notificationList = document.getElementById("notification-list");
-    if (!notificationList) {
-      console.error("Notification list not found.");
-      return;
-    }
-    const notificationItem = document.createElement("li");
-    notificationItem.textContent = message;
-    notificationItem.className = "notification-item";
-    notificationList.appendChild(notificationItem);
-
-    const notificationBadge = document.getElementById("notification-badge");
-    if (!notificationBadge) {
-      console.error("Notification badge not found.");
-      return;
-    } else {
-      const currentCount = parseInt(notificationBadge.textContent, 10) || 0;
-      notificationBadge.textContent = currentCount + 1;
-      notificationBadge.style.display = "block";
-    }
-
-    this.notifications.push(message);
-
-    console.log("Notification added:", message);
-
-    this.saveState();
   },
 
   async updateCalendarEvent(eventId, title, start, end, reminders = null) {
