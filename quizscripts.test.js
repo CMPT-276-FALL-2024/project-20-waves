@@ -547,3 +547,30 @@ test("Quiz incomplete error message doesnt displays when quiz when all questions
 
   expect(questionNotAnsweredErrorMessage.style.display).toBe("none");
 });
+
+test("Loading screen displays when quiz generate button is clicked", () => {
+  document.body.innerHTML = `
+          <div class="loader">
+            <img src="./public/duck-walking.gif" id="duck-gif" />
+            <h3>Generating quiz...</h3>
+          </div>
+          <button class="generate-quiz-button">Generate Quiz</button>
+    `;
+
+  const loadingScreen = document.querySelector(".loader");
+
+  loadingScreen.style.display = "none";
+
+  const generateQuizButton = document.body.querySelector(
+    ".generate-quiz-button"
+  );
+
+  generateQuizButton.addEventListener("click", () => {
+    //Get textbox value
+    loadingScreen.style.display = "inline";
+  });
+
+  generateQuizButton.click();
+
+  expect(loadingScreen.style.display).toBe("inline");
+});
