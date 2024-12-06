@@ -207,7 +207,7 @@ button:focus {
   display: none;
   position: absolute;
   top: 30px;
-  left: 0;
+  right: 0;
   width: 250px;
   background: white;
   border: 1px solid #ddd;
@@ -574,6 +574,7 @@ button:focus {
                   Modal Styling
  ****************************************************/
 .modal {
+  display: none; /* Hidden by default */
   position: fixed;
   top: 0;
   left: 0;
@@ -610,6 +611,18 @@ button:focus {
 }
 .modal-content button:hover {
   background-color: #29353c; /* Darker shade */
+}
+
+/* Optional: Add a fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /****************************************************

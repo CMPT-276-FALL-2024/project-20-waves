@@ -741,7 +741,7 @@ function setupEventCreationButton() {
     const endDate = document.getElementById("event-end-date").value;
     const endTime = document.getElementById("event-end-time").value;
 
-    console.log({ title, startDate, startTime, endDate, endTime });
+    //console.log({ title, startDate, startTime, endDate, endTime });
 
     // Validate inputs
     if (!title || !startDate || !startTime || !endDate || !endTime) {
@@ -761,6 +761,33 @@ function setupEventCreationButton() {
       return;
     }
 
+    let reminders = { useDefault: true };
+
+    const notificationsEnabled = document.getElementById(
+      "enable-notifications"
+    ).checked;
+    if (notificationsEnabled) {
+      const notificationTime = parseInt(
+        document.getElementById("notification-time").value,
+        10
+      );
+      const notificationTimeUnit = document.getElementById(
+        "notification-time-unit"
+      ).value;
+
+      const reminderMinutes =
+        notificationTime *
+        (notificationTimeUnit === "hours"
+          ? 60
+          : notificationTimeUnit === "days"
+            ? 1440
+            : 1);
+      reminders = {
+        useDefault: false,
+        overrides: [{ method: "popup", minutes: reminderMinutes }],
+      };
+    }
+
     try {
       // Add the event to Google Calendar
       console.log("Adding event to Google Calendar...");
@@ -776,6 +803,7 @@ function setupEventCreationButton() {
             dateTime: end,
             timeZone: thisTimeZone,
           },
+          reminders: reminders,
         },
       });
 
@@ -791,6 +819,9 @@ function setupEventCreationButton() {
         });
         console.log(`Event added to FullCalendar: ${title}`);
       }
+
+      //ensure event is given a Google Calendar ID for future reference
+      await User.fetchCalendarUpdates(); // Update the user's calendar data
 
       // Show success message
       User.openValidationModal(
@@ -852,9 +883,16 @@ function setupDeleteEventButton() {
             calendarId: "primary",
             eventId: selectedEvent.id,
           });
-          selectedEvent.remove(); // Remove from calendar UI
+
+          // Remove the event from the local FullCalendar instance
+          const eventInCalendar = calendar.getEventById(selectedEvent.id);
+          if (eventInCalendar) {
+            eventInCalendar.remove();
+          }
           selectedEvent = null; // Clear selectedEvent
           closeSidebar();
+
+          await User.fetchCalendarUpdates(); // Update the user's calendar data
           // Show success message
           User.openValidationModal("Event successfully deleted.");
         } else {
@@ -1011,7 +1049,7 @@ function initializeTabsandPanels() {
     // Close all panels if the click is outside
     if (!isClickInside) {
       panels.forEach((panel) => panel.classList.remove("active"));
-      console.log("Closed all panels.");
+      // console.log("Closed all panels.");
     }
   });
 }
