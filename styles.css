@@ -828,7 +828,9 @@ html {
   float: right;
   width: 250px;
 }
-/*styling for homepage elements*/
+/****************************************************
+                  Home Page Styling
+ ****************************************************/
 /* todolist elements */
 .todo-list {
   background-color: #44576d;
@@ -867,6 +869,7 @@ html {
   font-weight: bold;
   border-radius: 50%;
   left: 10px;
+  padding:0px;
 }
 .todo-input-box {
   position: relative;
@@ -895,14 +898,6 @@ html {
   height: 30px;
 }
 /* todolist elements end */
-.timer {
-  background-color: rgb(89, 89, 95);
-  width: 25%;
-  height: 15%;
-  position: absolute;
-  right: 0;
-  bottom: 50%;
-}
 /*chatbot elements start*/
 .chatbot {
   background-color: #44576d;
