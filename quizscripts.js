@@ -367,7 +367,7 @@ quizSubmitButton.addEventListener("click", () => {
     quizAlreadySubmittedErrorMessage.style.display = "inline";
   }
   //If not all answers have been submitted, display error message
-  else {
+  else if (userAnswers.length !== 10) {
     //Display questions not answered error message
     questionNotAnsweredErrorMessage.style.display = "inline";
   }
