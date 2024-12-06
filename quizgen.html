@@ -4,10 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/x-icon" href="images/favicon.png" />
     <title>Quiz Generation</title>
   </head>
   <body>
-    <!-- Website Shared Content -->
+    <div id="top-of-page"></div>
     <div id="shared-content"></div>
 
     <div class="options">
@@ -21,24 +22,24 @@
       <button class="generate-quiz-button">Generate Quiz</button>
     </div>
 
-    <div class="error-msg-position">
-      <div class="error-msg">Error: Please enter a topic</div>
-      <div class="error-msg" id="question-not-answered">
-        Error: Not all questions answered
-      </div>
-      <div class="error-msg" id="quiz-already-submitted">
-        Error: Quiz already submitted. Please create a new one
-      </div>
-    </div>
-
     <section class="quiz-section">
       <div class="quiz-score-position">
         <div class="quiz-score"></div>
       </div>
 
+      <div class="error-msg-position">
+        <div class="error-msg">Error: Please enter a topic</div>
+        <div class="error-msg" id="question-not-answered">
+          Error: Not all questions answered
+        </div>
+        <div class="error-msg" id="quiz-already-submitted">
+          Error: Quiz already submitted. Please create a new one
+        </div>
+      </div>
+
       <div class="loader-position">
         <div class="loader">
-          <img src="/public/duck-walking.gif" id="duck-gif" />
+          <img src="./public/duck-walking.gif" id="duck-gif" />
           <h3>Generating quiz...</h3>
         </div>
       </div>
@@ -482,6 +483,16 @@
     </section>
     <script type="module" src="./User.js"></script>
     <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        fetch("application.html")
+          .then((response) => response.text())
+          .then((html) => {
+            document.getElementById("shared-content").innerHTML = html;
+          })
+          .catch((err) => console.error("Failed to load shared content:", err));
+      });
+    </script>
+    <script>
       document.addEventListener("DOMContentLoaded", async () => {
         try {
           const response = await fetch("application.html");
@@ -489,7 +500,6 @@
           document.getElementById("shared-content").innerHTML = html;
           await User.loadState();
           await User.initializeUser(); // Wait until user state is fully initialized
-          User.initializeNotifications();
         } catch (err) {
           console.error("Error initializing page:", err);
         }

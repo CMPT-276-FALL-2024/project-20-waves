@@ -377,3 +377,200 @@ test("Hide error message, quiz section, quiz submit button, and quiz score if to
   expect(quizSubmitButton.style.display).toBe("none");
   expect(quizScore.style.display).toBe("none");
 });
+
+test("Quiz topics are correctly added to quiz history box", () => {
+  document.body.innerHTML = `
+          <table id="quiz-history">
+            <th>Quiz History</th>
+          </table>
+          <button class="quiz-submit-button">Submit</button>
+    `;
+
+  const storageArray = [{ topic: "test", score: "0" }];
+
+  const quizHistoryTable = document.body.querySelector("#quiz-history");
+
+  const quizSubmitButton = document.body.querySelector(".quiz-submit-button");
+
+  //Add all objects in localstorage to table to display starting from itemnumber
+  function displayQuizHistory(itemNumber) {
+    //For each object in the local storage display the objects values
+    for (itemNumber; itemNumber < storageArray.length; itemNumber++) {
+      //Create a new row
+      let row = document.createElement("tr");
+
+      //Create a new column
+      let column = document.createElement("td");
+
+      //Set the column text to be topic - score for each object
+      column.textContent =
+        storageArray[itemNumber].topic +
+        " - " +
+        storageArray[itemNumber].score +
+        "/10";
+
+      //add the column to the row
+      row.appendChild(column);
+
+      //Add the row to the the table
+      quizHistoryTable.appendChild(row);
+    }
+  }
+
+  quizSubmitButton.addEventListener("click", () => {
+    displayQuizHistory(storageArray.length - 1);
+  });
+
+  quizSubmitButton.click();
+
+  const rows = document.querySelectorAll("tr");
+
+  expect(rows.length).toBe(2);
+
+  expect(rows[1].querySelector("td").textContent).toBe("test - 0/10");
+});
+
+test("Quiz already submitted error message correctly displays", () => {
+  document.body.innerHTML = `
+          <div class="error-msg" id="quiz-already-submitted">
+            Error: Quiz already submitted. Please create a new one
+          </div>
+          <button class="quiz-submit-button">Submit</button>
+    `;
+
+  const quizAlreadySubmittedErrorMessage = document.body.querySelector(
+    "#quiz-already-submitted"
+  );
+  const quizSubmitButton = document.body.querySelector(".quiz-submit-button");
+
+  const quizSubmitted = true;
+
+  const userAnswers = ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a"];
+
+  quizAlreadySubmittedErrorMessage.style.display = "none";
+
+  quizSubmitButton.addEventListener("click", () => {
+    if (quizSubmitted && userAnswers.length === 10) {
+      quizAlreadySubmittedErrorMessage.style.display = "inline";
+    }
+  });
+
+  quizSubmitButton.click();
+
+  expect(quizAlreadySubmittedErrorMessage.style.display).toBe("inline");
+});
+
+test("Quiz already submitted error message doesnt display when quiz hasnt already been submitted", () => {
+  document.body.innerHTML = `
+          <div class="error-msg" id="quiz-already-submitted">
+            Error: Quiz already submitted. Please create a new one
+          </div>
+          <button class="quiz-submit-button">Submit</button>
+    `;
+
+  const quizAlreadySubmittedErrorMessage = document.body.querySelector(
+    "#quiz-already-submitted"
+  );
+  const quizSubmitButton = document.body.querySelector(".quiz-submit-button");
+
+  const quizSubmitted = false;
+
+  const userAnswers = ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a"];
+
+  quizAlreadySubmittedErrorMessage.style.display = "none";
+
+  quizSubmitButton.addEventListener("click", () => {
+    if (quizSubmitted && userAnswers.length === 10) {
+      quizAlreadySubmittedErrorMessage.style.display = "inline";
+    }
+  });
+
+  quizSubmitButton.click();
+
+  expect(quizAlreadySubmittedErrorMessage.style.display).toBe("none");
+});
+
+test("Quiz incomplete error message displays when quiz isnt finished and is trying to be submitted", () => {
+  document.body.innerHTML = `
+          <div class="error-msg" id="question-not-answered">
+            Error: Not all questions answered
+          </div>
+          <button class="quiz-submit-button">Submit</button>
+    `;
+
+  const questionNotAnsweredErrorMessage = document.body.querySelector(
+    "#question-not-answered"
+  );
+  const quizSubmitButton = document.body.querySelector(".quiz-submit-button");
+
+  const userAnswers = ["a", "a", "a", "a", "a", "a", "a", "a", "a"];
+
+  questionNotAnsweredErrorMessage.style.display = "none";
+
+  quizSubmitButton.addEventListener("click", () => {
+    //Display questions not answered error message
+    if (userAnswers.length !== 10) {
+      questionNotAnsweredErrorMessage.style.display = "inline";
+    }
+  });
+
+  quizSubmitButton.click();
+
+  expect(questionNotAnsweredErrorMessage.style.display).toBe("inline");
+});
+
+test("Quiz incomplete error message doesnt displays when quiz when all questions are answered", () => {
+  document.body.innerHTML = `
+          <div class="error-msg" id="question-not-answered">
+            Error: Not all questions answered
+          </div>
+          <button class="quiz-submit-button">Submit</button>
+    `;
+
+  const questionNotAnsweredErrorMessage = document.body.querySelector(
+    "#question-not-answered"
+  );
+  const quizSubmitButton = document.body.querySelector(".quiz-submit-button");
+
+  const userAnswers = ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a"];
+
+  questionNotAnsweredErrorMessage.style.display = "none";
+
+  quizSubmitButton.addEventListener("click", () => {
+    //Display questions not answered error message
+    if (userAnswers.length !== 10) {
+      questionNotAnsweredErrorMessage.style.display = "inline";
+    }
+  });
+
+  quizSubmitButton.click();
+
+  expect(questionNotAnsweredErrorMessage.style.display).toBe("none");
+});
+
+test("Loading screen displays when quiz generate button is clicked", () => {
+  document.body.innerHTML = `
+          <div class="loader">
+            <img src="./public/duck-walking.gif" id="duck-gif" />
+            <h3>Generating quiz...</h3>
+          </div>
+          <button class="generate-quiz-button">Generate Quiz</button>
+    `;
+
+  const loadingScreen = document.querySelector(".loader");
+
+  loadingScreen.style.display = "none";
+
+  const generateQuizButton = document.body.querySelector(
+    ".generate-quiz-button"
+  );
+
+  generateQuizButton.addEventListener("click", () => {
+    //Get textbox value
+    loadingScreen.style.display = "inline";
+  });
+
+  generateQuizButton.click();
+
+  expect(loadingScreen.style.display).toBe("inline");
+});

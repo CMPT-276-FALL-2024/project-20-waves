@@ -1,3 +1,4 @@
+
 {
   "name": "project-20-waves",
   "version": "1.0.0",
@@ -10,11 +11,19 @@
   "type": "module",
   "scripts": {
     "test": "jest",
+<<<<<<< HEAD
     "start": "node src/todolist.js",
     "format": "prettier --write .",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint . --fix ",
     "build": "cp -r src/ dist/"
+=======
+    "start": "node todolist.js",
+    "format": "prettier --write *",
+    "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
+    "lint:fix": "eslint . --fix",
+    "build": "cp -r * dist/"
+>>>>>>> b33a3938e2b7f57ce8bd29755a0663d6e3d904fa
   },
   "jest": {
     "testEnvironment": "jest-environment-jsdom"

@@ -312,13 +312,13 @@ quizSubmitButton.addEventListener("click", () => {
     for (let i = 0; i < 10; i++) {
       //If selected answer is correct make the button green and increment user score
       if (questions[i].data.answer.includes(userAnswers[i])) {
-        selectedButtons[i].style.backgroundColor = "lightgreen";
+        selectedButtons[i].style.backgroundColor = "rgb(94, 202, 94)";
         userScore++;
       }
 
       //If selected answer is incorrect make the button red
       else {
-        selectedButtons[i].style.backgroundColor = "rgb(245, 69, 69)";
+        selectedButtons[i].style.backgroundColor = "rgb(212, 50, 50)";
       }
     }
 
@@ -330,13 +330,13 @@ quizSubmitButton.addEventListener("click", () => {
 
     for (let i = 0; i < 10; i++) {
       if (questions[i].data.answer.includes("a")) {
-        allButtons[j].style.backgroundColor = "lightgreen";
+        allButtons[j].style.backgroundColor = "rgb(94, 202, 94)";
       } else if (questions[i].data.answer.includes("b")) {
-        allButtons[j + 1].style.backgroundColor = "lightgreen";
+        allButtons[j + 1].style.backgroundColor = "rgb(94, 202, 94)";
       } else if (questions[i].data.answer.includes("c")) {
-        allButtons[j + 2].style.backgroundColor = "lightgreen";
+        allButtons[j + 2].style.backgroundColor = "rgb(94, 202, 94)";
       } else if (questions[i].data.answer.includes("d")) {
-        allButtons[j + 3].style.backgroundColor = "lightgreen";
+        allButtons[j + 3].style.backgroundColor = "rgb(94, 202, 94)";
       }
 
       j += 4;
@@ -367,7 +367,7 @@ quizSubmitButton.addEventListener("click", () => {
     quizAlreadySubmittedErrorMessage.style.display = "inline";
   }
   //If not all answers have been submitted, display error message
-  else {
+  else if (userAnswers.length !== 10) {
     //Display questions not answered error message
     questionNotAnsweredErrorMessage.style.display = "inline";
   }

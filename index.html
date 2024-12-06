@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
-
+    <link rel="icon" type="image/x-icon" href="images/favicon.png">
     <title>Study Buddy</title>
   </head>
   <body style="background-color: #e6e6e6">
@@ -14,6 +14,7 @@
     <!--main elements -->
     <!-- todolist -->
     <div class="todo-list">
+      <!--Each item in todo list-->
       <h1>To-do List</h1>
       <button class="todo-remove-button" id="remove1">X</button>
       <p id="item1"></p>
@@ -35,6 +36,7 @@
       <p id="item9"></p>
       <button class="todo-remove-button" id="remove10">X</button>
       <p id="item10"></p>
+      <!--inputs for user-->
       <div class="todo-add">
         <input
           class="todo-input-box"
@@ -46,14 +48,17 @@
     </div>
     <!-- todolist end-->
     <!-- chatbot -->
-
     <div class="chatbot">
+<<<<<<< HEAD:src/index.html
+=======
+      <!--AI response-->
+>>>>>>> b33a3938e2b7f57ce8bd29755a0663d6e3d904fa:index.html
       <h1>AI Help</h1>
       <div class="response-box">
         <p id="response"></p>
       </div>
+      <!--inputs for user-->
       <div class="chatbot-input">
-        <h2>Type a question in here and an AI will answer</h2>
         <input
           class="chatbot-input-box"
           id="chatbot-input"
@@ -73,16 +78,27 @@
           document.getElementById("shared-content").innerHTML = html;
           await User.loadState();
           await User.initializeUser(); // Wait until user state is fully initialized
+<<<<<<< HEAD:src/index.html
           User.initializeNotifications();
+=======
+>>>>>>> b33a3938e2b7f57ce8bd29755a0663d6e3d904fa:index.html
         } catch (err) {
           console.error("Error initializing page:", err);
         }
       });
     </script>
+<<<<<<< HEAD:src/index.html
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js" async defer></script>
     <script src="todolist.js"></script>
     <script type="module" src="chatbot.js"></script>
+=======
+>>>>>>> b33a3938e2b7f57ce8bd29755a0663d6e3d904fa:index.html
   </body>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js" async defer></script>
+  <script src="todolist.js"></script>
+  <script type="module" src="chatbot.js"></script>
 </html>
