@@ -336,9 +336,11 @@ const User = {
 
   async fetchCalendarEvents(calendarId) {
     console.log(`Fetching events for calendar: ${calendarId}`);
+    // Ensure the access token is valid
     await this.ensureAccessToken();
 
     try {
+      // Fetch events from the Google Calendar API
       const response = await gapi.client.calendar.events.list({
         calendarId,
         timeMin: new Date().toISOString(),
@@ -378,15 +380,27 @@ const User = {
 
   processNotifications(events) {
     const now = Date.now();
-    const tenMinutesFromNow = now + 10 * 60 * 1000; // 10 minutes from now
 
     events.forEach((event) => {
       const reminders = event.extendedProps.reminders.overrides || [];
-      reminders.forEach((reminder) => {
-        const notificationTime =
-          new Date(event.start).getTime() - reminder.minutes * 60 * 1000;
+      if (reminders.length === 0) return; // Skip events with no reminders
 
-        if (notificationTime > now && notificationTime < tenMinutesFromNow) {
+      // Only consider the first reminder
+      const firstReminder = reminders[0];
+      const notificationTime =
+        new Date(event.start).getTime() - firstReminder.minutes * 60 * 1000;
+
+      // Skip events with past notification times
+      if (notificationTime < now) return;
+
+      // Check if the reminder falls within the next 5 minutes
+      if (notificationTime > now) {
+        const existingNotification = this.notifications.find(
+          (n) => n.id === event.id
+        );
+
+        // Add the notification if it doesn't already exist
+        if (!existingNotification) {
           const notification = {
             id: event.id,
             title: event.title,
@@ -394,12 +408,53 @@ const User = {
             eventStart: event.start,
           };
           this.notifications.push(notification);
-        }
-      });
-    });
 
+          // Schedule the notification
+          this.scheduleNotification(notification);
+        }
+      }
+    });
     this.saveState();
-    this.updateNotificationUI();
+  },
+
+  scheduleNotification(notification) {
+    const now = Date.now();
+    const notificationTime = new Date(notification.time).getTime();
+    const delay = notificationTime - now;
+
+    if (delay <= 0) return; // Skip if the notification time has already passed
+
+    console.log(
+      `Scheduling notification for "${notification.title}" in ${delay} ms`
+    );
+
+    setTimeout(() => {
+      this.triggerNotification(notification);
+    }, delay);
+  },
+
+  triggerNotification(notification) {
+    console.log(`Triggering notification: "${notification.title}"`);
+
+    // Update UI
+    const notificationList = document.getElementById("notification-list");
+    const notificationBadge = document.getElementById("notification-badge");
+
+    if (notificationList) {
+      const listItem = document.createElement("li");
+      listItem.textContent = `Reminder: "${notification.title}" for event starting at ${new Date(
+        notification.eventStart
+      ).toLocaleTimeString()}`;
+      notificationList.appendChild(listItem);
+    }
+
+    if (notificationBadge) {
+      notificationBadge.style.display = "block";
+      const visibleNotifications = document.querySelectorAll(
+        "#notification-list li"
+      ).length;
+      notificationBadge.textContent = visibleNotifications;
+    }
   },
 
   async fetchAllCalendarEvents() {
@@ -504,9 +559,7 @@ const User = {
     } else {
       this.notifications.forEach((notification) => {
         const listItem = document.createElement("li");
-        listItem.textContent = `Reminder: "${notification.title}" at ${new Date(
-          notification.time
-        ).toLocaleTimeString()}`;
+        listItem.textContent = `Reminder: "${notification.title}" for an event starting at ${notification.eventStart}`;
         notificationList.appendChild(listItem);
       });
     }
