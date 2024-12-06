@@ -31,7 +31,7 @@ function initializeCalendar() {
       center: "title",
       right: "dayGridMonth,timeGridWeek,timeGridDay",
     },
-    footerToolbar: true,
+    footerToolbar: false,
 
     // Create new event on date click
     dateClick: handleDateClick,
