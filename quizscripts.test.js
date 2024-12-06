@@ -429,3 +429,121 @@ test("Quiz topics are correctly added to quiz history box", () => {
 
   expect(rows[1].querySelector("td").textContent).toBe("test - 0/10");
 });
+
+test("Quiz already submitted error message correctly displays", () => {
+  document.body.innerHTML = `
+          <div class="error-msg" id="quiz-already-submitted">
+            Error: Quiz already submitted. Please create a new one
+          </div>
+          <button class="quiz-submit-button">Submit</button>
+    `;
+
+  const quizAlreadySubmittedErrorMessage = document.body.querySelector(
+    "#quiz-already-submitted"
+  );
+  const quizSubmitButton = document.body.querySelector(".quiz-submit-button");
+
+  const quizSubmitted = true;
+
+  const userAnswers = ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a"];
+
+  quizAlreadySubmittedErrorMessage.style.display = "none";
+
+  quizSubmitButton.addEventListener("click", () => {
+    if (quizSubmitted && userAnswers.length === 10) {
+      quizAlreadySubmittedErrorMessage.style.display = "inline";
+    }
+  });
+
+  quizSubmitButton.click();
+
+  expect(quizAlreadySubmittedErrorMessage.style.display).toBe("inline");
+});
+
+test("Quiz already submitted error message doesnt display when quiz hasnt already been submitted", () => {
+  document.body.innerHTML = `
+          <div class="error-msg" id="quiz-already-submitted">
+            Error: Quiz already submitted. Please create a new one
+          </div>
+          <button class="quiz-submit-button">Submit</button>
+    `;
+
+  const quizAlreadySubmittedErrorMessage = document.body.querySelector(
+    "#quiz-already-submitted"
+  );
+  const quizSubmitButton = document.body.querySelector(".quiz-submit-button");
+
+  const quizSubmitted = false;
+
+  const userAnswers = ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a"];
+
+  quizAlreadySubmittedErrorMessage.style.display = "none";
+
+  quizSubmitButton.addEventListener("click", () => {
+    if (quizSubmitted && userAnswers.length === 10) {
+      quizAlreadySubmittedErrorMessage.style.display = "inline";
+    }
+  });
+
+  quizSubmitButton.click();
+
+  expect(quizAlreadySubmittedErrorMessage.style.display).toBe("none");
+});
+
+test("Quiz incomplete error message displays when quiz isnt finished and is trying to be submitted", () => {
+  document.body.innerHTML = `
+          <div class="error-msg" id="question-not-answered">
+            Error: Not all questions answered
+          </div>
+          <button class="quiz-submit-button">Submit</button>
+    `;
+
+  const questionNotAnsweredErrorMessage = document.body.querySelector(
+    "#question-not-answered"
+  );
+  const quizSubmitButton = document.body.querySelector(".quiz-submit-button");
+
+  const userAnswers = ["a", "a", "a", "a", "a", "a", "a", "a", "a"];
+
+  questionNotAnsweredErrorMessage.style.display = "none";
+
+  quizSubmitButton.addEventListener("click", () => {
+    //Display questions not answered error message
+    if (userAnswers.length !== 10) {
+      questionNotAnsweredErrorMessage.style.display = "inline";
+    }
+  });
+
+  quizSubmitButton.click();
+
+  expect(questionNotAnsweredErrorMessage.style.display).toBe("inline");
+});
+
+test("Quiz incomplete error message doesnt displays when quiz when all questions are answered", () => {
+  document.body.innerHTML = `
+          <div class="error-msg" id="question-not-answered">
+            Error: Not all questions answered
+          </div>
+          <button class="quiz-submit-button">Submit</button>
+    `;
+
+  const questionNotAnsweredErrorMessage = document.body.querySelector(
+    "#question-not-answered"
+  );
+  const quizSubmitButton = document.body.querySelector(".quiz-submit-button");
+
+  const userAnswers = ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a"];
+
+  questionNotAnsweredErrorMessage.style.display = "none";
+
+  quizSubmitButton.addEventListener("click", () => {
+    //Display questions not answered error message
+    if (userAnswers.length !== 10) {
+      questionNotAnsweredErrorMessage.style.display = "inline";
+    }
+  });
+
+  quizSubmitButton.click();
+
+  expect(questionNotAnsweredErrorMessage.style.display).toBe("none");
+});
