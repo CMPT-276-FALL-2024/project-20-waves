@@ -377,3 +377,55 @@ test("Hide error message, quiz section, quiz submit button, and quiz score if to
   expect(quizSubmitButton.style.display).toBe("none");
   expect(quizScore.style.display).toBe("none");
 });
+
+test("Quiz topics are correctly added to quiz history box", () => {
+  document.body.innerHTML = `
+          <table id="quiz-history">
+            <th>Quiz History</th>
+          </table>
+          <button class="quiz-submit-button">Submit</button>
+    `;
+
+  const storageArray = [{ topic: "test", score: "0" }];
+
+  const quizHistoryTable = document.body.querySelector("#quiz-history");
+
+  const quizSubmitButton = document.body.querySelector(".quiz-submit-button");
+
+  //Add all objects in localstorage to table to display starting from itemnumber
+  function displayQuizHistory(itemNumber) {
+    //For each object in the local storage display the objects values
+    for (itemNumber; itemNumber < storageArray.length; itemNumber++) {
+      //Create a new row
+      let row = document.createElement("tr");
+
+      //Create a new column
+      let column = document.createElement("td");
+
+      //Set the column text to be topic - score for each object
+      column.textContent =
+        storageArray[itemNumber].topic +
+        " - " +
+        storageArray[itemNumber].score +
+        "/10";
+
+      //add the column to the row
+      row.appendChild(column);
+
+      //Add the row to the the table
+      quizHistoryTable.appendChild(row);
+    }
+  }
+
+  quizSubmitButton.addEventListener("click", () => {
+    displayQuizHistory(storageArray.length - 1);
+  });
+
+  quizSubmitButton.click();
+
+  const rows = document.querySelectorAll("tr");
+
+  expect(rows.length).toBe(2);
+
+  expect(rows[1].querySelector("td").textContent).toBe("test - 0/10");
+});
