@@ -127,17 +127,19 @@ const User = {
 
   async initializeClients() {
     if (!this.ready) {
-      this.ready = new Promise(async (resolve, reject) => {
-        try {
-          await this.initializeGapiClient();
-          console.log("GAPI client initialized.");
-          await this.initializeGISClient();
-          console.log("GIS client initialized.");
-          resolve();
-        } catch (error) {
-          console.error("Error during client initialization:", error);
-          reject(error);
-        }
+      this.ready = new Promise((resolve, reject) => {
+        async () => {
+          try {
+            await this.initializeGapiClient();
+            console.log("GAPI client initialized.");
+            await this.initializeGISClient();
+            console.log("GIS client initialized.");
+            resolve();
+          } catch (error) {
+            console.error("Error during client initialization:", error);
+            reject(error);
+          }
+        };
       });
     }
     return this.ready;
