@@ -174,10 +174,12 @@ const clearQuizHistoryButton = document.body.querySelector(
   ".clear-quiz-history-button"
 );
 
+//Boolean variable to keep track of if a quiz is already being generated
 let quizGenerating = false;
 
 //API function
 async function geminiAPI() {
+  //Set quiz generating value to true
   quizGenerating = true;
 
   //Display loading spinner
@@ -276,13 +278,12 @@ async function geminiAPI() {
     quizSection.style.display = "grid";
     quizSubmitButton.style.display = "inline";
 
-    //Enable quiz submit button
-    //quizSubmitButton.removeAttribute("disabled", "");
-    // quizSubmitButton.setAttribute("enabled", "");
-
     quizAlreadySubmittedErrorMessage.style.display = "none";
     quizSubmitted = false;
   }
+
+  //Set quiz generating variable to false
+  quizGenerating = false;
 }
 
 //When quiz submit button is clicked check answers and return results
