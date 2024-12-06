@@ -6,7 +6,7 @@
 import { populateCalendarEvents } from "./calendarscripts.js";
 
 const User = {
-  API_KEY: "AIzaSyB55t-76K0WorK2_4TgGlQI8qyI1z-ho2M", // API key for GAPI client
+  API_KEY: "AIzaSyCCWMl6OoDtycgWueMT0DMpjD29_8xEqls", // API key for GAPI client
   CLIENT_ID:
     "629945653538-pcogqvg1rvcjc8o4520559ejo5skuate.apps.googleusercontent.com", // Client ID for GIS client
   calendars: [], // Stores user calendars, storing events in each calendar
@@ -24,15 +24,10 @@ const User = {
       isLoggedIn: this.isLoggedIn,
       accessToken: this.accessToken,
       calendars: this.calendars,
-      events: this.events,
-      userName: this.userName,
       notifications: this.notifications,
-      //quizHistory: this.quizHistory,
-      //toDoList: this.toDoList,
+      userName: this.userName,
     };
-    console.log("Saving user state:", state); // Debug log
     localStorage.setItem("userState", JSON.stringify(state));
-    console.log("User state saved to localStorage."); // Confirmation log
   },
 
   loadState() {
@@ -49,11 +44,11 @@ const User = {
       this.accessToken = parsedState.accessToken || null;
       this.calendars = parsedState.calendars || [];
       this.events = parsedState.events || [];
-      this.notifications = parsedState.notifications || [];
+      //this.notifications = parsedState.notifications || [];
       //this.quizHistory = parsedState.quizHistory || [];
       //this.toDoList = parsedState.toDoList || [];
     } catch (error) {
-      console.error("Error parsing user state from localStorage:", error);
+      console.error("Error loading user state:", error);
     }
   },
 
@@ -113,9 +108,6 @@ const User = {
       console.log("Fetching calendar events...");
       await this.fetchAllCalendarEvents();
 
-      console.log("Scheduling notifications...");
-      this.scheduleAllNotifications();
-
       if (window.location.pathname.includes("calendar.html")) {
         console.log("Populating calendar events...");
         populateCalendarEvents();
@@ -123,6 +115,9 @@ const User = {
 
       console.log("Saving User state...");
       this.saveState();
+
+      console.log("Starting calendar update interval...");
+      this.startCalendarUpdateInterval();
 
       console.log("User initialized.");
     } catch (error) {
@@ -339,13 +334,46 @@ const User = {
         orderBy: "startTime",
       });
 
-      const events = response.result.items.map((event) => ({
-        id: event.id,
-        title: event.summary,
-        start: event.start.dateTime || event.start.date,
-        end: event.end.dateTime || event.end.date,
-        reminders: event.reminders,
-      }));
+      const events = response.result.items.map((event) => {
+        const reminders = event.reminders || {};
+        const notificationSettings = [];
+
+        // Only process overrides; skip if no reminders are set
+        if (reminders.overrides) {
+          reminders.overrides.forEach((override) => {
+            notificationSettings.push({
+              method: override.method,
+              minutesBefore: override.minutes,
+            });
+          });
+        }
+
+        // Schedule notifications only if there are valid reminder overrides
+        if (notificationSettings.length > 0) {
+          notificationSettings.forEach((notification) => {
+            this.scheduleNotification(
+              event.summary,
+              event.start.dateTime || event.start.date,
+              notification.minutesBefore
+            );
+          });
+        } else {
+          console.log(
+            `No notifications scheduled for event "${event.summary}".`
+          );
+        }
+
+        return {
+          id: event.id,
+          title: event.summary,
+          start: event.start.dateTime || event.start.date,
+          end: event.end.dateTime || event.end.date,
+          extendedProps: {
+            eventId: event.id,
+            reminders: reminders,
+          }, // Store event ID in extendedProps
+        };
+      });
 
       // Find the calendar and store its events
       const calendar = this.calendars.find((cal) => cal.id === calendarId);
@@ -373,77 +401,6 @@ const User = {
 
     await Promise.all(eventPromises); // Wait for all fetches to complete
     console.log("All events fetched and stored.");
-  },
-
-  scheduleAllNotifications() {
-    const currentTime = new Date().getTime();
-
-    this.calendars.forEach((calendar) => {
-      calendar.events.forEach((event) => {
-        if (!event.title || !event.start || !event.reminders) return;
-
-        // Check if overrides are defined in the reminders
-        if (
-          event.reminders.useDefault ||
-          (event.reminders.overrides && event.reminders.overrides.length > 0)
-        ) {
-          const overrides = event.reminders.overrides || [];
-          overrides.forEach((override) => {
-            const minutesBefore = override.minutes;
-
-            const startTime = new Date(event.start).getTime();
-            const notificationTime = startTime - minutesBefore * 60 * 1000;
-
-            if (notificationTime > currentTime) {
-              const delay = notificationTime - currentTime;
-
-              setTimeout(() => {
-                this.addNotification(
-                  `Reminder: "${event.title}" starts in ${minutesBefore} minutes.`
-                );
-              }, delay);
-
-              console.log(
-                `Notification scheduled for "${event.title}" at ${new Date(
-                  notificationTime
-                ).toLocaleString()}`
-              );
-            }
-          });
-        } else {
-          console.log(
-            `No notifications scheduled for "${event.title}" - no overrides found.`
-          );
-        }
-      });
-    });
-  },
-
-  addNotification(message) {
-    if (!this.notifications) this.notifications = [];
-
-    // Push notification to the array only when triggered
-    this.notifications.push(message);
-    this.saveState(); // Persist the updated state
-
-    const notificationBadge = document.getElementById("notification-badge");
-    const notificationList = document.getElementById("notification-list");
-
-    // Update badge count
-    if (notificationBadge) {
-      notificationBadge.style.display = "block";
-      notificationBadge.textContent = this.notifications.length;
-    }
-
-    // Add the notification to the dropdown list
-    if (notificationList) {
-      const listItem = document.createElement("li");
-      listItem.textContent = message;
-      listItem.className = "notification-item";
-      notificationList.appendChild(listItem);
-    }
-
-    console.log("Notification triggered:", message);
   },
 
   closeSignOutModal() {
@@ -511,37 +468,71 @@ const User = {
     location.reload();
   },
 
+  scheduleNotification(eventTitle, eventStartTime, minutesBefore) {
+    const eventTime = new Date(eventStartTime).getTime();
+    const notificationTime = eventTime - minutesBefore * 60 * 1000;
+    const currentTime = Date.now();
+
+    if (notificationTime > currentTime) {
+      const delay = notificationTime - currentTime;
+
+      setTimeout(() => {
+        this.addNotification(
+          `Reminder: "${eventTitle}" starts in ${minutesBefore} minutes.`
+        );
+      }, delay);
+
+      console.log(
+        `Notification scheduled for "${eventTitle}" at ${new Date(
+          notificationTime
+        ).toLocaleString()}`
+      );
+    } else {
+      console.warn(
+        `Skipped past notification for "${eventTitle}" as it has already passed.`
+      );
+    }
+  },
+
   async fetchCalendarUpdates() {
     console.log("Fetching calendar updates...");
     await this.ensureAccessToken(); // Ensure token validity
 
     try {
-      const response = await gapi.client.calendar.events.list({
-        calendarId,
-        timeMin: new Date().toISOString(),
-        showDeleted: false,
-        singleEvents: true,
-        orderBy: "startTime",
+      // Clear existing events from all calendars
+      this.calendars.forEach((calendar) => {
+        calendar.events = [];
       });
+      // Clear existing notifications
+      this.notifications = [];
 
-      const updatedEvents = response.result.items.map((event) => ({
-        title: event.summary,
-        start: event.start.dateTime || event.start.date,
-        end: event.end.dateTime || event.end.date,
-      }));
+      // Fetch updated events for all calendars
+      await this.fetchAllCalendarEvents();
 
-      this.calendarEvents = updatedEvents;
-      console.log("Calendar events updated:", this.calendarEvents);
+      console.log("Calendar events updated:", this.calendars);
 
-      return this.calendarEvents;
+      if (window.location.pathname.includes("calendar.html")) {
+        console.log("Populating calendar events...");
+        populateCalendarEvents(); // Re-populate the calendar with updated events
+      }
     } catch (error) {
       console.error("Error updating calendar events:", error);
       throw error;
     }
   },
 
+  startCalendarUpdateInterval() {
+    // Set up the interval to refresh calendar updates every 5 minutes (300,000 milliseconds)
+    setInterval(async () => {
+      try {
+        await this.fetchCalendarUpdates();
+      } catch (error) {
+        console.error("Error fetching calendar updates in interval:", error);
+      }
+    }, 60000); // 1 minutes for testing
+  },
+
   initializeNotifications() {
-    console.log("Initializing notifications");
     const notificationBell = document.getElementById("notification-bell");
     const notificationDropdown = document.getElementById(
       "notification-dropdown"
@@ -549,90 +540,150 @@ const User = {
     const clearNotificationsButton = document.getElementById(
       "clear-notifications"
     );
+    const notificationList = document.getElementById("notification-list");
 
     if (!notificationBell || !notificationDropdown) {
       console.error("Notification bell or dropdown not found.");
       return;
     }
 
-    let isDropdownVisible = false;
-
-    // Show or hide the dropdown
-    notificationBell.addEventListener("click", (event) => {
-      event.stopPropagation(); // Prevent click from propagating to the document
-      isDropdownVisible = !isDropdownVisible;
-      notificationDropdown.style.display = isDropdownVisible ? "block" : "none";
-    });
-
-    // Hide the dropdown when clicking outside
-    document.addEventListener("click", () => {
-      if (isDropdownVisible) {
-        notificationDropdown.style.display = "none";
-        isDropdownVisible = false;
+    // Render notifications in the dropdown
+    const renderNotifications = () => {
+      notificationList.innerHTML = "";
+      if (this.notifications.length === 0) {
+        const emptyItem = document.createElement("li");
+        emptyItem.textContent = "No notifications.";
+        emptyItem.className = "notification-item";
+        notificationList.appendChild(emptyItem);
+      } else {
+        this.notifications.forEach((notification) => {
+          const listItem = document.createElement("li");
+          listItem.textContent = notification;
+          listItem.className = "notification-item";
+          notificationList.appendChild(listItem);
+        });
       }
-    });
+    };
 
-    // Prevent dropdown from closing when clicking inside
-    notificationDropdown.addEventListener("click", (event) => {
-      event.stopPropagation(); // Allow clicks inside the dropdown
-    });
+    // Update the badge when notifications are added/cleared
+    const updateNotificationBadge = () => {
+      const badge = document.getElementById("notification-badge");
+      if (this.notifications.length > 0) {
+        badge.style.display = "block";
+        badge.textContent = this.notifications.length;
+      } else {
+        badge.style.display = "none";
+      }
+    };
 
     // Clear all notifications
     clearNotificationsButton.addEventListener("click", () => {
       this.notifications = [];
-      this.saveState();
-
-      const notificationBadge = document.getElementById("notification-badge");
-      const notificationList = document.getElementById("notification-list");
-
-      notificationBadge.style.display = "none";
-      notificationList.innerHTML = "<li>No notifications.</li>";
-
+      updateNotificationBadge();
+      renderNotifications();
       notificationDropdown.style.display = "none";
-      isDropdownVisible = false;
-
       console.log("All notifications cleared.");
     });
 
-    // Render existing notifications on load
-    this.renderNotifications();
+    // Show or hide the dropdown
+    notificationBell.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const isVisible = notificationDropdown.style.display === "block";
+      notificationDropdown.style.display = isVisible ? "none" : "block";
+    });
+
+    // Hide the dropdown when clicking outside
+    document.addEventListener("click", () => {
+      notificationDropdown.style.display = "none";
+    });
+
+    // Prevent dropdown from closing when clicking inside
+    notificationDropdown.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+
+    // Render existing notifications
+    renderNotifications();
+    updateNotificationBadge();
   },
 
+  // Add notification to the bell
   addNotification(message) {
-    if (!this.notifications) this.notifications = [];
-    this.notifications.push(message);
-    this.saveState();
-    this.updateNotificationDisplay();
-  },
-
-  renderNotifications() {
-    const notificationBadge = document.getElementById("notification-badge");
     const notificationList = document.getElementById("notification-list");
-
-    if (this.notifications.length > 0) {
-      notificationBadge.style.display = "block";
-      notificationBadge.textContent = this.notifications.length;
-
-      notificationList.innerHTML = ""; // Clear existing items
-      this.notifications.forEach((notification) => {
-        const listItem = document.createElement("li");
-        listItem.textContent = notification;
-        listItem.className = "notification-item";
-        notificationList.appendChild(listItem);
-      });
-    } else {
-      notificationBadge.style.display = "none";
-      notificationList.innerHTML = "<li>No notifications.</li>";
+    if (!notificationList) {
+      console.error("Notification list not found.");
+      return;
     }
+    const notificationItem = document.createElement("li");
+    notificationItem.textContent = message;
+    notificationItem.className = "notification-item";
+    notificationList.appendChild(notificationItem);
+
+    const notificationBadge = document.getElementById("notification-badge");
+    if (!notificationBadge) {
+      console.error("Notification badge not found.");
+      return;
+    } else {
+      const currentCount = parseInt(notificationBadge.textContent, 10) || 0;
+      notificationBadge.textContent = currentCount + 1;
+      notificationBadge.style.display = "block";
+    }
+
+    this.notifications.push(message);
+
+    console.log("Notification added:", message);
+
+    this.saveState();
   },
 
-  updateNotificationDisplay() {
-    const notificationBadge = document.getElementById("notification-badge");
-    if (this.notifications.length > 0) {
-      notificationBadge.style.display = "block";
-      notificationBadge.textContent = this.notifications.length;
-    } else {
-      notificationBadge.style.display = "none";
+  async updateCalendarEvent(eventId, title, start, end, reminders = null) {
+    console.log(
+      "Updating event on Google Calendar...",
+      eventId,
+      title,
+      start,
+      end,
+      reminders
+    );
+    if (!this.isLoggedIn) {
+      console.error("User is not logged in. Cannot update event.");
+      return;
+    }
+
+    if (!eventId) {
+      console.error("Event ID not provided. Cannot update event.");
+      return;
+    }
+
+    try {
+      console.log(`Updating event ${eventId} on Google Calendar...`);
+
+      // Ensure the access token is valid
+      await this.ensureAccessToken();
+
+      const response = await gapi.client.calendar.events.update({
+        calendarId: "primary",
+        eventId: eventId,
+        resource: {
+          summary: title,
+          start: { dateTime: start },
+          end: { dateTime: end },
+          reminders: reminders,
+        },
+      });
+      if (response.status === 200) {
+        console.log("Event successfully updated on Google Calendar:", response);
+        return response.result; // Return the updated event details if needed
+      } else {
+        console.error("Failed to update event, unexpected response:", response);
+        throw new Error("Failed to update the event on Google Calendar.");
+      }
+    } catch (error) {
+      console.error(
+        `Failed to update event ${eventId} on Google Calendar:`,
+        error
+      );
+      throw new Error("Failed to update the event on Google Calendar.");
     }
   },
 };
