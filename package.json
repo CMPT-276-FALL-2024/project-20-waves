@@ -17,7 +17,13 @@
     "build": "cp -r * dist/"
   },
   "jest": {
-    "testEnvironment": "jest-environment-jsdom"
+    "testEnvironment": "jest-environment-jsdom",
+    "transform": {
+      "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!your-esm-library-to-transform)/"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -33,7 +39,22 @@
     "vite": "^5.4.11"
   },
   "dependencies": {
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
     "@google/generative-ai": "^0.21.0",
+    "babel-jest": "^29.7.0",
     "dotenv": "^16.4.5"
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
   }
 }

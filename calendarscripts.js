@@ -59,6 +59,7 @@ function initializeCalendar() {
 
 // Populate calendar events from user's Google Calendar
 export async function populateCalendarEvents() {
+  console.log("Populating calendar events...");
   // Ensure user is on the calendar
   if (!window.location.pathname.includes("calendar.html")) {
     console.warn("populateCalendarEvents called outside calendar.html");
@@ -116,6 +117,7 @@ export async function populateCalendarEvents() {
 
     // Show success message for debugging
     console.log("All calendar events populated.");
+    return Promise.resolve("Done");
   } catch (error) {
     console.error("Error populating calendar events:", error);
   }
@@ -1231,3 +1233,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Error during initialization:", error);
   }
 });
+
+module.exports = {
+  showEventTooltip,
+  hideEventTooltip,
+  setupMoveCursor,
+  openCreateEventSidebar,
+  openEditEventSidebar,
+  openCreateEventSidebarForDateRange,
+  populateNotificationFields,
+  clearNotificationFields,
+  setupCloseSidebarListeners,
+  enableSidebarDragging,
+  handleFABClick,
+  setupFAB,
+  requireSignIn,
+  handleDateClick,
+  handleDateSelect,
+  handleEventClick,
+  setupEventCreationButton,
+  clearEventForm,
+  openSidebar,
+  closeSidebar,
+  initializeTabsandPanels,
+  openPanel,
+  closePanel,
+  enableTabDragging,
+  setupTabs,
+  setupDebugKey,
+};
