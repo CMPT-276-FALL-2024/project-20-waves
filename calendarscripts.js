@@ -292,15 +292,12 @@ function openCreateEventSidebar(date) {
 function openEditEventSidebar(event) {
   selectedEvent = event;
   populateSidebarWithEventDetails(event); // Fill in event details
-  const reminder = getReminderFromEvent(event);
-  // If a reminder is set, populate the notification fields
-  if (reminder) {
-    populateNotificationFields(reminder);
-  } else {
-    clearNotificationFields();
+  const notification = getReminderFromEvent(event); // Get reminder from event
+  if (notification) {
+    populateNotificationFields(notification); // Fill in notification details
   }
   document.getElementById("create-event").style.display = "none";
-  document.getElementById("edit-event").style.display = "block";
+  //document.getElementById("edit-event").style.display = "block";
   document.getElementById("delete-event").style.display = "block";
   openSidebar();
 }
@@ -479,7 +476,6 @@ function populateSidebarWithEventDetails(event) {
   const end = event._instance.range.end; // Event end time
 
   document.getElementById("event-title").value = title || "";
-
   // Populate start date and time
   if (start) {
     document.getElementById("event-start-date").value = start
@@ -1197,10 +1193,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Edit Event Button
-    if (document.getElementById("edit-event")) {
-      console.log("Setting up edit event button...");
-      setupEditEventButton();
-    }
+    //if (document.getElementById("edit-event")) {
+    //  console.log("Setting up edit event button...");
+    //  setupEditEventButton();
+    //}
 
     if (document.getElementById("delete-event")) {
       console.log("Setting up delete event button...");
