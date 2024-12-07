@@ -206,9 +206,9 @@ button:focus {
 .notification-dropdown {
   display: none;
   position: absolute;
-  top: 30px;
+  top: 40px;
   right: 0;
-  width: 250px;
+  width: 260px;
   background: white;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -217,9 +217,10 @@ button:focus {
 }
 #notification-list {
   list-style: none;
+  text-align: center;
   margin: 0;
   padding: 10px;
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
 }
 .notification-item {
@@ -413,8 +414,8 @@ button:focus {
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Softer shadow */
   position: absolute;
-  top: 50px;
-  left: 50px;
+  top: 100px;
+  left: 100px;
   width: 250px;
   height: auto;
   padding: 10px;
@@ -451,13 +452,14 @@ button:focus {
 }
 .drag-handle {
   background: linear-gradient(90deg, #aac7d8, #44576d);
+  height: fit-content;
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: white;
   font-weight: bold;
   cursor: grab;
-  padding: 10px;
+  padding: 5px;
   border-radius: 15px 15px 0 0;
 }
 .drag-text {
@@ -476,6 +478,8 @@ button:focus {
   cursor: pointer;
   color: #333;
   transition: color 0.3s ease;
+  border: #aac7d8;
+  margin: 0;
 }
 .close-button:hover {
   color: #aac7d881;
