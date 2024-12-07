@@ -747,6 +747,4 @@ const User = {
 
 export default User;
 
-module.exports = User;
-
 window.User = User;
