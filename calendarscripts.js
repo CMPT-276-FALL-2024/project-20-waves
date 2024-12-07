@@ -661,6 +661,7 @@ function setupFAB() {
 // Check if the user is signed in before performing an action
 function requireSignIn(actionCallback) {
   if (!User.isLoggedIn) {
+    User.openValidationModal("Please sign in to use the calendar.");
     return false;
   }
   actionCallback();
