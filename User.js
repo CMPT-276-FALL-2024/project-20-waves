@@ -35,13 +35,13 @@ const User = {
   loadState() {
     const state = localStorage.getItem("userState");
     if (!state) {
-      console.log("No user state found in localStorage.");
+      //console.log("No user state found in localStorage.");
       return;
     }
 
     try {
       const parsedState = JSON.parse(state);
-      console.log("Loaded user state:", parsedState); // Debug log
+      //console.log("Loaded user state:", parsedState); // Debug log
       this.isLoggedIn = parsedState.isLoggedIn || false;
       this.accessToken = parsedState.accessToken || null;
       this.calendars = parsedState.calendars || [];
@@ -81,13 +81,13 @@ const User = {
   //
   clearState() {
     localStorage.removeItem("userState");
-    console.log("User state cleared from localStorage.");
+    //console.log("User state cleared from localStorage.");
   },
 
   //
   async initializeUser() {
     if (this.isUserInitialized) {
-      console.log("User already initialized.");
+      //console.log("User already initialized.");
       return;
     }
 
@@ -136,9 +136,9 @@ const User = {
         (async () => {
           try {
             await this.initializeGapiClient();
-            console.log("GAPI client initialized.");
+            //console.log("GAPI client initialized.");
             await this.initializeGISClient();
-            console.log("GIS client initialized.");
+            //console.log("GIS client initialized.");
             resolve();
           } catch (error) {
             console.error("Error during client initialization:", error);
@@ -185,7 +185,7 @@ const User = {
             }
             this.accessToken = response.access_token;
             this.isLoggedIn = true;
-            console.log("Access token obtained:", this.accessToken);
+            //console.log("Access token obtained:", this.accessToken);
           },
         });
         resolve();
@@ -200,7 +200,7 @@ const User = {
   async fetchUserName() {
     // Return the user name if already fetched
     if (this.userName) {
-      console.log("User name already fetched:", this.userName);
+      //console.log("User name already fetched:", this.userName);
       return this.userName;
     }
 
@@ -218,7 +218,7 @@ const User = {
       });
 
       const userInfo = response.result;
-      console.log("User info fetched:", userInfo);
+      //console.log("User info fetched:", userInfo);
       this.userName = userInfo.name || "User"; // Fallback if no name is available
 
       // Wait until the header is fully loaded
@@ -240,7 +240,7 @@ const User = {
 
   //
   updateAuthButtons() {
-    console.log("Updating auth buttons...");
+    //console.log("Updating auth buttons...");
     const signInButton = document.getElementById("sign-in-button");
     const signOutButton = document.getElementById("sign-out-button");
     const userNameElement = document.getElementById("user-name");
@@ -251,13 +251,13 @@ const User = {
     }
 
     if (this.isLoggedIn) {
-      console.log("User is logged in. Switching to sign-out button.");
+      //console.log("User is logged in. Switching to sign-out button.");
       signInButton.style.display = "none";
       signOutButton.style.display = "block";
       userNameElement.textContent = `Welcome, ${this.userName}`;
       userNameElement.style.display = "inline";
     } else {
-      console.log("User is not logged in. Switching to sign-in button.");
+      //console.log("User is not logged in. Switching to sign-in button.");
       signInButton.style.display = "block";
       signOutButton.style.display = "none";
       userNameElement.textContent = "";
@@ -283,7 +283,7 @@ const User = {
   //
   async ensureAccessToken() {
     if (!this.isLoggedIn) {
-      console.log("Ensuring access token: Requesting new access token...");
+      //console.log("Ensuring access token: Requesting new access token...");
       return new Promise((resolve, reject) => {
         try {
           this.tokenClient.requestAccessToken({
@@ -295,7 +295,7 @@ const User = {
                 return;
               }
               this.accessToken = response.access_token;
-              console.log("Access token refreshed:", this.accessToken);
+              //console.log("Access token refreshed:", this.accessToken);
               this.isLoggedIn = true;
               resolve(this.accessToken);
             },
@@ -306,7 +306,7 @@ const User = {
         }
       });
     }
-    console.log("Access token already available");
+    //console.log("Access token already available");
     return this.accessToken;
   },
 
@@ -326,7 +326,7 @@ const User = {
           primary: cal.primary || false,
           events: [], // Initialize events array for each calendar
         }));
-      console.log("Calendars filtered, fetched and stored:", this.calendars);
+      //console.log("Calendars filtered, fetched and stored:", this.calendars);
       return this.calendars;
     } catch (error) {
       console.error("Error fetching user calendars:", error);
@@ -335,7 +335,7 @@ const User = {
   },
 
   async fetchCalendarEvents(calendarId) {
-    console.log(`Fetching events for calendar: ${calendarId}`);
+    //console.log(`Fetching events for calendar: ${calendarId}`);
     // Ensure the access token is valid
     await this.ensureAccessToken();
 
@@ -366,7 +366,7 @@ const User = {
       const calendar = this.calendars.find((cal) => cal.id === calendarId);
       if (calendar) {
         calendar.events = events;
-        console.log(`Events stored for calendar ${calendarId}:`, events);
+        //console.log(`Events stored for calendar ${calendarId}:`, events);
       } else {
         console.error(`Calendar with ID ${calendarId} not found.`);
       }
@@ -380,10 +380,15 @@ const User = {
 
   processNotifications(events) {
     const now = Date.now();
+    //console.log("Processing notifications for events:", events);
+    //console.log("Existing notifications:", this.notifications);
 
     events.forEach((event) => {
       const reminders = event.extendedProps.reminders.overrides || [];
-      if (reminders.length === 0) return; // Skip events with no reminders
+      if (reminders.length === 0) {
+        //console.log("No reminders found for event:", event.title);
+        return; // Skip events with no reminders
+      }
 
       // Only consider the first reminder
       const firstReminder = reminders[0];
@@ -391,33 +396,35 @@ const User = {
         new Date(event.start).getTime() - firstReminder.minutes * 60 * 1000;
 
       // Skip events with past notification times
-      if (notificationTime < now) return;
+      if (notificationTime <= now) {
+        //console.log("Notification time has already passed for:", event.title);
+        return;
+      }
 
-      // Check if the reminder falls within the next 5 minutes
-      if (notificationTime > now) {
-        const existingNotification = this.notifications.find(
-          (n) => n.id === event.id
-        );
+      // Check if the notification already exists
+      const existingNotification = this.notifications.find(
+        (n) => n.id === event.id
+      );
 
-        // Add the notification if it doesn't already exist
-        if (!existingNotification) {
-          const notification = {
-            id: event.id,
-            title: event.title,
-            time: new Date(notificationTime).toISOString(),
-            eventStart: event.start,
-          };
-          this.notifications.push(notification);
+      // Add the notification if it doesn't already exist
+      if (!existingNotification) {
+        const notification = {
+          id: event.id,
+          title: event.title,
+          time: new Date(notificationTime).toISOString(),
+          eventStart: event.start,
+        };
+        this.notifications.push(notification);
 
-          // Schedule the notification
-          this.scheduleNotification(notification);
-        }
+        // Schedule the notification
+        this.scheduleNotification(notification);
       }
     });
     this.saveState();
   },
 
   scheduleNotification(notification) {
+    console.log("Scheduling notification:", notification);
     const now = Date.now();
     const notificationTime = new Date(notification.time).getTime();
     const delay = notificationTime - now;
@@ -440,7 +447,15 @@ const User = {
     const notificationList = document.getElementById("notification-list");
     const notificationBadge = document.getElementById("notification-badge");
 
+    // Remove the "No notifications" item if present
     if (notificationList) {
+      const noNotificationItem = Array.from(notificationList.children).find(
+        (item) => item.textContent === "No notifications."
+      );
+      if (noNotificationItem) {
+        notificationList.removeChild(noNotificationItem);
+      }
+
       const listItem = document.createElement("li");
       listItem.textContent = `Reminder: "${notification.title}" for event starting at ${new Date(
         notification.eventStart
@@ -458,7 +473,7 @@ const User = {
   },
 
   async fetchAllCalendarEvents() {
-    console.log("Fetching events for specific calendars...");
+    //console.log("Fetching events for specific calendars...");
     const eventPromises = this.calendars.map(async (calendar) => {
       const events = await this.fetchCalendarEvents(calendar.id);
       calendar.events = events; // Store fetched events in the calendar object
@@ -466,7 +481,7 @@ const User = {
     });
 
     await Promise.all(eventPromises); // Wait for all fetches to complete
-    console.log("All events fetched and stored.");
+    //console.log("All events fetched and stored.");
   },
 
   closeSignOutModal() {
@@ -507,14 +522,14 @@ const User = {
   },
 
   async handleSignInClick() {
-    console.log("Sign-In button clicked.");
+    //console.log("Sign-In button clicked.");
     try {
       await this.ensureAccessToken();
 
-      console.log("User signed in successfully.");
+      //console.log("User signed in successfully.");
       this.isLoggedIn = true;
       this.saveState();
-      console.log("User state saved.");
+      //console.log("User state saved.");
       this.updateAuthButtons();
     } catch (error) {
       console.error("Error during sign-in:", error);
@@ -522,7 +537,7 @@ const User = {
   },
 
   handleSignOutClick() {
-    console.log("Sign-Out button clicked.");
+    //console.log("Sign-Out button clicked.");
     this.accessToken = null;
     this.isLoggedIn = false;
     this.calendars = [];
@@ -530,43 +545,12 @@ const User = {
     this.notifications = [];
     this.clearState();
     this.updateAuthButtons();
-    console.log("User signed out. State cleared.");
+    //console.log("User signed out. State cleared.");
     location.reload();
   },
 
-  updateNotificationUI() {
-    const notificationBadge = document.getElementById("notification-badge");
-    const notificationList = document.getElementById("notification-list");
-
-    if (!notificationBadge || !notificationList) {
-      console.error("Notification badge or list not found.");
-      return;
-    }
-
-    if (this.notifications.length > 0) {
-      notificationBadge.style.display = "block";
-      notificationBadge.textContent = this.notifications.length;
-    } else {
-      notificationBadge.style.display = "none";
-    }
-
-    // Update dropdown list
-    notificationList.innerHTML = "";
-    if (this.notifications.length === 0) {
-      const emptyItem = document.createElement("li");
-      emptyItem.textContent = "No notifications.";
-      notificationList.appendChild(emptyItem);
-    } else {
-      this.notifications.forEach((notification) => {
-        const listItem = document.createElement("li");
-        listItem.textContent = `Reminder: "${notification.title}" for an event starting at ${notification.eventStart}`;
-        notificationList.appendChild(listItem);
-      });
-    }
-  },
-
   async fetchCalendarUpdates() {
-    console.log("Fetching calendar updates...");
+    //console.log("Fetching calendar updates...");
     await this.ensureAccessToken(); // Ensure token validity
 
     try {
@@ -580,10 +564,10 @@ const User = {
       // Fetch updated events for all calendars
       await this.fetchAllCalendarEvents();
 
-      console.log("Calendar events updated:", this.calendars);
+      //console.log("Calendar events updated:", this.calendars);
 
       if (window.location.pathname.includes("calendar.html")) {
-        console.log("Populating calendar events...");
+        //console.log("Populating calendar events...");
         populateCalendarEvents(); // Re-populate the calendar with updated events
       }
     } catch (error) {
@@ -653,7 +637,7 @@ const User = {
       updateNotificationBadge();
       renderNotifications();
       notificationDropdown.style.display = "none";
-      console.log("All notifications cleared.");
+      //console.log("All notifications cleared.");
     });
 
     // Show or hide the dropdown
@@ -698,7 +682,7 @@ const User = {
     }
 
     try {
-      console.log(`Updating event ${eventId} on Google Calendar...`);
+      //console.log(`Updating event ${eventId} on Google Calendar...`);
 
       // Ensure the access token is valid
       await this.ensureAccessToken();
@@ -714,7 +698,7 @@ const User = {
         },
       });
       if (response.status === 200) {
-        console.log("Event successfully updated on Google Calendar:", response);
+        //console.log("Event successfully updated on Google Calendar:", response);
         return response.result; // Return the updated event details if needed
       } else {
         console.error("Failed to update event, unexpected response:", response);
