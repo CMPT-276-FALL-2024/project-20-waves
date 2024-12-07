@@ -378,6 +378,37 @@ const User = {
     }
   },
 
+  updateNotificationUI() {
+    const notificationBadge = document.getElementById("notification-badge");
+    const notificationList = document.getElementById("notification-list");
+
+    if (!notificationBadge || !notificationList) {
+      console.error("Notification badge or list not found.");
+      return;
+    }
+
+    if (this.notifications.length > 0) {
+      notificationBadge.style.display = "block";
+      notificationBadge.textContent = this.notifications.length;
+    } else {
+      notificationBadge.style.display = "none";
+    }
+
+    // Update dropdown list
+    notificationList.innerHTML = "";
+    if (this.notifications.length === 0) {
+      const emptyItem = document.createElement("li");
+      emptyItem.textContent = "No notifications.";
+      notificationList.appendChild(emptyItem);
+    } else {
+      this.notifications.forEach((notification) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = `Reminder: "${notification.title}" for an event starting at ${notification.eventStart}`;
+        notificationList.appendChild(listItem);
+      });
+    }
+  },
+
   processNotifications(events) {
     const now = Date.now();
     //console.log("Processing notifications for events:", events);
