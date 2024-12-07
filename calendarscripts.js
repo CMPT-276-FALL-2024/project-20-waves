@@ -1233,32 +1233,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Error during initialization:", error);
   }
 });
-
-module.exports = {
-  showEventTooltip,
-  hideEventTooltip,
-  setupMoveCursor,
-  openCreateEventSidebar,
-  openEditEventSidebar,
-  openCreateEventSidebarForDateRange,
-  populateNotificationFields,
-  clearNotificationFields,
-  setupCloseSidebarListeners,
-  enableSidebarDragging,
-  handleFABClick,
-  setupFAB,
-  requireSignIn,
-  handleDateClick,
-  handleDateSelect,
-  handleEventClick,
-  setupEventCreationButton,
-  clearEventForm,
-  openSidebar,
-  closeSidebar,
-  initializeTabsandPanels,
-  openPanel,
-  closePanel,
-  enableTabDragging,
-  setupTabs,
-  setupDebugKey,
-};
