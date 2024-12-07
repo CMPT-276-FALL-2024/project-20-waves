@@ -1136,20 +1136,6 @@ function convertMinutesToFriendlyFormat(minutes) {
 }
 
 ////////
-// Debugging - DELETE BEFORE RELEASE
-////////
-
-// Setup debug key for testing
-function setupDebugKey() {
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "d" || event.key === "D") {
-      console.log("Debug key pressed!");
-      addNotification("This is a debug notification triggered by the 'D' key!");
-    }
-  });
-}
-
-////////
 // DOM Content Loaded
 ////////
 
